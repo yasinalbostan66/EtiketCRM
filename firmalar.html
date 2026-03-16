@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Müşteriler / Firmalar | SATIŞ KİŞİSEL KULLANIM</title>
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+	<script>if(localStorage.getItem("etiket_crm_theme") === "light") document.body.classList.add("light-mode");</script>
+
+    <div class="app-wrapper">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="logo">
+                    <i class="fa-solid fa-layer-group"></i>
+                    SATIŞ KİŞİSEL KULLANIM
+                </a>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a href="index.html" class="nav-item">
+                    <i class="fa-solid fa-chart-line"></i>
+                    Genel Bakış
+                </a>
+                <a href="firmalar.html" class="nav-item active">
+                    <i class="fa-solid fa-users"></i>
+                    Müşteriler / Firmalar
+                </a>
+                <a href="ziyaretler.html" class="nav-item">
+                    <i class="fa-solid fa-clipboard-list"></i>
+                    Ziyaret Kayıtları
+                </a>
+                <a href="takvim.html" class="nav-item">
+                    <i class="fa-solid fa-calendar-days"></i>
+                    Ziyaret Takvimi
+                </a>
+                <a href="odeme_takibi.html" class="nav-item">
+                    <i class="fa-solid fa-money-bill-transfer"></i>
+                    Ödeme Takibi & Cari
+                </a>
+                
+                                <a href="malzeme_fiyatlari.html" class="nav-item">
+                    <i class="fa-solid fa-tags"></i>
+                    Malzeme Fiyatları
+                </a>
+                <div style="margin: 1rem 0 0.5rem 1rem; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">
+                    Hesaplama Modülleri
+                </div>
+                
+                <a href="murekkep.html" class="nav-item">
+                    <i class="fa-solid fa-droplet"></i>
+                    Mürekkep
+                </a>
+                <a href="kagit.html" class="nav-item">
+                    <i class="fa-solid fa-scroll"></i>
+                    Kağıt
+                </a>
+                <a href="sarf_malzeme.html" class="nav-item">
+                    <i class="fa-solid fa-box-open"></i>
+                    Sarf Malzeme
+                </a>
+                <a href="klise.html" class="nav-item">
+                    <i class="fa-solid fa-compass-drafting"></i>
+                    Klişe
+                </a>
+
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Topbar -->
+            <header class="top-header">
+                <div class="page-title">Firma Yönetimi</div>
+                <div class="header-actions">
+                    <button class="btn-primary btn" onclick="document.getElementById('addFirmaModal').style.display='flex'">
+                        <i class="fa-solid fa-plus"></i> Yeni Firma Ekle
+                    </button>
+                    <div style="width: 36px; height: 36px; border-radius: 50%; background: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: 600;">
+                        YA
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content -->
+            <div class="content-wrapper">
+                
+                <div class="panel">
+                    <div class="panel-header">
+                        <h2 class="panel-title">
+                            <i class="fa-solid fa-address-book"></i> Kayıtlı Firmalar Listesi
+                        </h2>
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <input type="text" id="searchInput" class="form-control" placeholder="Firma Ara..." style="width: 250px;">
+                        </div>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table id="firmalarTable">
+                            <thead>
+                                <tr>
+                                    <th>Firma Adı / Ünvanı</th>
+                                    <th>Yetkili</th>
+                                    <th>Telefon</th>
+                                    <th>İşlemler</th>
+                                </tr>
+                            </thead>
+                            <tbody id="firmalarBody">
+                                <!-- JS ile Doldurulacak -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Yeni Firma Ekleme Modal -->
+    <div id="addFirmaModal" class="modal-overlay" style="display:none;">
+        <div class="modal-content panel">
+            <div class="panel-header">
+                <h2 class="panel-title">Firma Kayıt Formu</h2>
+                <button class="btn-icon" onclick="document.getElementById('addFirmaModal').style.display='none'">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <form id="firmaForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="firmaAd">Firma Adı / Ünvanı *</label>
+                        <input type="text" id="firmaAd" class="form-control" required placeholder="Örn: X Etiket A.Ş.">
+                    </div>
+                    <div class="form-group">
+                        <label for="firmaEmail">E-posta</label>
+                        <input type="email" id="firmaEmail" class="form-control" placeholder="Örn: info@firma.com">
+                    </div>
+                </div>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="firmaYetkili">Yetkili Kişi</label>
+                        <input type="text" id="firmaYetkili" class="form-control" placeholder="Örn: Yasin Albostanlı">
+                    </div>
+                    <div class="form-group">
+                        <label for="firmaTelefon">Telefon</label>
+                        <input type="text" id="firmaTelefon" class="form-control" placeholder="Örn: 0555 555 55 55">
+                    </div>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="vergiDairesi">Vergi Dairesi</label>
+                        <input type="text" id="vergiDairesi" class="form-control" placeholder="Örn: Zincirlikuyu">
+                    </div>
+                    <div class="form-group">
+                        <label for="vergiNo">Vergi Numarası</label>
+                        <input type="text" id="vergiNo" class="form-control" placeholder="Örn: 1234567890">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="firmaSektor">Sektör / Kategori</label>
+                    <input type="text" id="firmaSektor" class="form-control" placeholder="Örn: Gıda, Tekstil, Otomotiv">
+                </div>
+
+                <div class="form-group">
+                    <label for="firmaAdres">Açık Adres</label>
+                    <textarea id="firmaAdres" class="form-control" rows="2" placeholder="Firma adresi..."></textarea>
+                </div>
+
+                <div class="d-flex gap-2" style="justify-content: flex-end; margin-top: 1.5rem;">
+                    <button type="button" class="btn btn-outline" onclick="document.getElementById('addFirmaModal').style.display='none'">İptal</button>
+                    <button type="submit" class="btn btn-primary">Kaydet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- JS -->
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+    <!-- Firebase Sync Logic -->
+    <script src="js/firebase-sync.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/firmalar.js"></script>
+</body>
+</html>

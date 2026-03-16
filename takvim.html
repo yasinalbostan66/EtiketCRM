@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ziyaret Takvimi | SATIŞ KİŞİSEL KULLANIM</title>
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- FullCalendar JS -->
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+    <style>
+        #calendar {
+            max-width: 100%;
+            background: var(--surface-color);
+            padding: 1rem;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+        .fc-header-toolbar {
+            margin-bottom: 1.5rem !important;
+        }
+        .fc-button-primary {
+            background-color: var(--primary) !important;
+            border-color: var(--primary) !important;
+        }
+        .fc-button-primary:hover {
+            background-color: var(--primary-hover) !important;
+        }
+        .fc-button-active {
+            background-color: var(--primary-hover) !important;
+        }
+        .fc-toolbar-title {
+            font-size: 1.25rem !important;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+        .fc-col-header-cell-cushion, .fc-daygrid-day-number {
+            color: var(--text-main);
+            text-decoration: none;
+        }
+        .fc-col-header-cell {
+            background: rgba(255,255,255,0.02);
+            padding: 5px 0;
+        }
+        .fc-theme-standard td, .fc-theme-standard th {
+            border-color: var(--border-color) !important;
+        }
+        .fc-event {
+            cursor: pointer;
+            border-radius: 4px;
+            padding: 2px 4px;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+	<script>if(localStorage.getItem("etiket_crm_theme") === "light") document.body.classList.add("light-mode");</script>
+
+    <div class="app-wrapper">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="logo">
+                    <i class="fa-solid fa-layer-group"></i>
+                    SATIŞ KİŞİSEL KULLANIM
+                </a>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a href="index.html" class="nav-item">
+                    <i class="fa-solid fa-chart-line"></i>
+                    Genel Bakış
+                </a>
+                <a href="firmalar.html" class="nav-item">
+                    <i class="fa-solid fa-users"></i>
+                    Müşteriler / Firmalar
+                </a>
+                <a href="ziyaretler.html" class="nav-item">
+                    <i class="fa-solid fa-clipboard-list"></i>
+                    Ziyaret Kayıtları
+                </a>
+                <a href="takvim.html" class="nav-item active">
+                    <i class="fa-solid fa-calendar-days"></i>
+                    Ziyaret Takvimi
+                </a>
+                <a href="odeme_takibi.html" class="nav-item">
+                    <i class="fa-solid fa-money-bill-transfer"></i>
+                    Ödeme Takibi & Cari
+                </a>
+                <a href="malzeme_fiyatlari.html" class="nav-item">
+                    <i class="fa-solid fa-tags"></i>
+                    Malzeme Fiyatları
+                </a>
+                
+                <div style="margin: 1rem 0 0.5rem 1rem; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">
+                    Hesaplama Modülleri
+                </div>
+                
+                <a href="murekkep.html" class="nav-item">
+                    <i class="fa-solid fa-droplet"></i>
+                    Mürekkep
+                </a>
+                <a href="kagit.html" class="nav-item">
+                    <i class="fa-solid fa-scroll"></i>
+                    Kağıt
+                </a>
+                <a href="sarf_malzeme.html" class="nav-item">
+                    <i class="fa-solid fa-box-open"></i>
+                    Sarf Malzeme
+                </a>
+                <a href="klise.html" class="nav-item">
+                    <i class="fa-solid fa-compass-drafting"></i>
+                    Klişe
+                </a>
+
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Topbar -->
+            <header class="top-header">
+                <div class="page-title">Ziyaret Takvimi</div>
+                <div class="header-actions">
+                    <button class="btn btn-primary" onclick="openVisitModal()">
+                         <i class="fa-solid fa-plus"></i> Yeni Kayıt
+                    </button>
+                    <div style="width: 36px; height: 36px; border-radius: 50%; background: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: 600;">
+                        YA
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content -->
+            <div class="content-wrapper">
+                <div id="calendar"></div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Ziyaret Ekle Modal -->
+    <div id="visitModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content panel" style="max-width: 450px;">
+            <div class="panel-header">
+                <h2 class="panel-title" id="visitModalTitle"><i class="fa-solid fa-calendar-plus"></i> Ziyaret Kaydı Ekle</h2>
+                <button class="btn-icon" onclick="document.getElementById('visitModal').style.display='none'">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <form id="visitForm">
+                <input type="hidden" id="editVisitId">
+                <div class="form-group">
+                    <label for="visitFirma">Firma Seç *</label>
+                    <select id="visitFirma" class="form-control" required>
+                        <option value="">Seçiniz...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="visitTarih">Ziyaret Tarihi *</label>
+                    <input type="date" id="visitTarih" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="visitSaat">Ziyaret Saati (Opsiyonel)</label>
+                    <input type="time" id="visitSaat" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="visitDurum">Ziyaret Durumu</label>
+                    <select id="visitDurum" class="form-control">
+                        <option value="Planlandı">⏳ Planlandı</option>
+                        <option value="Tamamlandı">✅ Tamamlandı</option>
+                        <option value="İptal Edildi">❌ İptal Edildi</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="visitNot">Açıklama / Not</label>
+                    <textarea id="visitNot" class="form-control" rows="3" placeholder="Ziyaret detayları, görüşülen konular..."></textarea>
+                </div>
+                <div class="d-flex gap-2" style="justify-content: flex-end; margin-top: 1.5rem;">
+                    <button type="button" class="btn btn-outline" onclick="document.getElementById('visitModal').style.display='none'">İptal</button>
+                    <button type="submit" class="btn btn-primary" id="visitSubmitBtn">Kaydet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- JS -->
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+    <!-- Firebase Sync Logic -->
+    <script src="js/firebase-sync.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/takvim.js"></script>
+</body>
+</html>

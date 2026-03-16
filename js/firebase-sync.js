@@ -1,0 +1,70 @@
+// js/firebase-sync.js
+const firebaseConfig = {
+  apiKey: "AIzaSyDeVtAMX-q5Zlz_S-eKzEMOaAFb_5BYq-c",
+  authDomain: "etiketcrm.firebaseapp.com",
+  projectId: "etiketcrm",
+  storageBucket: "etiketcrm.firebasestorage.app",
+  messagingSenderId: "579736235492",
+  appId: "1:579736235492:web:dcb3b1da19a12847842bf1"
+};
+
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+let isSyncingFromFirestore = false;
+
+const COLLECTIONS = ['firmalar', 'siparisler', 'tahsilatlar', 'malzeme_fiyatlari', 'visits'];
+
+// 1. Live Sync from Firestore to LocalStorage
+COLLECTIONS.forEach(col => {
+    db.collection(col).onSnapshot(snapshot => {
+        isSyncingFromFirestore = true;
+        const items = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        localStorage.setItem(`etiket_crm_${col}`, JSON.stringify(items));
+        isSyncingFromFirestore = false;
+        
+        // Tetikleme: Sayfada ilgili render fonksiyonu varsa günceller
+        if (typeof renderFirmalar === 'function' && col === 'firmalar') renderFirmalar();
+        if (typeof renderSiparisler === 'function' && col === 'siparisler') renderSiparisler();
+        if (col === 'visits') {
+            const calendarEl = document.getElementById('calendar');
+            if (calendarEl && calendarEl.FullCalendar) {
+                // FullCalendar güncellemesi tetiklenebilir
+            }
+        }
+    });
+});
+
+// 2. Intercept saves to sync back to Firestore (Adds/Updates/Deletes)
+const originalSetItem = localStorage.setItem;
+localStorage.setItem = function(key, value) {
+    originalSetItem.apply(this, arguments);
+    if (isSyncingFromFirestore) return;
+    
+    if (key.startsWith('etiket_crm_')) {
+        const col = key.replace('etiket_crm_', '');
+        try {
+            const data = JSON.parse(value);
+            if (Array.isArray(data)) {
+                // 2a. Güncelle ve Ekle
+                data.forEach(item => {
+                    if (item.id) {
+                        db.collection(col).doc(item.id).set(item, { merge: true });
+                    }
+                });
+
+                // 2b. Silinenleri Firestore'dan Temizle
+                db.collection(col).get().then(snapshot => {
+                    snapshot.docs.forEach(doc => {
+                        if (!data.find(d => d.id === doc.id)) {
+                            doc.ref.delete();
+                        }
+                    });
+                });
+            }
+        } catch (e) {
+            console.error('Firebase Sync Hatası - Key: ' + key, e);
+        }
+    }
+};

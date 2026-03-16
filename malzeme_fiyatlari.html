@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Malzeme Fiyatları | SATIŞ KİŞİSEL KULLANIM</title>
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+        .action-cell {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: flex-end;
+        }
+    </style>
+</head>
+<body>
+	<script>if(localStorage.getItem("etiket_crm_theme") === "light") document.body.classList.add("light-mode");</script>
+
+    <div class="app-wrapper">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="logo">
+                    <i class="fa-solid fa-layer-group"></i>
+                    SATIŞ KİŞİSEL KULLANIM
+                </a>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a href="index.html" class="nav-item">
+                    <i class="fa-solid fa-chart-line"></i>
+                    Genel Bakış
+                </a>
+                <a href="firmalar.html" class="nav-item">
+                    <i class="fa-solid fa-users"></i>
+                    Müşteriler / Firmalar
+                </a>
+                <a href="ziyaretler.html" class="nav-item">
+                    <i class="fa-solid fa-clipboard-list"></i>
+                    Ziyaret Kayıtları
+                </a>
+                <a href="takvim.html" class="nav-item">
+                    <i class="fa-solid fa-calendar-days"></i>
+                    Ziyaret Takvimi
+                </a>
+                <a href="odeme_takibi.html" class="nav-item">
+                    <i class="fa-solid fa-money-bill-transfer"></i>
+                    Ödeme Takibi & Cari
+                </a>
+                <a href="malzeme_fiyatlari.html" class="nav-item active">
+                    <i class="fa-solid fa-tags"></i>
+                    Malzeme Fiyatları
+                </a>
+                
+                <div style="margin: 1rem 0 0.5rem 1rem; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">
+                    Hesaplama Modülleri
+                </div>
+                
+                <a href="murekkep.html" class="nav-item">
+                    <i class="fa-solid fa-droplet"></i>
+                    Mürekkep
+                </a>
+                <a href="kagit.html" class="nav-item">
+                    <i class="fa-solid fa-scroll"></i>
+                    Kağıt
+                </a>
+                <a href="sarf_malzeme.html" class="nav-item">
+                    <i class="fa-solid fa-box-open"></i>
+                    Sarf Malzeme
+                </a>
+                <a href="klise.html" class="nav-item">
+                    <i class="fa-solid fa-compass-drafting"></i>
+                    Klişe
+                </a>
+
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Topbar -->
+            <header class="top-header">
+                <div class="page-title">Malzeme Fiyatları Yönetimi</div>
+                <div class="header-actions">
+                    <div style="width: 36px; height: 36px; border-radius: 50%; background: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: 600;">
+                        YA
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content -->
+            <div class="content-wrapper">
+                
+                <div class="panel">
+                    <div class="panel-header">
+                        <h2 class="panel-title"><i class="fa-solid fa-plus-circle"></i> Yeni Malzeme Fiyatı Ekle / Güncelle</h2>
+                    </div>
+                    <form id="malzemeForm">
+                        <input type="hidden" id="editMaterialId">
+                        <div class="form-row" style="grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));">
+                            <div class="form-group">
+                                <label for="malzemeTuru">Grup *</label>
+                                <select id="malzemeTuru" class="form-control" required>
+                                    <option value="">Seçiniz...</option>
+                                    <option value="Kağıt">Kağıt</option>
+                                    <option value="Mürekkep">Mürekkep</option>
+                                    <option value="Sarf Malzeme">Sarf Malzeme</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="malzemeAdi">Malzeme Adı *</label>
+                                <input type="text" id="malzemeAdi" class="form-control" placeholder="Örn: Kuşe" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="birimFiyat">Birim Fiyat *</label>
+                                <input type="number" id="birimFiyat" class="form-control" step="0.0001" placeholder="0.00" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="dovizCinsi">Para Birimi *</label>
+                                <select id="dovizCinsi" class="form-control" required>
+                                    <option value="USD">($)</option>
+                                    <option value="EUR">(€)</option>
+                                    <option value="TRY">(₺)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="malzemeStok">Mevcut Stok</label>
+                                <input type="number" id="malzemeStok" class="form-control" step="0.01" min="0" placeholder="0">
+                            </div>
+                            <div class="form-group">
+                                <label for="malzemeBirim">Birim</label>
+                                <select id="malzemeBirim" class="form-control">
+                                    <option value="kg">kg</option>
+                                    <option value="m²">m²</option>
+                                    <option value="adet">adet</option>
+                                    <option value="Litre">Litre</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div style="margin-top: 1rem; text-align: right;">
+                            <button type="button" id="iptalBtn" class="btn btn-outline" style="display:none; margin-right:0.5rem;">İptal</button>
+                            <button type="submit" id="kaydetBtn" class="btn btn-primary">Fiyatı Kaydet</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Malzeme Listesi -->
+                <div class="panel">
+                    <div class="panel-header" style="flex-wrap: wrap; gap: 1rem;">
+                        <h2 class="panel-title"><i class="fa-solid fa-list"></i> Kayıtlı Malzeme Fiyatları</h2>
+                        <div class="d-flex gap-2" style="flex-wrap: wrap; margin-left: auto;">
+                             <input type="text" id="searchInput" class="form-control" placeholder="Ara..." style="max-width:200px; padding: 5px 10px; font-size:0.9rem;">
+                             <button type="button" class="btn btn-outline" onclick="document.getElementById('csvInput').click()" style="font-size: 0.85rem; padding: 6px 12px;">
+                                 <i class="fa-solid fa-file-import"></i> İçe Aktar
+                             </button>
+                             <button type="button" class="btn btn-outline" onclick="exportToCSV()" style="font-size: 0.85rem; padding: 6px 12px;">
+                                 <i class="fa-solid fa-file-export"></i> Dışa Aktar
+                             </button>
+                             <button type="button" class="btn btn-primary" onclick="window.print()" style="font-size: 0.85rem; padding: 6px 12px;">
+                                 <i class="fa-solid fa-file-pdf"></i> PDF / Yazdır
+                             </button>
+                             <input type="file" id="csvInput" accept=".csv" style="display: none;">
+                        </div>
+                    </div>
+
+                    <!-- Kategori Tabları -->
+                    <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; flex-wrap: wrap;">
+                        <button class="btn btn-outline active" onclick="filterCategory('Tümü')" id="tab_Tümü">Tümü</button>
+                        <button class="btn btn-outline" onclick="filterCategory('Kağıt')" id="tab_Kağıt">Kağıt</button>
+                        <button class="btn btn-outline" onclick="filterCategory('Mürekkep')" id="tab_Mürekkep">Mürekkep</button>
+                        <button class="btn btn-outline" onclick="filterCategory('Sarf Malzeme')" id="tab_Sarf_Malzeme">Sarf Malzeme</button>
+                    </div>
+
+                    <div class="table-responsive" id="malzemeTableContainer">
+                        <!-- JS ile doldurulacak -->
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- JS -->
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+    <!-- Firebase Sync Logic -->
+    <script src="js/firebase-sync.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/malzeme_fiyatlari.js"></script>
+</body>
+</html>
