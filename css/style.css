@@ -486,11 +486,56 @@ tbody tr:hover {
 
 /* Responsive adjustments */
 @media (max-width: 992px) {
-    .sidebar { transform: translateX(-100%); }
-    .main-content { margin-left: 0; }
+    .sidebar { 
+        transform: translateX(-100%); 
+        z-index: 1000;
+        box-shadow: var(--shadow-lg);
+        height: 100%;
+        position: fixed;
+    }
     
-    /* TODO: Add mobile menu toggle logic later */
+    body.sidebar-open .sidebar {
+        transform: translateX(0);
+    }
+    
+    .main-content { 
+        margin-left: 0; 
+    }
+    
+    /* Karartma perdesi (Overlay) */
+    .sidebar-overlay {
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.5);
+        backdrop-filter: blur(2px);
+        z-index: 999;
+        display: none;
+    }
+    
+    body.sidebar-open .sidebar-overlay {
+        display: block;
+    }
+
+    #mobileMenuBtn {
+        display: inline-flex !important;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .top-header {
+        justify-content: flex-start;
+        gap: 12px;
+    }
+
+    .header-actions {
+        margin-left: auto;
+    }
 }
+
+#mobileMenuBtn {
+    display: none;
+}
+
 
 /* Baskı / PDF Çıktı Düzenlemeleri */
 @media print {

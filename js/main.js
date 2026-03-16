@@ -254,6 +254,38 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // --- Mobil Menü Toggle Ekle (Drawer Menü) ---
+    const topHeader = document.querySelector('.top-header');
+    if (topHeader && !document.getElementById('mobileMenuBtn')) {
+        const menuBtn = document.createElement('button');
+        menuBtn.id = 'mobileMenuBtn';
+        menuBtn.className = 'btn-icon';
+        menuBtn.style.marginRight = '12px';
+        menuBtn.innerHTML = '<i class="fa-solid fa-bars"></i>';
+        topHeader.insertBefore(menuBtn, topHeader.firstChild);
+
+        // Karartma perdesi (Overlay)
+        const overlay = document.createElement('div');
+        overlay.className = 'sidebar-overlay';
+        document.body.appendChild(overlay);
+
+        menuBtn.addEventListener('click', () => {
+            document.body.classList.toggle('sidebar-open');
+        });
+
+        overlay.addEventListener('click', () => {
+            document.body.classList.remove('sidebar-open');
+        });
+
+        // Sidebar linklerine tıklayınca menüyü kapat
+        document.querySelectorAll('.sidebar-nav .nav-item').forEach(link => {
+            link.addEventListener('click', () => {
+                document.body.classList.remove('sidebar-open');
+            });
+        });
+    }
+
+
     const currentPath = window.location.pathname.split('/').pop() || 'index.html';
     const navLinks = document.querySelectorAll('.sidebar-nav .nav-item');
     
