@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Müşteri Detayı | SATIŞ KİŞİSEL KULLANIM</title>
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .firma-meta {
+            display: flex;
+            gap: 2rem;
+            margin-top: 0.5rem;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .module-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .module-link-card {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-decoration: none;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: var(--transition);
+        }
+
+        .module-link-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px var(--primary-light);
+        }
+
+        .module-link-card i {
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-muted);
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px dashed var(--border-color);
+            border-radius: 12px;
+        }
+    </style>
+</head>
+<body>
+	<script>if(localStorage.getItem("etiket_crm_theme") === "light") document.body.classList.add("light-mode");</script>
+
+    <div class="app-wrapper">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="logo">
+                    <i class="fa-solid fa-layer-group"></i>
+                    SATIŞ KİŞİSEL KULLANIM
+                </a>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a href="index.html" class="nav-item">
+                    <i class="fa-solid fa-chart-line"></i>
+                    Genel Bakış
+                </a>
+                <a href="firmalar.html" class="nav-item">
+                    <i class="fa-solid fa-users"></i>
+                    Müşteriler / Firmalar
+                </a>
+                <a href="ziyaretler.html" class="nav-item">
+                    <i class="fa-solid fa-clipboard-list"></i>
+                    Ziyaret Kayıtları
+                </a>
+                <a href="takvim.html" class="nav-item">
+                    <i class="fa-solid fa-calendar-days"></i>
+                    Ziyaret Takvimi
+                </a>
+                <a href="odeme_takibi.html" class="nav-item">
+                    <i class="fa-solid fa-money-bill-transfer"></i>
+                    Ödeme Takibi & Cari
+                </a>
+                
+                                <a href="malzeme_fiyatlari.html" class="nav-item">
+                    <i class="fa-solid fa-tags"></i>
+                    Malzeme Fiyatları
+                </a>
+                <div style="margin: 1rem 0 0.5rem 1rem; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">
+                    Hesaplama Modülleri
+                </div>
+                
+                <a href="murekkep.html" class="nav-item">
+                    <i class="fa-solid fa-droplet"></i>
+                    Mürekkep
+                </a>
+                <a href="kagit.html" class="nav-item">
+                    <i class="fa-solid fa-scroll"></i>
+                    Kağıt
+                </a>
+                <a href="sarf_malzeme.html" class="nav-item">
+                    <i class="fa-solid fa-box-open"></i>
+                    Sarf Malzeme
+                </a>
+                <a href="klise.html" class="nav-item">
+                    <i class="fa-solid fa-compass-drafting"></i>
+                    Klişe
+                </a>
+
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Topbar -->
+            <header class="top-header">
+                <div class="page-title d-flex gap-2 align-center">
+                    <a href="firmalar.html" style="color: var(--text-muted); text-decoration: none;" title="Geri Dön">
+                        <i class="fa-solid fa-arrow-left"></i>
+                    </a>
+                    Firma Detayı
+                </div>
+                <div class="header-actions">
+                    <div style="width: 36px; height: 36px; border-radius: 50%; background: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: 600;">
+                        YA
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content -->
+            <div class="content-wrapper" id="contentArea" style="display: none;">
+                
+                <div class="detail-header panel">
+                    <div>
+                        <h1 style="font-size: 1.8rem; margin-bottom: 0.5rem;" id="detayFirmaAd">...</h1>
+                        <div class="firma-meta">
+                            <span><i class="fa-solid fa-user"></i> Yetkili: <span id="detayYetkili"></span></span>
+                            <span><i class="fa-solid fa-phone"></i> Tel: <span id="detayTelefon"></span></span>
+                            <span><i class="fa-solid fa-calendar"></i> Kayıt: <span id="detayTarih"></span></span>
+                        </div>
+                    </div>
+                    <div class="action-buttons" style="align-items: center;">
+                        <button class="btn btn-primary" onclick="openTahsilatModal()" style="height: fit-content;">
+                            <i class="fa-solid fa-hand-holding-dollar"></i> Tahsilat Ekle
+                        </button>
+                        <!-- Toplam Hacim Bakiye Gösterimi -->
+                        <div style="text-align: right; margin-left:1rem;">
+                            <div style="color: var(--text-muted); font-size: 0.85rem; font-weight: 600; text-transform: uppercase;">Net Bakiye (Alacak)</div>
+                            <div style="color: var(--success); font-size: 1.5rem; font-weight: 700;" id="detayBakiye">$0.00</div>
+                            <div style="margin-top:0.3rem;" id="detayDurum"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 style="margin-bottom: 1rem; font-weight: 600;">Bu Firmaya Yeni Sipariş İşle</h3>
+                <div class="module-links" id="moduleLinks">
+                    <!-- Linkler JS ile firma ID'sine göre güncellenecek -->
+                    <a href="murekkep.html" class="module-link-card">
+                        <i class="fa-solid fa-droplet"></i>
+                        <div>
+                            <div style="font-weight: 600; font-size: 1.1rem;">Mürekkep Ekle</div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted);">Mürekkep hesabı yapıp ekle</div>
+                        </div>
+                    </a>
+                    <a href="kagit.html" class="module-link-card" style="border-color: rgba(245, 158, 11, 0.3);">
+                        <i class="fa-solid fa-scroll" style="color: #f59e0b;"></i>
+                        <div>
+                            <div style="font-weight: 600; font-size: 1.1rem;">Kağıt Ekle</div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted);">Kağıt/Bobin hesabı yapıp ekle</div>
+                        </div>
+                    </a>
+                    <a href="sarf_malzeme.html" class="module-link-card" style="border-color: rgba(16, 185, 129, 0.3);">
+                        <i class="fa-solid fa-box-open" style="color: #10b981;"></i>
+                        <div>
+                            <div style="font-weight: 600; font-size: 1.1rem;">Sarf Malzeme</div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted);">Klişe, Bıçak vs. hesabı ekle</div>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-header">
+                        <h2 class="panel-title">
+                            <i class="fa-solid fa-clipboard-list"></i> Firmanın Sipariş Geçmişi
+                        </h2>
+                        <button class="btn btn-outline" onclick="window.print()" style="padding: 6px 12px; font-size: 0.85rem;">
+                            <i class="fa-solid fa-print"></i> Ekstreyi Yazdır
+                        </button>
+                    </div>
+                    
+                    <div id="siparisTableContainer">
+                        <!-- JS ile doldurulacak -->
+                    </div>
+                </div>
+
+            </div>
+            
+            <!-- Hata Alanı -->
+            <div id="errorArea" style="display: none; padding: 4rem 2rem; text-align: center;">
+                <i class="fa-solid fa-circle-exclamation" style="font-size: 3rem; color: var(--danger); margin-bottom: 1rem;"></i>
+                <h2>Firma Bulunamadı</h2>
+                <p style="color: var(--text-muted); margin-top: 0.5rem;">Aradığınız firma silinmiş veya geçersiz bir bağlantı kullandınız.</p>
+                <a href="firmalar.html" class="btn btn-primary" style="margin-top: 1.5rem;">Firmalara Dön</a>
+            </div>
+            
+        </main>
+    </div>
+
+    <!-- Tahsilat Ekle Modalı -->
+    <div id="tahsilatModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content panel" style="max-width: 450px;">
+            <div class="panel-header">
+                <h2 class="panel-title"><i class="fa-solid fa-hand-holding-dollar"></i> Tahsilat / Ödeme Girişi</h2>
+                <button class="btn-icon" onclick="document.getElementById('tahsilatModal').style.display='none'">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <form id="tahsilatForm">
+                <div class="form-group">
+                    <label for="tahsilatTutar">Ödeme Tutarı ($) *</label>
+                    <input type="number" id="tahsilatTutar" class="form-control" step="0.01" min="0.01" required placeholder="0.00">
+                </div>
+                <div class="form-group">
+                    <label for="tahsilatMetodu">Ödeme Yöntemi</label>
+                    <select id="tahsilatMetodu" class="form-control">
+                        <option value="Nakit">Nakit</option>
+                        <option value="Havale/EFT">Havale/EFT</option>
+                        <option value="Kredi Kartı">Kredi Kartı</option>
+                        <option value="Çek">Çek</option>
+                        <option value="Senet">Senet</option>
+                        <option value="30 Gün Vadeli">30 Gün Vadeli</option>
+                        <option value="60 Gün Vadeli">60 Gün Vadeli</option>
+                        <option value="90 Gün Vadeli">90 Gün Vadeli</option>
+                        <option value="120 Gün Vadeli">120 Gün Vadeli</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="tahsilatFaturaNo">Fatura No</label>
+                    <input type="text" id="tahsilatFaturaNo" class="form-control" placeholder="Örn: FT-2024-001">
+                </div>
+                <div class="form-group">
+                    <label for="tahsilatNot">Açıklama / Not</label>
+                    <textarea id="tahsilatNot" class="form-control" rows="2" placeholder="Örn: X nolu fatura tahsilatı"></textarea>
+                </div>
+                <div class="d-flex gap-2" style="justify-content: flex-end; margin-top: 1.5rem;">
+                    <button type="button" class="btn btn-outline" onclick="document.getElementById('tahsilatModal').style.display='none'">İptal</button>
+                    <button type="submit" class="btn btn-primary" id="tahsilatSubmitBtn">Tahsilatı Kaydet</button>
+                </div>
+                <input type="hidden" id="editTahsilatId">
+            </form>
+        </div>
+    </div>
+
+    <!-- Sipariş Düzenle Modalı -->
+    <div id="siparisModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content panel" style="max-width: 450px;">
+            <div class="panel-header">
+                <h2 class="panel-title" id="siparisModalTitle"><i class="fa-solid fa-file-invoice"></i> Sipariş Düzenle</h2>
+                <button class="btn-icon" onclick="document.getElementById('siparisModal').style.display='none'">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <form id="siparisForm">
+                <input type="hidden" id="editSiparisId">
+                <div class="form-group">
+                    <label for="siparisToplamTutar">Toplam Tutar ($) *</label>
+                    <input type="number" id="siparisToplamTutar" class="form-control" step="0.01" min="0.01" required placeholder="0.00">
+                </div>
+                <div class="form-group">
+                    <label for="siparisMetodu">Ödeme Yöntemi</label>
+                    <select id="siparisMetodu" class="form-control">
+                        <option value="Nakit">Nakit</option>
+                        <option value="Havale/EFT">Havale/EFT</option>
+                        <option value="Kredi Kartı">Kredi Kartı</option>
+                        <option value="Çek">Çek</option>
+                        <option value="Senet">Senet</option>
+                        <option value="30 Gün Vadeli">30 Gün Vadeli</option>
+                        <option value="60 Gün Vadeli">60 Gün Vadeli</option>
+                        <option value="90 Gün Vadeli">90 Gün Vadeli</option>
+                        <option value="120 Gün Vadeli">120 Gün Vadeli</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="siparisDetaylar">Açıklama / Detaylar (Aralara | koyarak alt satıra geçebilirsiniz)</label>
+                    <textarea id="siparisDetaylar" class="form-control" rows="4" placeholder="Sipariş detayları..."></textarea>
+                </div>
+                <div class="form-group" style="margin-top: 1rem;">
+                    <label for="siparisDurum">İşlem Durumu</label>
+                    <select id="siparisDurum" class="form-control">
+                        <option value="Ödeme Bekliyor">Ödeme Bekliyor</option>
+                        <option value="Kısmi Ödendi">Kısmi Ödendi</option>
+                        <option value="Ödendi">Ödendi</option>
+                        <option value="Sevk Edildi">Sevk Edildi</option>
+                    </select>
+                </div>
+                <div class="d-flex gap-2" style="justify-content: flex-end; margin-top: 1.5rem;">
+                    <button type="button" class="btn btn-outline" onclick="document.getElementById('siparisModal').style.display='none'">İptal</button>
+                    <button type="submit" class="btn btn-primary">Değişiklikleri Kaydet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- JS -->
+    <script src="js/main.js"></script>
+    <script src="js/firma_detay.js"></script>
+</body>
+</html>

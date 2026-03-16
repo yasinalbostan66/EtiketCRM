@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ödeme Takibi | SATIŞ KİŞİSEL KULLANIM</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+	<script>if(localStorage.getItem("etiket_crm_theme") === "light") document.body.classList.add("light-mode");</script>
+
+    <div class="app-wrapper">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="logo">
+                    <i class="fa-solid fa-layer-group"></i>
+                    SATIŞ KİŞİSEL KULLANIM
+                </a>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a href="index.html" class="nav-item">
+                    <i class="fa-solid fa-chart-line"></i>
+                    Genel Bakış
+                </a>
+                <a href="firmalar.html" class="nav-item">
+                    <i class="fa-solid fa-users"></i>
+                    Müşteriler / Firmalar
+                </a>
+                <a href="ziyaretler.html" class="nav-item">
+                    <i class="fa-solid fa-clipboard-list"></i>
+                    Ziyaret Kayıtları
+                </a>
+                <a href="takvim.html" class="nav-item">
+                    <i class="fa-solid fa-calendar-days"></i>
+                    Ziyaret Takvimi
+                </a>
+                <a href="odeme_takibi.html" class="nav-item active">
+                    <i class="fa-solid fa-money-bill-transfer"></i>
+                    Ödeme Takibi & Cari
+                </a>
+                
+                                <a href="malzeme_fiyatlari.html" class="nav-item">
+                    <i class="fa-solid fa-tags"></i>
+                    Malzeme Fiyatları
+                </a>
+                <div style="margin: 1rem 0 0.5rem 1rem; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">
+                    Hesaplama Modülleri
+                </div>
+                
+                <a href="murekkep.html" class="nav-item">
+                    <i class="fa-solid fa-droplet"></i>
+                    Mürekkep
+                </a>
+                <a href="kagit.html" class="nav-item">
+                    <i class="fa-solid fa-scroll"></i>
+                    Kağıt
+                </a>
+                <a href="sarf_malzeme.html" class="nav-item">
+                    <i class="fa-solid fa-box-open"></i>
+                    Sarf Malzeme
+                </a>
+                <a href="klise.html" class="nav-item">
+                    <i class="fa-solid fa-compass-drafting"></i>
+                    Klişe
+                </a>
+
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-header">
+                <div class="page-title">Ödeme Takibi ve Cari Durum</div>
+                <div class="header-actions">
+                    <button class="btn btn-primary" onclick="window.openGlobalTahsilatModal()" style="margin-right: 1rem;">
+                        <i class="fa-solid fa-hand-holding-dollar"></i> Tahsilat Ekle
+                    </button>
+                    <div style="width: 36px; height: 36px; border-radius: 50%; background: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: 600;">YA</div>
+                </div>
+            </header>
+
+            <div class="content-wrapper">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon orange">
+                            <i class="fa-solid fa-file-invoice-dollar"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="totalDebt">$0.00</h3>
+                            <p>Toplam Borç (Siparişler)</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon green">
+                            <i class="fa-solid fa-hand-holding-dollar"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="totalPaid">$0.00</h3>
+                            <p>Toplam Tahsilat</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon blue">
+                            <i class="fa-solid fa-scale-balanced"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="netBalance">$0.00</h3>
+                            <p>Kalan Toplam Alacak</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-header">
+                        <h2 class="panel-title"><i class="fa-solid fa-list-check"></i> Firma Bazlı Ödeme Durumları</h2>
+                        <input type="text" id="firmaAra" class="form-control" placeholder="Firma Ara..." style="width: 200px;">
+                    </div>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Firma Adı</th>
+                                    <th>Toplam Sipariş ($)</th>
+                                    <th>Toplam Tahsilat ($)</th>
+                                    <th>Net Bakiye ($)</th>
+                                    <th>Son Ödeme</th>
+                                    <th>Durum</th>
+                                    <th>İşlem</th>
+                                </tr>
+                            </thead>
+                            <tbody id="paymentTableBody">
+                                <!-- JS ile doldurulacak -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Son Cari Hareketler -->
+                <div class="panel" style="margin-top: 2rem;">
+                    <div class="panel-header" style="display:flex; justify-content:space-between; align-items:center;">
+                        <h2 class="panel-title"><i class="fa-solid fa-clock-rotate-left"></i> Son Cari Hareketler (İşlemler)</h2>
+                        <span style="font-size: 0.85rem; color: var(--text-muted);">(Son 10 İşlem)</span>
+                    </div>
+                    <div id="sonIslemlerContainer"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Global Tahsilat Modal -->
+    <div id="globalTahsilatModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content panel" style="max-width: 450px;">
+            <div class="panel-header">
+                <h2 class="panel-title"><i class="fa-solid fa-hand-holding-dollar"></i> Tahsilat / Ödeme Girişi</h2>
+                <button class="btn-icon" onclick="document.getElementById('globalTahsilatModal').style.display='none'">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <form id="globalTahsilatForm">
+                <div class="form-group">
+                    <label for="globalTahsilatFirma">Firma Seç *</label>
+                    <select id="globalTahsilatFirma" class="form-control" required>
+                        <option value="">Firma Seçiniz...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="globalTahsilatTutar">Ödeme Tutarı ($) *</label>
+                    <input type="number" id="globalTahsilatTutar" class="form-control" step="0.01" min="0.01" required placeholder="0.00">
+                </div>
+                <div class="form-group">
+                    <label for="globalTahsilatMetodu">Ödeme Yöntemi</label>
+                    <select id="globalTahsilatMetodu" class="form-control">
+                        <option value="Nakit">Nakit</option>
+                        <option value="Havale/EFT">Havale/EFT</option>
+                        <option value="Kredi Kartı">Kredi Kartı</option>
+                        <option value="Çek">Çek</option>
+                        <option value="Senet">Senet</option>
+                        <option value="30 Gün Vadeli">30 Gün Vadeli</option>
+                        <option value="60 Gün Vadeli">60 Gün Vadeli</option>
+                        <option value="90 Gün Vadeli">90 Gün Vadeli</option>
+                        <option value="120 Gün Vadeli">120 Gün Vadeli</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="globalTahsilatFaturaNo">Fatura No</label>
+                    <input type="text" id="globalTahsilatFaturaNo" class="form-control" placeholder="Örn: FT-2024-001">
+                </div>
+                <div class="form-group">
+                    <label for="globalTahsilatNot">Açıklama / Not</label>
+                    <textarea id="globalTahsilatNot" class="form-control" rows="2" placeholder="Örn: X nolu fatura tahsilatı"></textarea>
+                </div>
+                <div class="d-flex gap-2" style="justify-content: flex-end; margin-top: 1.5rem;">
+                    <button type="button" class="btn btn-outline" onclick="document.getElementById('globalTahsilatModal').style.display='none'">İptal</button>
+                    <button type="submit" class="btn btn-primary">Tahsilatı Kaydet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const tableBody = document.getElementById('paymentTableBody');
+            const sonIslemlerContainer = document.getElementById('sonIslemlerContainer');
+            
+            let totalOrderVal = 0;
+            let totalPaidVal = 0;
+
+            function renderDashboard() {
+                const firmalar = getFirmalar();
+                const siparisler = getSiparisler();
+                const tahsilatlar = getTahsilatlar();
+                
+                tableBody.innerHTML = '';
+                totalOrderVal = 0;
+                totalPaidVal = 0;
+
+                firmalar.forEach(firma => {
+                    const firmaSiparisleri = siparisler.filter(s => s.firmaId === firma.id);
+                    const firmaTahsilatlari = tahsilatlar.filter(t => t.firmaId === firma.id);
+
+                    const siparisToplami = firmaSiparisleri.reduce((sum, s) => sum + s.totalPriceUSD, 0);
+                    const tahsilatToplami = firmaTahsilatlari.reduce((sum, t) => sum + t.totalAmountUSD, 0);
+                    const netBakiye = siparisToplami - tahsilatToplami;
+
+                    // Son Ödeme Tarihi
+                    const sonTahsilat = firmaTahsilatlari.length > 0 ? firmaTahsilatlari.sort((a,b) => new Date(b.date) - new Date(a.date))[0] : null;
+                    const sonTahsilatDate = sonTahsilat ? new Date(sonTahsilat.date).toLocaleDateString('tr-TR') : '-';
+
+                    totalOrderVal += siparisToplami;
+                    totalPaidVal += tahsilatToplami;
+
+                    const tr = document.createElement('tr');
+                    let statusBadge = '';
+                    if (netBakiye <= 0) {
+                        statusBadge = '<span class="badge badge-green">Ödendi / Borçsuz</span>';
+                    } else if (netBakiye > 0) {
+                        statusBadge = '<span class="badge badge-orange">Ödeme Bekliyor</span>';
+                    }
+
+                    tr.innerHTML = `
+                        <td style="font-weight:600;">${firma.ad}</td>
+                        <td>${formatCurrency(siparisToplami)}</td>
+                        <td style="color:var(--success);">${formatCurrency(tahsilatToplami)}</td>
+                        <td style="font-weight:700; color:${netBakiye > 0 ? 'var(--danger)' : 'var(--success)'};">${formatCurrency(netBakiye)}</td>
+                        <td style="color: var(--text-muted); font-size: 0.85rem;">${sonTahsilatDate}</td>
+                        <td>${statusBadge}</td>
+                        <td>
+                            <a href="firma_detay.html?id=${firma.id}" class="btn-icon" title="Cari Detay ve Tahsilat Ekle">
+                                <i class="fa-solid fa-magnifying-glass-dollar"></i>
+                            </a>
+                        </td>
+                    `;
+                    tableBody.appendChild(tr);
+                });
+
+                document.getElementById('totalDebt').textContent = formatCurrency(totalOrderVal);
+                document.getElementById('totalPaid').textContent = formatCurrency(totalPaidVal);
+                document.getElementById('netBalance').textContent = formatCurrency(totalOrderVal - totalPaidVal);
+                
+                renderSonIslemler(siparisler, tahsilatlar, firmalar);
+            }
+
+            function renderSonIslemler(currentSiparisler, currentTahsilatlar, currentFirmalar) {
+                const sip = currentSiparisler.map(s => ({...s, transType: 'SIPARIS'}));
+                const tah = currentTahsilatlar.map(t => ({...t, transType: 'TAHSILAT'}));
+                
+                const allTransactions = [...sip, ...tah].sort((a,b) => new Date(b.date) - new Date(a.date));
+                const recentTransactions = allTransactions.slice(0, 10);
+
+                if (recentTransactions.length === 0) {
+                    sonIslemlerContainer.innerHTML = `
+                        <div class="empty-state" style="text-align:center; padding:2rem; color:var(--text-muted);">
+                            <i class="fa-solid fa-folder-open" style="font-size: 2rem; margin-bottom: 0.5rem; opacity: 0.5;"></i>
+                            <p>Henüz herhangi bir işlem bulunmamaktadır.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                let html = `
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Tarih</th>
+                                    <th>Firma</th>
+                                    <th>İşlem Türü</th>
+                                    <th>Detay</th>
+                                    <th>Tutar ($)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+
+                recentTransactions.forEach(s => {
+                    const dateStr = new Date(s.date).toLocaleDateString('tr-TR', {day:'2-digit', month:'2-digit', year:'numeric'});
+                    const firma = currentFirmalar.find(f => f.id === s.firmaId);
+                    const firmaAd = firma ? firma.ad : 'Bilinmeyen Firma';
+
+                    let typeBadge = '';
+                    let amountStr = '';
+                    let amountColor = '';
+
+                    if (s.transType === 'SIPARIS') {
+                        typeBadge = `<span class="badge ${s.type === 'Mürekkep' ? 'badge-blue' : (s.type.includes('Kağıt') ? 'badge-orange' : 'badge-green')}">${s.type}</span>`;
+                        amountStr = formatCurrency(s.totalPriceUSD);
+                        amountColor = 'var(--text-main)';
+                    } else {
+                        typeBadge = `<span class="badge" style="background: rgba(59, 130, 246, 0.2); color: #60a5fa;">TAHSİLAT</span>`;
+                        amountStr = '-' + formatCurrency(s.totalAmountUSD);
+                        amountColor = 'var(--primary)';
+                    }
+
+                    html += `
+                        <tr style="cursor:pointer;" onclick="if('${s.transType}' === 'SIPARIS') showOrderDetails('${s.id}')">
+                            <td style="color: var(--text-muted); font-size: 0.85rem;">${dateStr}</td>
+                            <td style="font-weight:600;">${firmaAd}</td>
+                            <td>${typeBadge}</td>
+                            <td style="font-size:0.85rem;">${s.name || s.method} ${s.faturaNo ? `<br><small style="color:var(--text-muted)">Fat: ${s.faturaNo}</small>` : ''}</td>
+                            <td style="font-weight: 700; color: ${amountColor};">${amountStr}</td>
+                        </tr>
+                    `;
+                });
+
+                html += `</tbody></table></div>`;
+                sonIslemlerContainer.innerHTML = html;
+            }
+
+            function populateFirmaSelect() {
+                const select = document.getElementById('globalTahsilatFirma');
+                const firmalar = getFirmalar();
+                select.innerHTML = '<option value="">Firma Seçiniz...</option>';
+                firmalar.forEach(f => {
+                    const opt = document.createElement('option');
+                    opt.value = f.id;
+                    opt.textContent = f.ad;
+                    select.appendChild(opt);
+                });
+            }
+
+            window.openGlobalTahsilatModal = function() {
+                populateFirmaSelect();
+                document.getElementById('globalTahsilatModal').style.display = 'flex';
+            };
+
+            document.getElementById('globalTahsilatForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const firmaId = document.getElementById('globalTahsilatFirma').value;
+                const tutar = parseFloat(document.getElementById('globalTahsilatTutar').value);
+                const metod = document.getElementById('globalTahsilatMetodu').value;
+                const faturaNo = document.getElementById('globalTahsilatFaturaNo').value.trim();
+                const not = document.getElementById('globalTahsilatNot').value.trim();
+
+                if (!firmaId) {
+                    showToast('Lütfen bir firma seçin.', 'error');
+                    return;
+                }
+
+                if (isNaN(tutar) || tutar <= 0) {
+                    showToast('Lütfen geçerli bir tutar girin.', 'error');
+                    return;
+                }
+
+                addTahsilat(firmaId, {
+                    totalAmountUSD: tutar,
+                    method: metod,
+                    faturaNo: faturaNo || '-',
+                    note: not || 'Ödeme Tahsilatı'
+                });
+
+                showToast('Tahsilat başarıyla kaydedildi.', 'success');
+                document.getElementById('globalTahsilatModal').style.display = 'none';
+                document.getElementById('globalTahsilatForm').reset();
+                renderDashboard();
+            });
+
+            renderDashboard();
+
+            document.getElementById('firmaAra').addEventListener('input', (e) => {
+                const search = e.target.value.toLowerCase();
+                const rows = tableBody.querySelectorAll('tr');
+                rows.forEach(row => {
+                    const text = row.children[0].textContent.toLowerCase();
+                    row.style.display = text.includes(search) ? '' : 'none';
+                });
+            });
+        });
+    </script>
+</body>
+</html>

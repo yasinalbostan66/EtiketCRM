@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Klişe Hesaplama | SATIŞ KİŞİSEL KULLANIM</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+	<script>if(localStorage.getItem("etiket_crm_theme") === "light") document.body.classList.add("light-mode");</script>
+
+    <div class="app-wrapper">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="logo">
+                    <i class="fa-solid fa-layer-group"></i>
+                    SATIŞ KİŞİSEL KULLANIM
+                </a>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a href="index.html" class="nav-item">
+                    <i class="fa-solid fa-chart-line"></i>
+                    Genel Bakış
+                </a>
+                <a href="firmalar.html" class="nav-item">
+                    <i class="fa-solid fa-users"></i>
+                    Müşteriler / Firmalar
+                </a>
+                <a href="ziyaretler.html" class="nav-item">
+                    <i class="fa-solid fa-clipboard-list"></i>
+                    Ziyaret Kayıtları
+                </a>
+                <a href="takvim.html" class="nav-item">
+                    <i class="fa-solid fa-calendar-days"></i>
+                    Ziyaret Takvimi
+                </a>
+                <a href="odeme_takibi.html" class="nav-item">
+                    <i class="fa-solid fa-money-bill-transfer"></i>
+                    Ödeme Takibi & Cari
+                </a>
+                <a href="malzeme_fiyatlari.html" class="nav-item">
+                    <i class="fa-solid fa-tags"></i>
+                    Malzeme Fiyatları
+                </a>
+                
+                <div style="margin: 1rem 0 0.5rem 1rem; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">
+                    Hesaplama Modülleri
+                </div>
+                
+                <a href="murekkep.html" class="nav-item">
+                    <i class="fa-solid fa-droplet"></i>
+                    Mürekkep
+                </a>
+                <a href="kagit.html" class="nav-item">
+                    <i class="fa-solid fa-scroll"></i>
+                    Kağıt
+                </a>
+                <a href="sarf_malzeme.html" class="nav-item">
+                    <i class="fa-solid fa-box-open"></i>
+                    Sarf Malzeme
+                </a>
+                <a href="klise.html" class="nav-item active">
+                    <i class="fa-solid fa-compass-drafting"></i>
+                    Klişe
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-header">
+                <div class="page-title d-flex gap-2 align-center">
+                    <i class="fa-solid fa-compass-drafting" style="color: var(--primary);"></i> Klişe Maliyet Hesaplama
+                </div>
+                <div class="header-actions">
+                    <div style="width: 36px; height: 36px; border-radius: 50%; background: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: 600;">YA</div>
+                </div>
+            </header>
+
+            <div class="content-wrapper">
+                <div class="panel" style="margin-bottom: 2rem;">
+                    <div class="form-grid" style="align-items: end;">
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label for="firmaSec">İşlemin Yapılacağı Firma *</label>
+                            <select id="firmaSec" class="form-control" required style="border-color: var(--primary);">
+                                <option value="" disabled selected>Lütfen Firma Seçiniz...</option>
+                            </select>
+                        </div>
+                        <div>
+                            <small class="text-muted"><i class="fa-solid fa-info-circle"></i> Bu hesaplama seçilen firmanın carisine eklenecektir.</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;">
+                    <!-- Form Alanı -->
+                    <div class="panel">
+                        <div class="panel-header">
+                            <h2 class="panel-title">Veri Girişi</h2>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <div class="form-group">
+                                <label for="plateWidth">En (cm)</label>
+                                <input type="number" id="plateWidth" class="form-control" placeholder="Örn: 20" step="0.1" min="0.1" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="plateHeight">Boy (cm)</label>
+                                <input type="number" id="plateHeight" class="form-control" placeholder="Örn: 30" step="0.1" min="0.1" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group mt-3">
+                            <label for="plateCount">Klişe (Renk) Sayısı</label>
+                            <input type="number" id="plateCount" class="form-control" placeholder="Örn: 4" step="1" min="1" required>
+                        </div>
+                        
+                        <div class="form-group mt-3">
+                            <label for="platePrice">Maliyet Birim Fiyatı (m² Bazında)</label>
+                            <div class="input-group" style="display: flex; gap: 0.5rem;">
+                                <input type="number" id="platePrice" class="form-control" placeholder="Örn: 250" step="0.01" min="0.01" required style="flex: 1;">
+                                <select id="priceCurrency" class="form-control" style="width: 80px;">
+                                    <option value="USD">$ USD</option>
+                                    <option value="EUR">€ EUR</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group mt-3">
+                            <label for="plateSellPrice">Toptan Satış Birim Fiyatı (m² Bazında)</label>
+                            <input type="number" id="plateSellPrice" class="form-control" placeholder="Örn: 300" step="0.01" min="0.01">
+                        </div>
+
+                        <div class="form-group mt-3">
+                            <label for="paymentMethod">Ödeme Şekli</label>
+                            <select id="paymentMethod" class="form-control">
+                                <option value="Nakit">Nakit</option>
+                                <option value="Kredi Kartı">Kredi Kartı</option>
+                                <option value="Havale/EFT">Havale/EFT</option>
+                                <option value="30 Gün Vadeli">30 Gün Vadeli</option>
+                                <option value="60 Gün Vadeli">60 Gün Vadeli</option>
+                                <option value="90 Gün Vadeli">90 Gün Vadeli</option>
+                                <option value="120 Gün Vadeli">120 Gün Vadeli</option>
+                            </select>
+                        </div>
+
+                        <button class="btn btn-outline mt-4" id="calculateBtn" style="width: 100%;">
+                            <i class="fa-solid fa-calculator"></i> Maliyeti Görüntüle
+                        </button>
+                    </div>
+
+                    <!-- Sonuç Alanı -->
+                    <div class="panel" style="position: sticky; top: 100px; height: fit-content;">
+                        <div class="panel-header">
+                            <h2 class="panel-title">Hesaplama Özeti</h2>
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 12px;">
+                            <div class="d-flex" style="justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
+                                <span class="text-muted">Klişe Alanı:</span>
+                                <span style="font-weight: 500;" id="resArea">- cm²</span>
+                            </div>
+                            <div class="d-flex" style="justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
+                                <span class="text-muted">Adet / Renk Sayısı:</span>
+                                <span style="font-weight: 500;" id="resQuantity">-</span>
+                            </div>
+                            <div class="d-flex" style="justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
+                                <span class="text-muted">Birim Fiyat (m²):</span>
+                                <span style="font-weight: 500;" id="resPrice">-$</span>
+                            </div>
+                            <div class="d-flex" style="justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
+                                <span class="text-muted">Birim Fiyat (cm²):</span>
+                                <span style="font-weight: 500;" id="resPriceCm">-$</span>
+                            </div>
+                            <div class="d-flex" style="justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
+                                <span class="text-muted">Toplam Kalıp Alanı:</span>
+                                <span style="font-weight: 500;" id="resTotalArea">- m²</span>
+                            </div>
+                            
+                            <div class="d-flex mt-3" style="justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
+                                <span class="text-muted">Maliyet Toplamı:</span>
+                                <span style="font-weight: 500;" id="resCostTotal">-$0.00</span>
+                            </div>
+                            <div class="d-flex" style="justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
+                                <span class="text-muted">Toptan Satış Toplamı:</span>
+                                <span style="font-weight: 500;" id="resSellTotal">-$0.00</span>
+                            </div>
+                            <div class="d-flex" style="justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
+                                <span class="text-muted">Tahmini Net Kar:</span>
+                                <span style="font-weight: 600; color: var(--success);" id="resProfit">-$0.00</span>
+                            </div>
+                            
+                            <div class="d-flex mt-3" style="justify-content: space-between; font-size: 1.25rem; font-weight: 600; color: var(--success);">
+                                <span>Satış Toplamı:</span>
+                                <span id="resTotalUSD">$0.00</span>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 2rem;">
+                            <button class="btn btn-primary" id="saveOrderBtn" style="width: 100%;" disabled>
+                                <i class="fa-solid fa-check-circle"></i> Firmaya Sipariş Olarak Kaydet
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script src="js/klise.js"></script>
+</body>
+</html>
