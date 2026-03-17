@@ -28,13 +28,34 @@ const COLLECTIONS = ['firmalar', 'siparisler', 'tahsilatlar', 'malzeme_fiyatlari
 COLLECTIONS.forEach(col => {
     db.collection(col).onSnapshot(snapshot => {
         isSyncingFromFirestore = true;
-        const items = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        localStorage.setItem(`etiket_crm_${col}`, JSON.stringify(items));
+        
+        // 1. Mevcut yerel veriyi al
+        const localItems = JSON.parse(localStorage.getItem(`etiket_crm_${col}`) || '[]');
+        
+        // 2. Firestore'dan gelen veriler
+        const firestoreItems = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        
+        // 3. Birleştir (Merge): Firestore'daki güncel kalır, ancak yerelde olup Firestore'da henüz olmayanlar (yeni eklenenler) kaybolmaz.
+        const merged = [...localItems];
+        firestoreItems.forEach(fItem => {
+            const index = merged.findIndex(l => l.id === fItem.id);
+            if (index > -1) {
+                merged[index] = fItem; // Güncelle
+            } else {
+                merged.push(fItem); // Ekle
+            }
+        });
+
+        localStorage.setItem(`etiket_crm_${col}`, JSON.stringify(merged));
         isSyncingFromFirestore = false;
         
-        // Tetikleme: Sayfada ilgili render fonksiyonu varsa günceller
-        if (typeof renderFirmalar === 'function' && col === 'firmalar') renderFirmalar();
-        if (typeof renderSiparisler === 'function' && col === 'siparisler') renderSiparisler();
+        // Ekranları tetikle (Trigger events)
+        window.dispatchEvent(new Event('storage'));
+        if (typeof renderAll === 'function') renderAll();
+        if (typeof renderFirmalar === 'function') renderFirmalar();
+        if (typeof renderSiparisler === 'function') renderSiparisler();
+        if (typeof renderTahsilatlar === 'function') renderTahsilatlar();
+        if (typeof loadFirmaDetails === 'function') loadFirmaDetails();
         if (col === 'visits') {
             const calendarEl = document.getElementById('calendar');
             if (calendarEl && calendarEl.FullCalendar) {
@@ -58,7 +79,13 @@ localStorage.setItem = function(key, value) {
                 // 2a. Güncelle ve Ekle
                 data.forEach(item => {
                     if (item.id) {
-                        db.collection(col).doc(item.id).set(item, { merge: true });
+                        db.collection(col).doc(item.id).set(item, { merge: true })
+                          .catch(e => {
+                              console.error(`Firestore Kayıt Hatası [${col}]:`, e);
+                              if (e.code === 'permission-denied') {
+                                  alert('Veri Kaydedilemedi: Oturum açılmamış veya yetkiniz yok. Lütfen menüden çıkış yapıp şifreyle tekrar girerek telefon belleğinizi yenileyin.');
+                              }
+                          });
                     }
                 });
 
