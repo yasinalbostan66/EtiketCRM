@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Genel Bakış | SATIŞ KİŞİSEL KULLANIM</title>
     <!-- CSS -->
-    <link rel="stylesheet" href="css/style.css?v=1.1">
+    <link rel="stylesheet" href="css/style.css?v=1.2">
     <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -97,8 +97,28 @@
             <!-- Content -->
             <div class="content-wrapper">
                 
-                <!-- Stats -->
-                <div class="stats-grid">
+                <!-- Prominent Rates Panel -->
+                <div class="panel" style="max-width: 600px; margin: 2rem auto; text-align: center; padding: 3rem; background: var(--surface-color); border-radius: 16px; box-shadow: var(--shadow-lg);">
+                    <h1 style="font-size: 1.8rem; margin-bottom: 0.5rem; color: var(--primary); font-weight: 700;">TCMB Kurları</h1>
+                    <p style="color: var(--text-muted); margin-bottom: 2.5rem; font-size: 0.95rem;">Anlık Döviz Kuru Takibi</p>
+                    
+                    <div style="display: flex; justify-content: center; gap: 1.5rem; flex-wrap: wrap;">
+                        <div style="background: var(--bg-color); padding: 2rem; border-radius: 12px; border: 1px solid var(--border-color); min-width: 180px; flex: 1; transition: transform 0.2s;">
+                            <div style="font-size: 2.5rem; margin-bottom: 0.75rem;"><i class="fa-solid fa-dollar-sign" style="color: #3b82f6;"></i></div>
+                            <div style="font-size: 1.8rem; font-weight: 800; color: var(--text-main);" id="contentUsdRate">--.-- ₺</div>
+                            <div style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.5rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px;">Amerikan Doları</div>
+                        </div>
+                        
+                        <div style="background: var(--bg-color); padding: 2rem; border-radius: 12px; border: 1px solid var(--border-color); min-width: 180px; flex: 1; transition: transform 0.2s;">
+                            <div style="font-size: 2.5rem; margin-bottom: 0.75rem;"><i class="fa-solid fa-euro-sign" style="color: #10b981;"></i></div>
+                            <div style="font-size: 1.8rem; font-weight: 800; color: var(--text-main);" id="contentEurRate">--.-- ₺</div>
+                            <div style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.5rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px;">Euro</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stats (Hidden as requested) -->
+                <div class="stats-grid" style="display: none;">
                     <div class="stat-card">
                         <div class="stat-icon blue">
                             <i class="fa-solid fa-building"></i>
@@ -140,8 +160,8 @@
                     </div>
                 </div>
 
-                <!-- Recent Orders Preview -->
-                <div class="panel">
+                <!-- Recent Orders Preview (Hidden as requested) -->
+                <div class="panel" style="display: none;">
                     <div class="panel-header">
                         <h2 class="panel-title">
                             <i class="fa-solid fa-clock-rotate-left"></i> Son İşlemler (Tüm Firmalar)
@@ -176,14 +196,17 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
     <!-- Firebase Sync Logic -->
-    <script src="js/firebase-sync.js?v=1.1"></script>
-    <script src="js/main.js?v=1.1"></script>
+    <script src="js/firebase-sync.js?v=1.2"></script>
+    <script src="js/main.js?v=1.2"></script>
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
             // Döviz Kurlarını Çek ve Yaz
             const rates = await fetchExchangeRates();
             document.getElementById('usdRate').textContent = `USD: ${rates.USD} ₺`;
             document.getElementById('eurRate').textContent = `EUR: ${rates.EUR} ₺`;
+            
+            if(document.getElementById('contentUsdRate')) document.getElementById('contentUsdRate').textContent = `${rates.USD} ₺`;
+            if(document.getElementById('contentEurRate')) document.getElementById('contentEurRate').textContent = `${rates.EUR} ₺`;
 
             const firmalar = getFirmalar();
             const siparisler = getSiparisler();
