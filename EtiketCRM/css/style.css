@@ -578,25 +578,66 @@ tbody tr:hover {
 }
 
 @media (max-width: 576px) {
+    html { font-size: 14px; } /* Yazı boyutlarını biraz küçültelim */
+    
+    .content-wrapper {
+        padding: 0.75rem; /* İçe itme daraltıldı */
+    }
+
     .stats-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, 1fr) !important; /* 4 panel yan yana 2li kalsın */
+        gap: 0.5rem;
     }
 
     .stat-card {
-        padding: 1rem;
+        padding: 0.65rem;
+        gap: 8px;
+    }
+
+    .stat-icon {
+        width: 30px;
+        height: 30px;
+        font-size: 0.9rem;
+    }
+
+    .stat-value {
+        font-size: 1.05rem;
+    }
+
+    .stat-label {
+        font-size: 0.65rem;
     }
 
     table th, table td {
-        padding: 0.75rem 0.5rem;
-        font-size: 0.85rem;
+        padding: 5px 3px;
+        font-size: 0.75rem;
     }
 
     .page-title {
-        font-size: 1.1rem;
+        font-size: 0.95rem;
     }
     
+    .panel {
+        padding: 0.75rem;
+    }
+    
+    .panel-title {
+        font-size: 0.9rem;
+    }
+
+    .btn {
+        padding: 5px 10px;
+        font-size: 0.75rem;
+    }
+
     .hide-mobile {
         display: none !important;
+    }
+    
+    /* Input dolguları küçültme */
+    .form-control {
+        padding: 6px 10px;
+        font-size: 0.85rem;
     }
 }
 
