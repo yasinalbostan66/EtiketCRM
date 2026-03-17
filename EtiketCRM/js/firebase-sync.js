@@ -22,7 +22,7 @@ auth.onAuthStateChanged(user => {
 
 let isSyncingFromFirestore = false;
 
-const COLLECTIONS = ['firmalar', 'siparisler', 'tahsilatlar', 'malzeme_fiyatlari', 'visits'];
+const COLLECTIONS = ['firmalar', 'siparisler', 'tahsilatlar', 'malzeme_fiyatlari', 'ziyaretler'];
 
 // 1. Live Sync from Firestore to LocalStorage
 COLLECTIONS.forEach(col => {
@@ -60,7 +60,7 @@ COLLECTIONS.forEach(col => {
         if (typeof renderSiparisler === 'function') renderSiparisler();
         if (typeof renderTahsilatlar === 'function') renderTahsilatlar();
         if (typeof loadFirmaDetails === 'function') loadFirmaDetails();
-        if (col === 'visits') {
+        if (col === 'ziyaretler') {
             const calendarEl = document.getElementById('calendar');
             if (calendarEl && calendarEl.FullCalendar) {
                 // FullCalendar güncellemesi tetiklenebilir
