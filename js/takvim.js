@@ -1,5 +1,17 @@
 const getVisits = () => JSON.parse(localStorage.getItem('etiket_crm_visits')) || [];
-const saveVisits = (visits) => localStorage.setItem('etiket_crm_visits', JSON.stringify(visits));
+const saveVisits = (visits) => {
+    localStorage.setItem('etiket_crm_visits', JSON.stringify(visits));
+    try {
+        if (firebase.auth().currentUser) {
+            visits.forEach(item => {
+                if (item.id) {
+                    firebase.firestore().collection('visits').doc(item.id).set(item, { merge: true })
+                       .catch(e => console.error("Firestore Save Fail (Visits):", e));
+                }
+            });
+        }
+    } catch (e) {}
+};
 
 document.addEventListener('DOMContentLoaded', () => {
     const calendarEl = document.getElementById('calendar');
@@ -224,5 +236,12 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelector('#visitModal .btn-icon').addEventListener('click', () => {
         const deleteBtn = document.getElementById('deleteVisitBtn');
         if (deleteBtn) deleteBtn.style.display = 'none';
+    });
+
+    // Bulut Senkronizasyonu Tetikleyicisi
+    window.addEventListener('storage', () => {
+        if (typeof calendar !== 'undefined' && typeof getVisitsForCalendar === 'function') {
+            calendar.setOption('events', getVisitsForCalendar());
+        }
     });
 });

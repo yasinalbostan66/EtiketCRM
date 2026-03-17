@@ -1,5 +1,17 @@
 const getVisits = () => JSON.parse(localStorage.getItem('etiket_crm_visits')) || [];
-const saveVisits = (visits) => localStorage.setItem('etiket_crm_visits', JSON.stringify(visits));
+const saveVisits = (visits) => {
+    localStorage.setItem('etiket_crm_visits', JSON.stringify(visits));
+    try {
+        if (firebase.auth().currentUser) {
+            visits.forEach(item => {
+                if (item.id) {
+                    firebase.firestore().collection('visits').doc(item.id).set(item, { merge: true })
+                       .catch(e => console.error("Firestore Save Fail (Visits):", e));
+                }
+            });
+        }
+    } catch (e) {}
+};
 
 document.addEventListener('DOMContentLoaded', () => {
     const tableBody = document.getElementById('ziyaretTableBody');
@@ -153,6 +165,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (searchInput) {
         searchInput.addEventListener('input', renderTable);
     }
+
+    // Bulut Senkronizasyonu Tetikleyicisi
+    window.addEventListener('storage', () => {
+        if (typeof renderTable === 'function') renderTable();
+    });
 
     renderTable();
 });
