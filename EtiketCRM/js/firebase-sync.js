@@ -204,20 +204,20 @@ document.addEventListener('DOMContentLoaded', () => {
 // 5. Remote Diagnostic Test Function for User
 window.runDiagnosticTest = function() {
     let report = [];
-    report.push("--- TANI BAŞLATILIYOR ---");
-    report.push("Cihaz: " + (navigator.userAgent.includes('iPhone') ? 'iPhone' : 'Diğer'));
-    
     try {
+        report.push("--- TANI BAŞLATILIYOR ---");
+        report.push("Cihaz: " + (navigator.userAgent.indexOf('iPhone') > -1 ? 'iPhone' : 'Diğer'));
+        
         if (typeof firebase === 'undefined') throw "Firebase Yüklü Değil!";
         if (!firebase.apps.length) throw "Firebase Init Başarısız!";
         
         report.push("Firebase: Yüklü ✅");
         const currUser = firebase.auth().currentUser;
         report.push("Kullanıcı: " + (currUser ? currUser.email : 'Oturum Yok ❌'));
-        report.push("Kilit Durumu (isSyncing): " + (window.isSyncingFromFirestore === true ? 'KİLİTLİ ❌' : 'AÇIK ✅'));
+        report.push("Kilit Durumu: " + (window.isSyncingFromFirestore === true ? 'KİLİTLİ ❌' : 'AÇIK ✅'));
         
         // Test Intercept
-        window.addDiagLog("Test Kaydı Başlatılıyor...");
+        if (typeof window.addDiagLog === 'function') window.addDiagLog("Test Kaydı Başlatılıyor...");
         localStorage.setItem('etiket_crm_test_diag', JSON.stringify([{ id: 'test_123', ad: 'Tanı Testi' }]));
         report.push("Test SetItem: Gönderildi ✅");
         
