@@ -663,6 +663,25 @@ tbody tr:hover {
     transform: scale(0.95);
 }
 
+/* --- Hesaplama Modülleri Grid --- */
+.calc-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 2rem;
+}
+
+@media (max-width: 992px) {
+    .calc-grid {
+        grid-template-columns: 1fr !important;
+        gap: 1.5rem;
+    }
+    
+    /* Sticky summary'yi mobil ve tablette kaldırıyoruz ki formun altında düzgün listelensin */
+    .calc-grid .panel[style*="position: sticky"] {
+        position: static !important;
+    }
+}
+
 #mobileMenuBtn {
     display: none;
 }
