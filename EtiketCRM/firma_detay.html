@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Müşteri Detayı | SATIŞ KİŞİSEL KULLANIM</title>
     <!-- CSS -->
-    <link rel="stylesheet" href="css/style.css?v=1.1">
+    <link rel="stylesheet" href="css/style.css?v=1.2">
     <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -69,6 +69,34 @@
             background: rgba(255, 255, 255, 0.02);
             border: 1px dashed var(--border-color);
             border-radius: 12px;
+        }
+
+        /* Mobil Düzenlemeler */
+        @media (max-width: 600px) {
+            .firma-meta {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            .action-buttons {
+                flex-direction: column;
+                align-items: stretch !important;
+                width: 100%;
+            }
+            .action-buttons button {
+                width: 100%;
+            }
+            .action-buttons > div {
+                text-align: left !important;
+                margin-left: 0 !important;
+                margin-top: 1rem;
+                background: rgba(255,255,255,0.02);
+                padding: 1rem;
+                border-radius: 8px;
+                border: 1px solid var(--border-color);
+            }
+            .module-links {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -331,8 +359,8 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
     <!-- Firebase Sync Logic -->
-    <script src="js/firebase-sync.js?v=1.1"></script>
-    <script src="js/main.js?v=1.1"></script>
+    <script src="js/firebase-sync.js?v=1.2"></script>
+    <script src="js/main.js?v=1.2"></script>
     <script src="js/firma_detay.js"></script>
 </body>
 </html>

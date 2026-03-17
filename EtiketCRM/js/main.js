@@ -285,6 +285,44 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // --- Profesyonel Mobil Alt Navigasyon (Bottom Nav) ---
+    if (window.innerWidth <= 600 && !document.querySelector('.mobile-bottom-nav')) {
+        const bottomNav = document.createElement('div');
+        bottomNav.className = 'mobile-bottom-nav';
+        
+        const currentPath = window.location.pathname.split('/').pop() || 'index.html';
+        const cleanedPath = currentPath.split('?')[0] || 'index.html';
+        
+        bottomNav.innerHTML = `
+            <a href="index.html" class="bottom-nav-item ${cleanedPath === 'index.html' ? 'active' : ''}">
+                <i class="fa-solid fa-chart-line"></i>
+                <span>Özet</span>
+            </a>
+            <a href="firmalar.html" class="bottom-nav-item ${cleanedPath.includes('firmalar') || cleanedPath.includes('firma_detay') ? 'active' : ''}">
+                <i class="fa-solid fa-users"></i>
+                <span>Firmalar</span>
+            </a>
+            <a href="takvim.html" class="bottom-nav-item ${cleanedPath.includes('takvim') ? 'active' : ''}">
+                <i class="fa-solid fa-calendar-days"></i>
+                <span>Takvim</span>
+            </a>
+            <a href="odeme_takibi.html" class="bottom-nav-item ${cleanedPath.includes('odeme') ? 'active' : ''}">
+                <i class="fa-solid fa-money-bill-transfer"></i>
+                <span>Cari</span>
+            </a>
+            <button class="bottom-nav-item" id="bottomMenuGridBtn">
+                <i class="fa-solid fa-bars"></i>
+                <span>Menü</span>
+            </button>
+        `;
+        document.body.appendChild(bottomNav);
+
+        document.getElementById('bottomMenuGridBtn').addEventListener('click', (e) => {
+             e.preventDefault();
+             document.body.classList.toggle('sidebar-open');
+        });
+    }
+
 
     const currentPath = window.location.pathname.split('/').pop() || 'index.html';
     const navLinks = document.querySelectorAll('.sidebar-nav .nav-item');
