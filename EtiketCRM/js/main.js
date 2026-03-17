@@ -11,6 +11,21 @@ function getFirmalar() {
 
 function saveFirmalar(data) {
     localStorage.setItem(FIRMALAR_KEY, JSON.stringify(data));
+    
+    // Direct Cloud Backup on write triggers
+    try {
+        if (firebase.auth().currentUser) {
+            data.forEach(item => {
+                if (item.id) {
+                    firebase.firestore().collection('firmalar').doc(item.id).set(item, { merge: true })
+                       .then(() => { if (window.addDiagLog) window.addDiagLog(`[Bulut] Firma ${item.ad} Kaydedildi`); })
+                       .catch(e => console.error("Firestore Save Fail:", e));
+                }
+            });
+        }
+    } catch (e) {
+        console.error("Direct Sync Fail:", e);
+    }
 }
 
 function addFirma(firma) {
@@ -45,6 +60,18 @@ function getSiparisler() {
 
 function saveSiparisler(data) {
     localStorage.setItem(SIPARISLER_KEY, JSON.stringify(data));
+    
+    // Direct Cloud Backup
+    try {
+        if (firebase.auth().currentUser) {
+            data.forEach(item => {
+                if (item.id) {
+                    firebase.firestore().collection('siparisler').doc(item.id).set(item, { merge: true })
+                       .catch(e => console.error("Firestore Save Fail (Siparis):", e));
+                }
+            });
+        }
+    } catch (e) {}
 }
 
 function addSiparis(firmaId, siparisDetay) {
@@ -80,6 +107,18 @@ function getTahsilatlar() {
 
 function saveTahsilatlar(data) {
     localStorage.setItem(TAHSILATLAR_KEY, JSON.stringify(data));
+
+    // Direct Cloud Backup
+    try {
+        if (firebase.auth().currentUser) {
+            data.forEach(item => {
+                if (item.id) {
+                    firebase.firestore().collection('tahsilatlar').doc(item.id).set(item, { merge: true })
+                       .catch(e => console.error("Firestore Save Fail (Tahsilat):", e));
+                }
+            });
+        }
+    } catch (e) {}
 }
 
 function addTahsilat(firmaId, tahsilat) {
