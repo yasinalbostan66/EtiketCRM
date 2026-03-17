@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Klişe Hesaplama | SATIŞ KİŞİSEL KULLANIM</title>
-    <link rel="stylesheet" href="css/style.css?v=1.4">
+    <link rel="stylesheet" href="css/style.css?v=1.5">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
@@ -118,9 +118,9 @@
                         </div>
                         
                         <div class="form-group mt-3">
-                            <label for="platePrice">Maliyet Birim Fiyatı (m² Bazında)</label>
+                            <label for="platePrice">Maliyet Birim Fiyatı (cm² Bazında)</label>
                             <div class="input-group" style="display: flex; gap: 0.5rem;">
-                                <input type="number" id="platePrice" class="form-control" placeholder="Örn: 250" step="0.01" min="0.01" required style="flex: 1;">
+                                <input type="number" id="platePrice" class="form-control" placeholder="Örn: 0.02" step="0.0001" min="0.0001" required style="flex: 1;">
                                 <select id="priceCurrency" class="form-control" style="width: 80px;">
                                     <option value="USD">$ USD</option>
                                     <option value="EUR">€ EUR</option>
@@ -129,8 +129,8 @@
                         </div>
 
                         <div class="form-group mt-3">
-                            <label for="plateSellPrice">Toptan Satış Birim Fiyatı (m² Bazında)</label>
-                            <input type="number" id="plateSellPrice" class="form-control" placeholder="Örn: 300" step="0.01" min="0.01">
+                            <label for="plateSellPrice">Satış Birim Fiyatı (cm² Bazında)</label>
+                            <input type="number" id="plateSellPrice" class="form-control" placeholder="Örn: 0.035" step="0.0001" min="0.0001">
                         </div>
 
                         <div class="form-group mt-3">
@@ -210,10 +210,11 @@
 
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
     <!-- Firebase Sync Logic -->
-    <script src="js/firebase-sync.js?v=1.4"></script>
-    <script src="js/main.js?v=1.4"></script>
+    <script src="js/firebase-sync.js?v=1.5"></script>
+    <script src="js/main.js?v=1.5"></script>
     <script src="js/klise.js"></script>
 </body>
 </html>

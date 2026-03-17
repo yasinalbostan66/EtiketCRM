@@ -47,13 +47,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const area = width * height; // cm²
         const m2Area = area / 10000; // m²
-        const totalAreaM2 = m2Area * count; // Toplam m²
+        const totalAreaCm2 = area * count; // Toplam cm²
+        const totalAreaM2 = m2Area * count; // Gözüksün diye
         
-        const priceM2 = price; // gelen fiyat m²
-        const priceCm2 = price / 10000; // cm² fiyat
+        const priceCm2 = price; // Artık cm² fiyatı geliyor
+        const priceM2 = price * 10000; // m² fiyatı
 
-        const totalCost = totalAreaM2 * priceM2; // Toplam maliyet
-        const totalSell = totalAreaM2 * sellPrice; // Toplam Satış
+        const totalCost = totalAreaCm2 * priceCm2; // Toplam maliyet (cm2 x cm2 fiyatı)
+        const totalSell = totalAreaCm2 * sellPrice; // Toplam Satış
         const profit = totalSell - totalCost;
 
         let totalCostUSD = totalSell; // Biz sipariş fiyatı olarak Toptan Satışı kaydederiz
@@ -81,7 +82,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             type: 'Klişe',
             name: `${width}x${height} cm Klişe (${count} Renk)`,
             quantity: count,
-            price: sellPrice / 10000, // Sales unit price in cm2 format mapped for invoices
+            price: sellPrice, // Satış birim fiyatı artık cm2 olarak geliyor
             currency: currency,
             totalPriceUSD: totalCostUSD,
             paymentMethod: inputPayment.value
