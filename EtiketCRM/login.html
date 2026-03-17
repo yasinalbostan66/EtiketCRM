@@ -152,6 +152,12 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
 
+        // ** GİREMİYORSANIZ OTOMATİK KULLANICI OLUŞTURUCU **
+        // Sayfa her yüklendiğinde bu hesabı oluşturmaya çalışır. Zaten varsa hata verir (Zararsızdır).
+        auth.createUserWithEmailAndPassword('admin@etiketcrm.com', 'admin123')
+            .then(() => console.log('Varsayılan Admin Hesabı Oluşturuldu.'))
+            .catch(e => console.log('Hesap zati mevcut veya hata:', e.message));
+
         // Already logged in? Redirect to index setup
         auth.onAuthStateChanged(user => {
             if (user) {
