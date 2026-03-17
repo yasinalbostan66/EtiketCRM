@@ -200,3 +200,52 @@ document.addEventListener('DOMContentLoaded', () => {
         logBox.prepend(item); // En yeni log en üstte
     };
 });
+
+// 5. Remote Diagnostic Test Function for User
+window.runDiagnosticTest = function() {
+    let report = [];
+    report.push("--- TANI BAŞLATILIYOR ---");
+    report.push("Cihaz: " + (navigator.userAgent.includes('iPhone') ? 'iPhone' : 'Diğer'));
+    
+    try {
+        if (typeof firebase === 'undefined') throw "Firebase Yüklü Değil!";
+        if (!firebase.apps.length) throw "Firebase Init Başarısız!";
+        
+        report.push("Firebase: Yüklü ✅");
+        const currUser = firebase.auth().currentUser;
+        report.push("Kullanıcı: " + (currUser ? currUser.email : 'Oturum Yok ❌'));
+        report.push("Kilit Durumu (isSyncing): " + (window.isSyncingFromFirestore === true ? 'KİLİTLİ ❌' : 'AÇIK ✅'));
+        
+        // Test Intercept
+        window.addDiagLog("Test Kaydı Başlatılıyor...");
+        localStorage.setItem('etiket_crm_test_diag', JSON.stringify([{ id: 'test_123', ad: 'Tanı Testi' }]));
+        report.push("Test SetItem: Gönderildi ✅");
+        
+        // Test Firestore write
+        firebase.firestore().collection('test_diag').doc('diag_doc').set({ date: new Date().toISOString(), user: currUser ? currUser.email : 'none' })
+          .then(() => alert("✅ FIRESTORE YAZMA BAŞARILI! Bilgisayara Bağlantınız Sorunsuzdur. Rapor:\n\n" + report.join("\n")))
+          .catch(e => alert("❌ FIRESTORE YAZMA HATASI: " + e.message + "\n\nRapor:\n\n" + report.join("\n")));
+
+    } catch (e) {
+        alert("❌ CRITICAL BUG: " + e + "\n\nRapor:\n\n" + report.join("\n"));
+    }
+};
+
+// Append Test Button into Diagnostic Div
+document.addEventListener('DOMContentLoaded', () => {
+    const statusDiv = document.getElementById('syncStatusIndicator');
+    if (statusDiv) {
+        const btn = document.createElement('button');
+        btn.textContent = '🔍 Bağlantıyı Test Et';
+        btn.style.marginTop = '8px';
+        btn.style.padding = '4px 8px';
+        btn.style.background = '#3b82f6';
+        btn.style.color = '#fff';
+        btn.style.border = 'none';
+        btn.style.borderRadius = '4px';
+        btn.style.fontSize = '0.65rem';
+        btn.style.cursor = 'pointer';
+        btn.onclick = (e) => { e.stopPropagation(); window.runDiagnosticTest(); };
+        statusDiv.appendChild(btn);
+    }
+});
