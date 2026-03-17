@@ -131,6 +131,10 @@
             
             <button type="submit" class="btn-login" id="loginSubmitBtn">Oturum Aç</button>
             <div id="loginError">E-posta veya şifre hatalı!</div>
+            
+            <p style="text-align: center; font-size: 0.8rem; margin-top: 1.5rem;">
+                <a href="#" onclick="localStorage.setItem('debug_bypass_auth', 'true'); window.location.href='index.html'; return false;" style="color: #64748b; text-decoration: none; border-bottom: 1px dashed #475569;">Bypass / Geçici Giriş Yap (Geliştirici)</a>
+            </p>
         </form>
     </div>
 

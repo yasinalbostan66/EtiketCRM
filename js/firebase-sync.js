@@ -15,6 +15,7 @@ const auth = firebase.auth();
 
 // 0. Auth Guard
 auth.onAuthStateChanged(user => {
+    if (localStorage.getItem('debug_bypass_auth') === 'true') return; // Debug Geçici Giriş
     if (!user && !window.location.pathname.endsWith('login.html')) {
         window.location.href = 'login.html';
     }
