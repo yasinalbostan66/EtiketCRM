@@ -457,7 +457,7 @@ function showBackupModal() {
 }
 
 window.exportData = function() {
-    const keys = ['etiket_crm_firmalar', 'etiket_crm_siparisler', 'etiket_crm_tahsilatlar', 'etiket_crm_malzeme_fiyatlari', 'etiket_crm_visits'];
+    const keys = ['etiket_crm_firmalar', 'etiket_crm_siparisler', 'etiket_crm_tahsilatlar', 'etiket_crm_malzeme_fiyatlari', 'etiket_crm_ziyaretler'];
     const backup = {};
     keys.forEach(k => { backup[k] = localStorage.getItem(k); });
     
@@ -501,7 +501,7 @@ window.importData = function(input) {
 }
 
 function restoreBackup(data) {
-    const keys = ['etiket_crm_firmalar', 'etiket_crm_siparisler', 'etiket_crm_tahsilatlar', 'etiket_crm_malzeme_fiyatlari', 'etiket_crm_visits'];
+    const keys = ['etiket_crm_firmalar', 'etiket_crm_siparisler', 'etiket_crm_tahsilatlar', 'etiket_crm_malzeme_fiyatlari', 'etiket_crm_ziyaretler'];
     
     let updated = 0;
     keys.forEach(k => {
