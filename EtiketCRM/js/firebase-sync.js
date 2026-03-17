@@ -128,3 +128,36 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+
+// 4. Connection Status Indicator for Diagnostics
+document.addEventListener('DOMContentLoaded', () => {
+    const statusDiv = document.createElement('div');
+    statusDiv.id = 'syncStatusIndicator';
+    statusDiv.style.position = 'fixed';
+    statusDiv.style.bottom = '80px';
+    statusDiv.style.right = '20px';
+    statusDiv.style.padding = '6px 12px';
+    statusDiv.style.borderRadius = '20px';
+    statusDiv.style.background = 'rgba(15, 30, 50, 0.85)';
+    statusDiv.style.color = '#e2e8f0';
+    statusDiv.style.fontSize = '0.75rem';
+    statusDiv.style.fontWeight = '600';
+    statusDiv.style.zIndex = '9999';
+    statusDiv.style.border = '1px solid rgba(255,255,255,0.05)';
+    statusDiv.style.display = 'flex';
+    statusDiv.style.alignItems = 'center';
+    statusDiv.style.gap = '6px';
+    statusDiv.style.backdropFilter = 'blur(4px)';
+    statusDiv.innerHTML = '<span style="width:8px; height:8px; border-radius:50%; background:#ef4444; display:inline-block;" id="statusDot"></span> Bağlantı Yok';
+    document.body.appendChild(statusDiv);
+    
+    firebase.auth().onAuthStateChanged(user => {
+        if (user) {
+            statusDiv.innerHTML = '<span style="width:8px; height:8px; border-radius:50%; background:#22c55e; display:inline-block; box-shadow:0 0 6px #22c55e;"></span> Bulut Senkronizasyonu Aktif';
+            statusDiv.style.color = '#22c55e';
+        } else {
+            statusDiv.innerHTML = '<span style="width:8px; height:8px; border-radius:50%; background:#ef4444; display:inline-block; box-shadow:0 0 6px #ef4444;"></span> Oturum Açılmadı (Bulut Pasif)';
+            statusDiv.style.color = '#f87171';
+        }
+    });
+});
