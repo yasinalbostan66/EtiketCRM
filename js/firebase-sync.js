@@ -73,27 +73,37 @@ COLLECTIONS.forEach(col => {
 const originalSetItem = localStorage.setItem;
 localStorage.setItem = function(key, value) {
     originalSetItem.apply(this, arguments);
+    if (typeof window.addDiagLog === 'function') window.addDiagLog(`Belleğe Yazıldı: ${key}`);
     if (isSyncingFromFirestore) return;
     
     if (key.startsWith('etiket_crm_')) {
         const col = key.replace('etiket_crm_', '');
+        if (col === 'theme') return; // Filtrele
+        
         try {
             const data = JSON.parse(value);
             if (Array.isArray(data)) {
+                if (typeof window.addDiagLog === 'function') window.addDiagLog(`[${col}] Buluta Gönderiliyor (${data.length} adet)...`);
+                
                 // 2a. Güncelle ve Ekle
                 data.forEach(item => {
                     if (item.id) {
                         db.collection(col).doc(item.id).set(item, { merge: true })
+                          .then(() => {
+                              if (typeof window.addDiagLog === 'function') window.addDiagLog(`✅ Buluta Yazıldı: ${item.ad || item.id}`);
+                          })
                           .catch(e => {
                               console.error(`Firestore Kayıt Hatası [${col}]:`, e);
+                              if (typeof window.addDiagLog === 'function') window.addDiagLog(`❌ Yazım Hatası: ${e.message}`);
                               if (e.code === 'permission-denied') {
-                                  alert('Veri Kaydedilemedi: Oturum açılmamış veya yetkiniz yok. Lütfen menüden çıkış yapıp şifreyle tekrar girerek telefon belleğinizi yenileyin.');
+                                  alert('Veri Kaydedilemedi: Oturum açılmamış veya yetkiniz yok. Menüden çıkış yapıp tekrar şifreyle girin.');
                               }
                           });
                     }
                 });
 
-                // 2b. Silinenleri Firestore'dan Temizle
+                // 2b. Silinenleri Firestore'dan Temizle (GEÇİCİ OLARAK PASİF EDİLDİ - ÇATIŞMADAN DOLAYI YUTUYOR OLABİLİR)
+                /*
                 db.collection(col).get().then(snapshot => {
                     snapshot.docs.forEach(doc => {
                         if (!data.find(d => d.id === doc.id)) {
@@ -101,6 +111,7 @@ localStorage.setItem = function(key, value) {
                         }
                     });
                 });
+                */
             }
         } catch (e) {
             console.error('Firebase Sync Hatası - Key: ' + key, e);
@@ -164,4 +175,28 @@ document.addEventListener('DOMContentLoaded', () => {
             statusDiv.style.color = '#f87171';
         }
     });
+
+    // 4b. Log Kutusu (Log Box)
+    statusDiv.style.flexDirection = 'column';
+    statusDiv.style.alignItems = 'stretch';
+    statusDiv.style.width = '240px';
+    
+    const logBox = document.createElement('div');
+    logBox.id = 'syncLogs';
+    logBox.style.marginTop = '8px';
+    logBox.style.maxHeight = '120px';
+    logBox.style.overflowY = 'auto';
+    logBox.style.fontSize = '0.65rem';
+    logBox.style.color = '#94a3b8';
+    logBox.style.borderTop = '1px solid rgba(255,255,255,0.08)';
+    logBox.style.paddingTop = '5px';
+    statusDiv.appendChild(logBox);
+
+    window.addDiagLog = function(msg) {
+        const item = document.createElement('div');
+        item.style.padding = '2px 0';
+        item.style.borderBottom = '1px solid rgba(255,255,255,0.03)';
+        item.textContent = `> ${msg}`;
+        logBox.prepend(item); // En yeni log en üstte
+    };
 });
