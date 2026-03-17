@@ -594,6 +594,9 @@ tbody tr:hover {
         font-size: 1.1rem;
     }
     
+    .hide-mobile {
+        display: none !important;
+    }
 }
 
 /* --- Professional Mobile Bottom Nav --- */

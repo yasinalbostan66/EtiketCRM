@@ -11,6 +11,14 @@ const firebaseConfig = {
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
+const auth = firebase.auth();
+
+// 0. Auth Guard
+auth.onAuthStateChanged(user => {
+    if (!user && !window.location.pathname.endsWith('login.html')) {
+        window.location.href = 'login.html';
+    }
+});
 
 let isSyncingFromFirestore = false;
 
@@ -68,3 +76,28 @@ localStorage.setItem = function(key, value) {
         }
     }
 };
+
+// 3. User Sign Out Injection into Sidebar
+document.addEventListener('DOMContentLoaded', () => {
+    const nav = document.querySelector('.sidebar-nav');
+    if (nav && !document.getElementById('sidebarLogoutBtn')) {
+        const logoutBtn = document.createElement('a');
+        logoutBtn.href = '#';
+        logoutBtn.className = 'nav-item';
+        logoutBtn.style.marginTop = '2rem';
+        logoutBtn.style.color = '#ef4444';
+        logoutBtn.innerHTML = '<i class="fa-solid fa-right-from-bracket"></i> Çıkış Yap';
+        logoutBtn.id = 'sidebarLogoutBtn';
+        nav.appendChild(logoutBtn);
+        
+        logoutBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (confirm('Oturumu kapatmak istediğinize emin misiniz?')) {
+                firebase.auth().signOut().then(() => {
+                    localStorage.clear();
+                    window.location.href = 'login.html';
+                });
+            }
+        });
+    }
+});

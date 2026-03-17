@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ödeme Takibi | SATIŞ KİŞİSEL KULLANIM</title>
-    <link rel="stylesheet" href="css/style.css?v=1.4">
+    <link rel="stylesheet" href="css/style.css?v=1.5">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
@@ -120,14 +120,13 @@
                     </div>
                     <div class="table-responsive">
                         <table>
-                            <thead>
-                                <tr>
+                                        <tr>
                                     <th>Firma Adı</th>
-                                    <th>Toplam Sipariş ($)</th>
-                                    <th>Toplam Tahsilat ($)</th>
+                                    <th class="hide-mobile">Toplam Sipariş ($)</th>
+                                    <th class="hide-mobile">Toplam Tahsilat ($)</th>
                                     <th>Net Bakiye ($)</th>
-                                    <th>Son Ödeme</th>
-                                    <th>Durum</th>
+                                    <th class="hide-mobile">Son Ödeme</th>
+                                    <th class="hide-mobile">Durum</th>
                                     <th>İşlem</th>
                                 </tr>
                             </thead>
@@ -202,10 +201,11 @@
 
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
     <!-- Firebase Sync Logic -->
-    <script src="js/firebase-sync.js?v=1.4"></script>
-    <script src="js/main.js?v=1.4"></script>
+    <script src="js/firebase-sync.js?v=1.5"></script>
+    <script src="js/main.js?v=1.5"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const tableBody = document.getElementById('paymentTableBody');
@@ -248,11 +248,11 @@
 
                     tr.innerHTML = `
                         <td style="font-weight:600;">${firma.ad}</td>
-                        <td>${formatCurrency(siparisToplami)}</td>
-                        <td style="color:var(--success);">${formatCurrency(tahsilatToplami)}</td>
+                        <td class="hide-mobile">${formatCurrency(siparisToplami)}</td>
+                        <td class="hide-mobile" style="color:var(--success);">${formatCurrency(tahsilatToplami)}</td>
                         <td style="font-weight:700; color:${netBakiye > 0 ? 'var(--danger)' : 'var(--success)'};">${formatCurrency(netBakiye)}</td>
-                        <td style="color: var(--text-muted); font-size: 0.85rem;">${sonTahsilatDate}</td>
-                        <td>${statusBadge}</td>
+                        <td class="hide-mobile" style="color: var(--text-muted); font-size: 0.85rem;">${sonTahsilatDate}</td>
+                        <td class="hide-mobile">${statusBadge}</td>
                         <td>
                             <a href="firma_detay.html?id=${firma.id}" class="btn-icon" title="Cari Detay ve Tahsilat Ekle">
                                 <i class="fa-solid fa-magnifying-glass-dollar"></i>
