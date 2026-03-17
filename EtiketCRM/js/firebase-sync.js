@@ -15,30 +15,10 @@ const auth = firebase.auth();
 
 // 0. Auth Guard
 auth.onAuthStateChanged(user => {
-    if (localStorage.getItem('debug_bypass_auth') === 'true') return; // Debug Geçici Giriş
     if (!user && !window.location.pathname.endsWith('login.html')) {
         window.location.href = 'login.html';
     }
 });
-
-// Dynamic bypass wrapper injector for login.html explicitly
-if (window.location.pathname.endsWith('login.html')) {
-    document.addEventListener('DOMContentLoaded', () => {
-        const form = document.getElementById('loginForm');
-        if (form && !document.getElementById('dynamicBypassBtn')) {
-            const p = document.createElement('p');
-            p.style.textAlign = 'center';
-            p.style.fontSize = '1.1rem';
-            p.style.marginTop = '2rem';
-            p.style.background = 'rgba(239, 68, 68, 0.1)';
-            p.style.padding = '10px';
-            p.style.border = '1px dashed #ef4444';
-            p.style.borderRadius = '8px';
-            p.innerHTML = `<a href="#" id="dynamicBypassBtn" onclick="localStorage.setItem('debug_bypass_auth', 'true'); window.location.href='index.html'; return false;" style="color: #ef4444; text-decoration: none; font-weight:700;">🚨 BURAYA TIKLAYARAK GİRİŞ YAPIN 🚨</a>`;
-            form.appendChild(p);
-        }
-    });
-}
 
 let isSyncingFromFirestore = false;
 
