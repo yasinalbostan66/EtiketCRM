@@ -28,26 +28,30 @@ const COLLECTIONS = ['firmalar', 'siparisler', 'tahsilatlar', 'malzeme_fiyatlari
 COLLECTIONS.forEach(col => {
     db.collection(col).onSnapshot(snapshot => {
         isSyncingFromFirestore = true;
-        
-        // 1. Mevcut yerel veriyi al
-        const localItems = JSON.parse(localStorage.getItem(`etiket_crm_${col}`) || '[]');
-        
-        // 2. Firestore'dan gelen veriler
-        const firestoreItems = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        
-        // 3. Birleştir (Merge): Firestore'daki güncel kalır, ancak yerelde olup Firestore'da henüz olmayanlar (yeni eklenenler) kaybolmaz.
-        const merged = [...localItems];
-        firestoreItems.forEach(fItem => {
-            const index = merged.findIndex(l => l.id === fItem.id);
-            if (index > -1) {
-                merged[index] = fItem; // Güncelle
-            } else {
-                merged.push(fItem); // Ekle
-            }
-        });
+        try {
+            // 1. Mevcut yerel veriyi al
+            const localItems = JSON.parse(localStorage.getItem(`etiket_crm_${col}`) || '[]');
+            
+            // 2. Firestore'dan gelen veriler
+            const firestoreItems = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            
+            // 3. Birleştir (Merge)
+            const merged = [...localItems];
+            firestoreItems.forEach(fItem => {
+                const index = merged.findIndex(l => l.id === fItem.id);
+                if (index > -1) {
+                    merged[index] = fItem; 
+                } else {
+                    merged.push(fItem); 
+                }
+            });
 
-        localStorage.setItem(`etiket_crm_${col}`, JSON.stringify(merged));
-        isSyncingFromFirestore = false;
+            localStorage.setItem(`etiket_crm_${col}`, JSON.stringify(merged));
+        } catch (e) {
+            console.error(`Snapshot İşleme Hatası [${col}]:`, e);
+        } finally {
+            isSyncingFromFirestore = false;
+        }
         
         // Ekranları tetikle (Trigger events)
         window.dispatchEvent(new Event('storage'));
