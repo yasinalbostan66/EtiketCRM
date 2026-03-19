@@ -119,30 +119,6 @@ localStorage.setItem = function(key, value) {
     }
 };
 
-// 3. User Sign Out Injection into Sidebar
-document.addEventListener('DOMContentLoaded', () => {
-    const nav = document.querySelector('.sidebar-nav');
-    if (nav && !document.getElementById('sidebarLogoutBtn')) {
-        const logoutBtn = document.createElement('a');
-        logoutBtn.href = '#';
-        logoutBtn.className = 'nav-item';
-        logoutBtn.style.marginTop = '2rem';
-        logoutBtn.style.color = '#ef4444';
-        logoutBtn.innerHTML = '<i class="fa-solid fa-right-from-bracket"></i> Çıkış Yap';
-        logoutBtn.id = 'sidebarLogoutBtn';
-        nav.appendChild(logoutBtn);
-        
-        logoutBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            if (confirm('Oturumu kapatmak istediğinize emin misiniz?')) {
-                firebase.auth().signOut().then(() => {
-                    localStorage.clear();
-                    window.location.href = 'login.html';
-                });
-            }
-        });
-    }
-});
 
 // 4. Connection Status Indicator for Diagnostics (Click to Expand)
 document.addEventListener('DOMContentLoaded', () => {
@@ -280,100 +256,27 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// 6. Change Password Modal Injection
+// Logout Button Injection to Main Sidebar
 document.addEventListener('DOMContentLoaded', () => {
-    // 6a. Create Modal HTML Structure
-    const modalHTML = `
-    <div id="changePassModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:10000; justify-content:center; align-items:center; backdrop-filter:blur(4px);">
-        <div style="background:#1e293b; padding:2rem; border-radius:12px; width:90%; max-width:320px; border:1px solid rgba(255,255,255,0.08); box-shadow:0 10px 25px rgba(0,0,0,0.5);">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
-                <div style="font-weight:600; color:#f8fafc; font-size:1.1rem;"><i class="fa-solid fa-key"></i> Şifre Değiştir</div>
-                <button onclick="document.getElementById('changePassModal').style.display='none'" style="background:none; border:none; color:#94a3b8; font-size:1.2rem; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <form id="changePassForm">
-                <div style="margin-bottom:1rem;">
-                    <label style="display:block; font-size:0.8rem; color:#94a3b8; margin-bottom:0.4rem;">Yeni Şifre</label>
-                    <input type="password" id="newPassInput" required style="width:100%; padding:8px 12px; border-radius:6px; background:#0f172a; border:1px solid #334155; color:#f8fafc; font-size:0.9rem;" placeholder="En az 6 karakter">
-                </div>
-                <div style="margin-bottom:1.5rem;">
-                    <label style="display:block; font-size:0.8rem; color:#94a3b8; margin-bottom:0.4rem;">Yeni Şifre (Tekrar)</label>
-                    <input type="password" id="newPassInputVerify" required style="width:100%; padding:8px 12px; border-radius:6px; background:#0f172a; border:1px solid #334155; color:#f8fafc; font-size:0.9rem;" placeholder="Şifreyi onaylayın">
-                </div>
-                <button type="submit" style="width:100%; padding:10px; border-radius:6px; background:#3b82f6; color:#fff; border:none; font-weight:600; cursor:pointer;" id="submitPassBtn">Kaydet</button>
-                <div id="passMsg" style="margin-top:0.8rem; font-size:0.75rem; text-align:center;"></div>
-            </form>
-        </div>
-    </div>`;
-
-    // Append modal to body
-    const div = document.createElement('div');
-    div.innerHTML = modalHTML;
-    document.body.appendChild(div);
-
-    // 6b. Form Handler
-    const form = document.getElementById('changePassForm');
-    form.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const p1 = document.getElementById('newPassInput').value;
-        const p2 = document.getElementById('newPassInputVerify').value;
-        const msg = document.getElementById('passMsg');
-        const btn = document.getElementById('submitPassBtn');
-
-        if (p1 !== p2) {
-            msg.textContent = "❌ Şifreler uyuşmuyor!";
-            msg.style.color = "#ef4444";
-            return;
-        }
-
-        if (p1.length < 6) {
-            msg.textContent = "❌ En az 6 karakter olmalıdır!";
-            msg.style.color = "#ef4444";
-            return;
-        }
-
-        btn.disabled = true;
-        btn.textContent = "Kaydediliyor...";
+    const nav = document.querySelector('.sidebar-nav');
+    if (nav && !document.getElementById('sidebarLogoutBtn')) {
+        const logoutBtn = document.createElement('a');
+        logoutBtn.href = '#';
+        logoutBtn.className = 'nav-item';
+        logoutBtn.style.marginTop = '2rem';
+        logoutBtn.style.color = '#ef4444';
+        logoutBtn.innerHTML = '<i class="fa-solid fa-right-from-bracket"></i> Çıkış Yap';
+        logoutBtn.id = 'sidebarLogoutBtn';
+        nav.appendChild(logoutBtn);
         
-        const user = firebase.auth().currentUser;
-        if (user) {
-            user.updatePassword(p1).then(() => {
-                msg.textContent = "✅ Şifre başarıyla güncellendi!";
-                msg.style.color = "#22c55e";
-                setTimeout(() => {
-                    document.getElementById('changePassModal').style.display = 'none';
-                    form.reset();
-                    msg.textContent = "";
-                    btn.disabled = false;
-                    btn.textContent = "Kaydet";
-                }, 2000);
-            }).catch(e => {
-                console.error(e);
-                msg.textContent = "❌ Hata: " + e.message;
-                msg.style.color = "#ef4444";
-                btn.disabled = false;
-                btn.textContent = "Kaydet";
-                if (e.code === 'auth/requires-recent-login') {
-                    alert('Güvenlik için bu işlemden önce çıkış yapıp tekrar şifre ile girmeniz gerekmektedir.');
-                }
-            });
-        }
-    });
-
-    // 6c. Append trigger on sidebar next to logout
-    const logoutBtn = document.getElementById('sidebarLogoutBtn');
-    if (logoutBtn && !document.getElementById('sidebarPassBtn')) {
-        const passBtn = document.createElement('a');
-        passBtn.href = '#';
-        passBtn.className = 'nav-item';
-        passBtn.innerHTML = '<i class="fa-solid fa-lock"></i> Şifre Değiştir';
-        passBtn.id = 'sidebarPassBtn';
-        passBtn.style.color = '#3b82f6';
-        passBtn.style.marginTop = '0.5rem';
-        logoutBtn.parentNode.insertBefore(passBtn, logoutBtn);
-        
-        passBtn.addEventListener('click', (e) => {
+        logoutBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            document.getElementById('changePassModal').style.display = 'flex';
+            if (confirm('Oturumu kapatmak istediğinize emin misiniz?')) {
+                firebase.auth().signOut().then(() => {
+                    localStorage.clear();
+                    window.location.href = 'login.html';
+                });
+            }
         });
     }
 });

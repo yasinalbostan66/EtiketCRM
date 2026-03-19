@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="images/icon-192.png">
+    <title>Genel Ayarlar | SATIŞ KİŞİSEL KULLANIM</title>
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/style.css?v=3.0">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .settings-card {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow-sm);
+        }
+        .settings-card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.8rem;
+        }
+        
+        .theme-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 15px;
+        }
+        
+        .theme-option {
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .theme-option:hover {
+            border-color: var(--primary-light);
+            background: var(--surface-hover);
+        }
+        
+        .theme-option.active {
+            border-color: var(--primary);
+            background: var(--primary-light);
+        }
+        
+        .theme-option i {
+            font-size: 2rem;
+            margin-bottom: 8px;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <script>if(localStorage.getItem("etiket_crm_theme") === "light") document.body.classList.add("light-mode");</script>
+
+    <div class="app-wrapper">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="logo">
+                    <i class="fa-solid fa-layer-group"></i>
+                    SATIŞ KİŞİSEL KULLANIM
+                </a>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a href="index.html" class="nav-item">
+                    <i class="fa-solid fa-chart-line"></i>
+                    Genel Bakış
+                </a>
+                <a href="analiz.html" class="nav-item">
+                    <i class="fa-solid fa-chart-pie"></i>
+                    Analiz & Raporlar
+                </a>
+                <a href="firmalar.html" class="nav-item">
+                    <i class="fa-solid fa-users"></i>
+                    Müşteriler / Firmalar
+                </a>
+                <a href="ziyaretler.html" class="nav-item">
+                    <i class="fa-solid fa-clipboard-list"></i>
+                    Ziyaret Kayıtları
+                </a>
+                <a href="takvim.html" class="nav-item">
+                    <i class="fa-solid fa-calendar-days"></i>
+                    Ziyaret Takvimi
+                </a>
+                <a href="odeme_takibi.html" class="nav-item">
+                    <i class="fa-solid fa-money-bill-transfer"></i>
+                    Ödeme Takibi & Cari
+                </a>
+                
+                <a href="malzeme_fiyatlari.html" class="nav-item">
+                    <i class="fa-solid fa-tags"></i>
+                    Malzeme Fiyatları
+                </a>
+                <div style="margin: 1rem 0 0.5rem 1rem; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">
+                    Hesaplama Modülleri
+                </div>
+                
+                <a href="murekkep.html" class="nav-item">
+                    <i class="fa-solid fa-droplet"></i>
+                    Mürekkep
+                </a>
+                <a href="kagit.html" class="nav-item">
+                    <i class="fa-solid fa-scroll"></i>
+                    Kağıt
+                </a>
+                <a href="sarf_malzeme.html" class="nav-item">
+                    <i class="fa-solid fa-box-open"></i>
+                    Sarf Malzeme
+                </a>
+                <a href="klise.html" class="nav-item">
+                    <i class="fa-solid fa-compass-drafting"></i>
+                    Klişe
+                </a>
+                
+                <div style="margin: 1rem 0 0.5rem 1rem; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">
+                    Sistem
+                </div>
+                <a href="ayarlar.html" class="nav-item active">
+                    <i class="fa-solid fa-gear"></i>
+                    Ayarlar
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Topbar -->
+            <header class="top-header">
+                <div class="d-flex align-center gap-2">
+                    <button class="btn-icon hide-desktop" id="mobileMenuBtn">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <div class="page-title">Genel Ayarlar</div>
+                </div>
+            </header>
+
+            <!-- Content -->
+            <div class="content-wrapper">
+                
+                <div style="max-width: 800px; margin: 0 auto; width: 100%;">
+                    <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                    
+                    <!-- Görünüm / Tema Ayarları -->
+                    <div class="settings-card" style="grid-column: 1 / -1;">
+                        <h2 class="settings-card-title"><i class="fa-solid fa-palette"></i> Görünüm / Tema</h2>
+                        <div class="theme-selector" id="themeSelector">
+                            <div class="theme-option" data-theme="dark" id="theme-dark">
+                                <i class="fa-solid fa-moon" style="color: #a78bfa;"></i>
+                                <span style="font-weight:600;">Karanlık Mod</span>
+                            </div>
+                            <div class="theme-option" data-theme="light" id="theme-light">
+                                <i class="fa-solid fa-sun" style="color: #eab308;"></i>
+                                <span style="font-weight:600;">Aydınlık Mod</span>
+                            </div>
+                            <div class="theme-option" data-theme="blue" id="theme-blue">
+                                <i class="fa-solid fa-droplet" style="color: #0ea5e9;"></i>
+                                <span style="font-weight:600;">Gökyüzü Mavi</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Profil & Şirket Bilgisi (Yerel) -->
+                    <div class="settings-card">
+                        <h2 class="settings-card-title"><i class="fa-solid fa-user-tie"></i> Kişisel Profil & Firma</h2>
+                        <div class="form-group">
+                            <label>Sistem Kullanıcı Adı / Ad Soyad</label>
+                            <input type="text" class="form-control" id="profileName" placeholder="Örn: Yasin Albostanlı">
+                            <small style="color:var(--text-muted); margin-top:5px; display:block;">Sağ üst köşedeki isim baş harflerini belirler.</small>
+                        </div>
+                        <div class="form-group">
+                            <label>Sipariş Onay Formu - Firma Adınız</label>
+                            <input type="text" class="form-control" id="companyName" placeholder="Örn: YA Danışmanlık Ltd. Şti.">
+                            <small style="color:var(--text-muted); margin-top:5px; display:block;">Çıktı alırken antetli başlıkta görünecek firma ünvanınız.</small>
+                        </div>
+                        <button class="btn btn-primary" id="saveProfileBtn"><i class="fa-solid fa-floppy-disk"></i> Ayarları Kaydet</button>
+                    </div>
+
+                    <!-- Sistem Tercihleri -->
+                    <div class="settings-card">
+                        <h2 class="settings-card-title"><i class="fa-solid fa-sliders"></i> Sistem Tercihleri</h2>
+                        <div class="form-group">
+                            <label>Varsayılan Para Birimi</label>
+                            <select class="form-control" id="defaultCurrency">
+                                <option value="USD">Dolar (USD)</option>
+                                <option value="TRY">Türk Lirası (TRY)</option>
+                                <option value="EUR">Euro (EUR)</option>
+                            </select>
+                            <small style="color:var(--text-muted); margin-top:5px; display:block;">Analiz ve modüllerdeki varsayılan gösterim para birimi.</small>
+                        </div>
+                        <div class="form-group" style="display:flex; justify-content:space-between; align-items:center; margin-top:1rem;">
+                            <label style="margin-bottom:0;">Tablo ve Bildirim Animasyonları</label>
+                            <input type="checkbox" id="enableAnimations" checked style="width: 18px; height: 18px; cursor: pointer;">
+                        </div>
+                        <button class="btn btn-primary mt-3" id="saveSystemPrefsBtn"><i class="fa-solid fa-check"></i> Tercihleri Kaydet</button>
+                    </div>
+
+                    <!-- Hesap ve Güvenlik (Firebase) -->
+                    <div class="settings-card">
+                        <h2 class="settings-card-title"><i class="fa-solid fa-shield-halved"></i> Hesap ve Güvenlik</h2>
+                        <div class="form-group">
+                            <label>Mevcut Oturum E-Posta</label>
+                            <div id="currentUserEmail" style="font-weight:600; padding:10px 14px; background:var(--bg-color); border:1px solid var(--border-color); border-radius:6px; color:var(--text-muted);">Yükleniyor...</div>
+                        </div>
+                        <div class="form-group">
+                            <label>Yeni Şifre Belirle</label>
+                            <input type="password" class="form-control" id="newPassword" placeholder="Yeni şifrenizi girin (En az 6 karakter)">
+                        </div>
+                        <div style="margin-top:0.5rem;">
+                            <button class="btn btn-outline" style="width:100%; border-color:var(--primary); color:var(--primary);" id="btnUpdatePassword"><i class="fa-solid fa-key"></i> Şifreyi Güncelle</button>
+                        </div>
+                    </div>
+
+                    <!-- Veri Yedekleme -->
+                    <div class="settings-card">
+                        <h2 class="settings-card-title"><i class="fa-solid fa-cloud"></i> Veri Senkronizasyonu & Yedekleme</h2>
+                        <div style="margin-bottom:1.5rem;">
+                            <label style="font-weight:600; font-size:0.85rem; color:var(--text-muted); display:block; margin-bottom:0.5rem;">Cihazınıza İndirin (Tüm Veriler)</label>
+                            <button class="btn btn-outline" style="width:100%; justify-content:center;" onclick="exportData()"><i class="fa-solid fa-file-export"></i> Yedek İndir (.json)</button>
+                        </div>
+                        <div style="margin-bottom:1.5rem;">
+                            <label style="font-weight:600; font-size:0.85rem; color:var(--text-muted); display:block; margin-bottom:0.5rem;">Yedeği Geri Yükle</label>
+                            <label class="btn btn-outline" style="display:flex; justify-content:center; cursor:pointer; width:100%;">
+                                <i class="fa-solid fa-file-import"></i> Dosya Seç ve Yükle
+                                <input type="file" id="importFile" style="display:none;" accept=".json" onchange="importData(this)">
+                            </label>
+                        </div>
+                        <hr style="border:0; border-top:1px solid var(--border-color); margin: 15px 0;">
+                        <div>
+                            <label style="font-weight:600; font-size:0.85rem; color:var(--text-muted); display:block; margin-bottom:0.5rem;">GitHub / URL'den Veri Çek</label>
+                            <div style="display:flex; gap:0.5rem;">
+                                <input type="text" id="githubUrl" class="form-control" placeholder="Raw JSON URL (GitHub, Gist vb.)" style="flex:1;">
+                                <button class="btn btn-primary" onclick="loadFromUrl()"><i class="fa-solid fa-cloud-arrow-down"></i> Yükle</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sistemi Sıfırla -->
+                    <div class="settings-card" style="border-color: rgba(239, 68, 68, 0.3);">
+                        <h2 class="settings-card-title" style="color: var(--danger); border-color: rgba(239, 68, 68, 0.3);"><i class="fa-solid fa-triangle-exclamation"></i> Tehlikeli İşlemler</h2>
+                        <p style="font-size: 0.9rem; margin-bottom: 1rem; line-height: 1.5;">Dikkat: Bu işlem tarayıcınızdaki (veya cihazınızdaki) **tüm siparişleri, firmaları ve ayarları** kalıcı olarak siler ve başa döndürür. Lütfen önce yedek aldığınızdan emin olun.</p>
+                        <button class="btn btn-danger" onclick="resetSystemData()"><i class="fa-solid fa-trash-can"></i> Tüm Sistemi Sıfırla (Verileri Sil)</button>
+                    </div>
+
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Mobile Bottom Navigation (Similar structure) -->
+    <nav class="mobile-bottom-nav">
+        <a href="index.html" class="bottom-nav-item">
+            <i class="fa-solid fa-chart-line"></i>
+            Özet
+        </a>
+        <a href="analiz.html" class="bottom-nav-item">
+            <i class="fa-solid fa-chart-pie"></i>
+            Analiz
+        </a>
+        <a href="firmalar.html" class="bottom-nav-item">
+            <i class="fa-solid fa-users"></i>
+            Firmalar
+        </a>
+        <a href="ayarlar.html" class="bottom-nav-item active">
+            <i class="fa-solid fa-gear"></i>
+            Ayarlar
+        </a>
+        <button class="bottom-nav-item" onclick="document.body.classList.toggle('sidebar-open')">
+            <i class="fa-solid fa-bars"></i>
+            Menü
+        </button>
+    </nav>
+    <div class="sidebar-overlay" onclick="document.body.classList.remove('sidebar-open')"></div>
+
+    <!-- Firebase & JS Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+    <script src="js/firebase-sync.js?v=3.0"></script>
+    <script src="js/main.js?v=3.0"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Theme initial highlight
+            const currentTheme = localStorage.getItem('etiket_crm_theme') || 'dark';
+            document.querySelectorAll('.theme-option').forEach(el => el.classList.remove('active'));
+            const activeEl = document.getElementById('theme-' + currentTheme);
+            if(activeEl) activeEl.classList.add('active');
+
+            // Theme click events
+            document.querySelectorAll('.theme-option').forEach(el => {
+                el.addEventListener('click', () => {
+                    const theme = el.getAttribute('data-theme');
+                    document.body.classList.remove('light-mode', 'blue-mode');
+                    
+                    if (theme === 'light') document.body.classList.add('light-mode');
+                    if (theme === 'blue') document.body.classList.add('blue-mode');
+
+                    localStorage.setItem('etiket_crm_theme', theme);
+
+                    document.querySelectorAll('.theme-option').forEach(t => t.classList.remove('active'));
+                    el.classList.add('active');
+                });
+            });
+
+            // Profile info handling
+            const storedName = localStorage.getItem('etiket_crm_userName') || '';
+            const storedCompany = localStorage.getItem('etiket_crm_companyName') || '';
+
+            document.getElementById('profileName').value = storedName;
+            document.getElementById('companyName').value = storedCompany;
+
+            document.getElementById('saveProfileBtn').addEventListener('click', () => {
+                const pName = document.getElementById('profileName').value.trim();
+                const cName = document.getElementById('companyName').value.trim();
+
+                localStorage.setItem('etiket_crm_userName', pName);
+                localStorage.setItem('etiket_crm_companyName', cName);
+
+                showToast('Profil ayarları başarıyla kaydedildi.', 'success');
+                
+                // Update header initials instantly if exists in desktop UI view
+                const initials = pName ? pName.substring(0, 2).toUpperCase() : 'YA';
+                document.querySelectorAll('.header-actions .user-initials').forEach(el => {
+                    el.textContent = initials;
+                });
+            });
+            
+            // Mobil Menü Toggle
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            if (mobileMenuBtn) {
+                mobileMenuBtn.addEventListener('click', () => {
+                    document.body.classList.add('sidebar-open');
+                });
+            }
+
+            // --- Sistem Tercihleri ---
+            const storedCurrency = localStorage.getItem('etiket_crm_defaultCurrency') || 'USD';
+            const storedAnim = localStorage.getItem('etiket_crm_animations') !== 'false';
+            document.getElementById('defaultCurrency').value = storedCurrency;
+            document.getElementById('enableAnimations').checked = storedAnim;
+
+            document.getElementById('saveSystemPrefsBtn').addEventListener('click', () => {
+                localStorage.setItem('etiket_crm_defaultCurrency', document.getElementById('defaultCurrency').value);
+                localStorage.setItem('etiket_crm_animations', document.getElementById('enableAnimations').checked);
+                showToast('Sistem tercihleri başarıyla kaydedildi.', 'success');
+            });
+
+            // --- Firebase Auth (Hesap & Güvenlik) ---
+            firebase.auth().onAuthStateChanged(user => {
+                const mailDiv = document.getElementById('currentUserEmail');
+                if (user) {
+                    mailDiv.textContent = user.email;
+                    mailDiv.style.color = "var(--text-main)";
+                } else {
+                    mailDiv.textContent = "Aktif bir bulut oturumu bulunmuyor (Önbellek (Yerel) Modu)";
+                }
+            });
+
+            document.getElementById('btnUpdatePassword').addEventListener('click', () => {
+                const user = firebase.auth().currentUser;
+                const newPass = document.getElementById('newPassword').value;
+                if (!user) {
+                    return showToast('Bağlı bir bulut hesabı bulunamadı!', 'error');
+                }
+                if (newPass.length < 6) {
+                    return showToast('Şifre en az 6 karakter olmalıdır.', 'error');
+                }
+                
+                user.updatePassword(newPass).then(() => {
+                    showToast('Şifreniz başarıyla güncellendi.', 'success');
+                    document.getElementById('newPassword').value = '';
+                }).catch(err => {
+                    console.error('Şifre güncelleme hatası', err);
+                    if (err.code === 'auth/requires-recent-login') {
+                        showToast('Güvenlik nedeniyle çıkış yapıp tekrar giriş yapmalısınız.', 'error');
+                    } else {
+                        showToast('Hata: ' + err.message, 'error');
+                    }
+                });
+            });
+
+
+        });
+
+        // System Reset
+        window.resetSystemData = function() {
+            const confirmed = confirm("Tüm firma ve sipariş verileriniz kalıcı olarak silinecektir! İşlemi onaylıyor musunuz?");
+            if (confirmed) {
+                const secConfirm = confirm("Emin misiniz? Geri dönüşü yoktur!");
+                if (secConfirm) {
+                    localStorage.removeItem('etiket_crm_firmalar');
+                    localStorage.removeItem('etiket_crm_siparisler');
+                    localStorage.removeItem('etiket_crm_tahsilatlar');
+                    localStorage.removeItem('etiket_crm_ziyaretler');
+                    localStorage.removeItem('etiket_crm_malzeme_fiyatlari');
+                    localStorage.removeItem('etiket_crm_theme');
+                    showToast('Sistem başarıyla sıfırlandı! Yeniden yükleniyor...', 'success');
+                    setTimeout(() => location.reload(), 2000);
+                }
+            }
+        };
+    </script>
+</body>
+</html>

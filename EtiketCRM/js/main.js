@@ -258,6 +258,14 @@ document.addEventListener('DOMContentLoaded', () => {
     if (currentTheme === 'light') document.body.classList.add('light-mode');
     if (currentTheme === 'blue') document.body.classList.add('blue-mode');
 
+    // Profil Baş Harfi Düzenleme
+    const pName = localStorage.getItem('etiket_crm_userName');
+    if (pName) {
+        const initials = pName.trim().substring(0, 2).toUpperCase();
+        const avatarEl = document.getElementById('userAvatarStr');
+        if (avatarEl && initials.length > 0) avatarEl.textContent = initials;
+    }
+
     if (headerActions) {
         let toggleBtn = document.getElementById('themeToggle');
         if (!toggleBtn) {
@@ -350,6 +358,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 <i class="fa-solid fa-chart-line"></i>
                 <span>Özet</span>
             </a>
+            <a href="analiz.html" class="bottom-nav-item ${cleanedPath === 'analiz.html' ? 'active' : ''}">
+                <i class="fa-solid fa-chart-pie"></i>
+                <span>Analiz</span>
+            </a>
             <a href="firmalar.html" class="bottom-nav-item ${cleanedPath.includes('firmalar') || cleanedPath.includes('firma_detay') ? 'active' : ''}">
                 <i class="fa-solid fa-users"></i>
                 <span>Firmalar</span>
@@ -357,10 +369,6 @@ document.addEventListener('DOMContentLoaded', () => {
             <a href="takvim.html" class="bottom-nav-item ${cleanedPath.includes('takvim') ? 'active' : ''}">
                 <i class="fa-solid fa-calendar-days"></i>
                 <span>Takvim</span>
-            </a>
-            <a href="odeme_takibi.html" class="bottom-nav-item ${cleanedPath.includes('odeme') ? 'active' : ''}">
-                <i class="fa-solid fa-money-bill-transfer"></i>
-                <span>Cari</span>
             </a>
             <button class="bottom-nav-item" id="bottomMenuGridBtn">
                 <i class="fa-solid fa-bars"></i>
