@@ -27,42 +27,123 @@
 }
 
 body.light-mode {
-    --bg-color: #f8fafc; 
+    --bg-color: #f1f5f9; 
     --surface-color: #ffffff;
-    --surface-hover: #f1f5f9; 
+    --surface-hover: #f8fafc; 
     --border-color: #e2e8f0; 
     
     --text-main: #0f172a; 
     --text-muted: #64748b; 
     
-    --primary: #0ea5e9; 
-    --primary-hover: #0284c7;
-    --primary-light: rgba(14, 165, 233, 0.05);
+    --primary: #3b82f6; 
+    --primary-hover: #2563eb;
+    --primary-light: rgba(59, 130, 246, 0.1);
 
-    --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
-    --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.05);
-    --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.05);
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
 }
 
-/* Light Modda Koyu Menü (Sidebar) Hibrit Tasarım */
 body.light-mode .sidebar {
-    background: #090b14 !important;
-    border-right: 1px solid rgba(255, 255, 255, 0.04);
+    background: #ffffff !important;
+    border-right: 1px solid #e2e8f0;
 }
 body.light-mode .sidebar .logo {
-    color: #f8fafc !important;
+    color: #0f172a !important;
 }
 body.light-mode .sidebar .nav-item {
-    color: #94a3b8 !important;
+    color: #475569 !important;
 }
 body.light-mode .sidebar .nav-item:hover {
-    background: rgba(255, 255, 255, 0.04) !important;
-    color: #ffffff !important;
+    background: #f8fafc !important;
+    color: #0f172a !important;
 }
 body.light-mode .sidebar .nav-item.active {
-    background: rgba(56, 189, 248, 0.08) !important;
-    color: #38bdf8 !important;
-    border-left: 3px solid #38bdf8;
+    background: rgba(59, 130, 246, 0.08) !important;
+    color: #3b82f6 !important;
+    border-left: 3px solid #3b82f6;
+}
+
+body.light-mode .top-header {
+    background-color: rgba(255, 255, 255, 0.85);
+    border-bottom: 1px solid #e2e8f0;
+}
+
+body.light-mode .mobile-bottom-nav {
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
+}
+
+body.light-mode .bottom-nav-item {
+    color: #64748b !important;
+}
+
+body.light-mode .bottom-nav-item.active {
+    color: #3b82f6 !important;
+}
+body.light-mode .bottom-nav-item.active i {
+    color: #3b82f6 !important;
+}
+body.light-mode .bottom-nav-item.active::after {
+    background: #3b82f6 !important;
+    box-shadow: 0 0 8px rgba(59, 130, 246, 0.6) !important;
+}
+
+body.light-mode .header-rates {
+    background: #f1f5f9 !important;
+    border: 1px solid #e2e8f0 !important;
+}
+body.light-mode .header-rates div {
+    color: #1e293b !important;
+}
+
+body.light-mode .stat-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+body.light-mode .stat-card:hover {
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    border-color: #cbd5e1;
+    transform: translateY(-4px);
+    background: #ffffff; /* Override its gradient behavior */
+}
+
+body.light-mode th {
+    background: #f8fafc;
+    color: #475569;
+}
+
+body.light-mode tbody tr:hover {
+    background-color: #f8fafc;
+}
+
+body.light-mode .form-control {
+    background-color: #ffffff;
+    border: 1px solid #cbd5e1;
+    color: #0f172a;
+}
+body.light-mode .form-control:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+body.light-mode #siparisTableContainer tr {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+}
+body.light-mode #siparisTableContainer td {
+    border-bottom: 1px solid #f1f5f9 !important;
+}
+
+body.light-mode .btn-icon {
+    border-color: #e2e8f0;
+    color: #475569;
+}
+body.light-mode .btn-icon:hover {
+    background: #f8fafc;
+    color: #0f172a;
 }
 
 body.blue-mode {

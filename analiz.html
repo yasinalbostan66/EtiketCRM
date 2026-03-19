@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="images/icon-192.png">
+    <title>Analiz & Raporlar | SATIŞ KİŞİSEL KULLANIM</title>
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/style.css?v=3.0">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js for analytics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .chart-container {
+            position: relative;
+            height: 350px;
+            width: 100%;
+            margin-top: 1rem;
+        }
+        
+        @media (max-width: 768px) {
+            .chart-container {
+                height: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <script>if(localStorage.getItem("etiket_crm_theme") === "light") document.body.classList.add("light-mode");</script>
+
+    <div class="app-wrapper">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="logo">
+                    <i class="fa-solid fa-layer-group"></i>
+                    SATIŞ KİŞİSEL KULLANIM
+                </a>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a href="index.html" class="nav-item">
+                    <i class="fa-solid fa-chart-line"></i>
+                    Genel Bakış
+                </a>
+                <a href="analiz.html" class="nav-item active">
+                    <i class="fa-solid fa-chart-pie"></i>
+                    Analiz & Raporlar
+                </a>
+                <a href="firmalar.html" class="nav-item">
+                    <i class="fa-solid fa-users"></i>
+                    Müşteriler / Firmalar
+                </a>
+                <a href="ziyaretler.html" class="nav-item">
+                    <i class="fa-solid fa-clipboard-list"></i>
+                    Ziyaret Kayıtları
+                </a>
+                <a href="takvim.html" class="nav-item">
+                    <i class="fa-solid fa-calendar-days"></i>
+                    Ziyaret Takvimi
+                </a>
+                <a href="odeme_takibi.html" class="nav-item">
+                    <i class="fa-solid fa-money-bill-transfer"></i>
+                    Ödeme Takibi & Cari
+                </a>
+                
+                <a href="malzeme_fiyatlari.html" class="nav-item">
+                    <i class="fa-solid fa-tags"></i>
+                    Malzeme Fiyatları
+                </a>
+                <div style="margin: 1rem 0 0.5rem 1rem; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">
+                    Hesaplama Modülleri
+                </div>
+                
+                <a href="murekkep.html" class="nav-item">
+                    <i class="fa-solid fa-droplet"></i>
+                    Mürekkep
+                </a>
+                <a href="kagit.html" class="nav-item">
+                    <i class="fa-solid fa-scroll"></i>
+                    Kağıt
+                </a>
+                <a href="sarf_malzeme.html" class="nav-item">
+                    <i class="fa-solid fa-box-open"></i>
+                    Sarf Malzeme
+                </a>
+                <a href="klise.html" class="nav-item">
+                    <i class="fa-solid fa-compass-drafting"></i>
+                    Klişe
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Topbar -->
+            <header class="top-header">
+                <div class="d-flex align-center gap-2">
+                    <button class="btn-icon hide-desktop" id="mobileMenuBtn">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <div class="page-title">Satış Analizi & Raporlar</div>
+                </div>
+            </header>
+
+            <!-- Content -->
+            <div class="content-wrapper">
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon blue">
+                            <i class="fa-solid fa-sack-dollar"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="statTotalRevenue">$0</h3>
+                            <p>Toplam Sipariş Hacmi</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon green">
+                            <i class="fa-solid fa-box"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="statTotalItems">0</h3>
+                            <p>Toplam Sipariş Kalemi</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-grid" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); margin-bottom: 2rem;">
+                    <!-- Aylık Satış Hacmi Chart -->
+                    <div class="panel">
+                        <div class="panel-header">
+                            <h2 class="panel-title"><i class="fa-solid fa-chart-bar"></i> Aylık Satış Hacmi (USD)</h2>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="monthlyChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Ürün Tipine Göre Satış Dağılımı -->
+                    <div class="panel">
+                        <div class="panel-header">
+                            <h2 class="panel-title"><i class="fa-solid fa-chart-pie"></i> Ürün Türüne Göre Hacim ($)</h2>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="typeChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-header">
+                        <h2 class="panel-title">
+                            <i class="fa-solid fa-table-list"></i> Ürün Grubu Analiz (Genel Toplamlar)
+                        </h2>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Ürün Türü</th>
+                                    <th>Kalem Sayısı</th>
+                                    <th>Toplam Hacim (USD)</th>
+                                    <th>Pay (%)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="analysisTableBody">
+                                <!-- JS ile Doldurulacak -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Mobile Bottom Navigation -->
+    <nav class="mobile-bottom-nav">
+        <a href="index.html" class="bottom-nav-item">
+            <i class="fa-solid fa-chart-line"></i>
+            Paneller
+        </a>
+        <a href="analiz.html" class="bottom-nav-item active">
+            <i class="fa-solid fa-chart-pie"></i>
+            Analiz
+        </a>
+        <a href="firmalar.html" class="bottom-nav-item">
+            <i class="fa-solid fa-users"></i>
+            Müşteriler
+        </a>
+        <a href="takvim.html" class="bottom-nav-item">
+            <i class="fa-solid fa-calendar-days"></i>
+            Takvim
+        </a>
+        <button class="bottom-nav-item" onclick="document.body.classList.toggle('sidebar-open')">
+            <i class="fa-solid fa-bars"></i>
+            Menü
+        </button>
+    </nav>
+    <div class="sidebar-overlay" onclick="document.body.classList.remove('sidebar-open')"></div>
+
+    <!-- JS Scripts -->
+    <!-- Firebase SDK (Daha önceden index'te varsa) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+    <!-- Firebase Sync Logic -->
+    <script src="js/firebase-sync.js?v=3.0"></script>
+    <script src="js/main.js?v=3.0"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const siparisler = getSiparisler();
+            
+            // Toplamları hesapla
+            const totalUSD = siparisler.reduce((acc, curr) => acc + (curr.totalPriceUSD || 0), 0);
+            document.getElementById('statTotalRevenue').textContent = formatCurrency(totalUSD);
+            document.getElementById('statTotalItems').textContent = siparisler.length;
+
+            if (siparisler.length === 0) {
+                document.getElementById('analysisTableBody').innerHTML = '<tr><td colspan="4" style="text-align:center;">Henüz sipariş bulunamadı.</td></tr>';
+                return;
+            }
+
+            // --- 1. Aylık Veri Gruplaması ---
+            // Aylar: YYYY-MM formatında
+            const monthlyDataObj = {};
+            siparisler.forEach(s => {
+                const d = new Date(s.date);
+                // "2026-03" şeklinde birleştir
+                const monthKey = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+                if (!monthlyDataObj[monthKey]) {
+                    monthlyDataObj[monthKey] = 0;
+                }
+                monthlyDataObj[monthKey] += s.totalPriceUSD || 0;
+            });
+            
+            // Sıralayalım
+            const sortedMonths = Object.keys(monthlyDataObj).sort();
+            const monthLabels = sortedMonths.map(k => {
+                const parts = k.split('-');
+                const ayIndex = parseInt(parts[1]) - 1;
+                const aylar = ["Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık"];
+                return aylar[ayIndex] + ' ' + parts[0];
+            });
+            const monthValues = sortedMonths.map(k => monthlyDataObj[k]);
+
+            // --- 2. Ürün Türüne Göre Gruplama ---
+            const typeGroup = {};
+            siparisler.forEach(s => {
+                const t = s.type || 'Diğer';
+                if (!typeGroup[t]) {
+                    typeGroup[t] = { amount: 0, count: 0 };
+                }
+                typeGroup[t].amount += s.totalPriceUSD || 0;
+                typeGroup[t].count += 1;
+            });
+
+            const typeLabels = Object.keys(typeGroup);
+            const typeValues = typeLabels.map(t => typeGroup[t].amount);
+            const bgColors = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ef4444', '#06b6d4'];
+
+            // Tabloyu Doldur
+            const tbody = document.getElementById('analysisTableBody');
+            typeLabels.forEach((t, i) => {
+                const row = typeGroup[t];
+                const percentage = totalUSD > 0 ? ((row.amount / totalUSD) * 100).toFixed(1) : 0;
+                
+                let badgeHTML = `<span class="badge" style="background: ${bgColors[i % bgColors.length]}20; color: ${bgColors[i % bgColors.length]};">${t}</span>`;
+                
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${badgeHTML}</td>
+                    <td>${row.count}</td>
+                    <td style="font-weight:600;">${formatCurrency(row.amount)}</td>
+                    <td>%${percentage}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            // Grafik Teması: Dark/Light Mode adaptasyonu
+            const isLight = document.body.classList.contains('light-mode');
+            const textColor = isLight ? '#475569' : '#94a3b8';
+            const gridColor = isLight ? '#e2e8f0' : 'rgba(255, 255, 255, 0.05)';
+
+            Chart.defaults.color = textColor;
+            Chart.defaults.font.family = "'Inter', sans-serif";
+
+            // Aylık Grafik
+            const ctxMonthly = document.getElementById('monthlyChart').getContext('2d');
+            new Chart(ctxMonthly, {
+                type: 'bar',
+                data: {
+                    labels: monthLabels,
+                    datasets: [{
+                        label: 'Satış Hacmi (USD)',
+                        data: monthValues,
+                        backgroundColor: 'rgba(59, 130, 246, 0.8)',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: gridColor },
+                            ticks: { callback: function(val) { return '$' + val; } }
+                        },
+                        x: {
+                            grid: { display: false }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) { return '$' + context.parsed.y.toLocaleString('en-US'); }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Tür Grafiği
+            const ctxType = document.getElementById('typeChart').getContext('2d');
+            new Chart(ctxType, {
+                type: 'doughnut',
+                data: {
+                    labels: typeLabels,
+                    datasets: [{
+                        data: typeValues,
+                        backgroundColor: bgColors.slice(0, typeLabels.length),
+                        borderWidth: isLight ? 2 : 0,
+                        borderColor: isLight ? '#ffffff' : 'transparent',
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '70%',
+                    plugins: {
+                        legend: { position: 'right' },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) { 
+                                    let label = context.label || '';
+                                    if (label) { label += ': '; }
+                                    label += '$' + context.parsed.toLocaleString('en-US');
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Mobil Menü Toggle
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            if (mobileMenuBtn) {
+                mobileMenuBtn.addEventListener('click', () => {
+                    document.body.classList.add('sidebar-open');
+                });
+            }
+        });
+    </script>
+</body>
+</html>
