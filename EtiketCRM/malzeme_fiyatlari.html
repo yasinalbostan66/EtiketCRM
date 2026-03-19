@@ -32,23 +32,67 @@
             gap: 0.5rem;
             justify-content: flex-end;
         }
-        .quick-pick-bar {
+        @media print {
+            @page { size: A4; margin: 10mm; }
+            .sidebar, .top-header, .mobile-bottom-nav, .sidebar-overlay,
+            .no-print { display: none !important; }
+            .main-content { margin-left: 0 !important; width: 100% !important; }
+            .content-wrapper { padding: 0 !important; }
+            body { background: #fff !important; color: #000 !important; }
+            .panel { box-shadow: none !important; border: 1px solid #ccc !important; background: #fff !important; }
+            table { width: 100% !important; border-collapse: collapse !important; }
+            th, td { border: 1px solid #ccc !important; padding: 6px 8px !important; color: #000 !important; background: #fff !important; font-size: 0.8rem !important; }
+            th { background: #f1f5f9 !important; }
+            .action-cell, .btn-icon { display: none !important; }
+            .badge { background: #eee !important; color: #333 !important; }
+        }
+
+        /* Malzeme form 2 kolon düzeni */
+        .malzeme-form-layout {
+            display: grid;
+            grid-template-columns: 1fr 260px;
+            gap: 1.5rem;
+            align-items: start;
+        }
+        @media (max-width: 680px) {
+            .malzeme-form-layout { grid-template-columns: 1fr; }
+        }
+        .quick-panel {
+            background: var(--surface-hover);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 0.75rem;
+            display: none;
+        }
+        .quick-panel.visible { display: block; }
+        .quick-panel-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+        }
+        .quick-panel-btns {
             display: flex;
             flex-wrap: wrap;
-            gap: 6px;
-            margin-top: 6px;
+            gap: 5px;
+            max-height: 200px;
+            overflow-y: auto;
         }
-        .quick-pick-bar button {
-            padding: 3px 10px;
+        .quick-panel-btns button {
+            padding: 4px 10px;
             font-size: 0.78rem;
             border: 1px solid var(--border-color);
-            background: var(--surface-hover);
+            background: var(--surface-color);
             color: var(--text-main);
-            border-radius: 20px;
+            border-radius: 16px;
             cursor: pointer;
-            transition: .2s;
+            transition: .15s;
+            white-space: nowrap;
         }
-        .quick-pick-bar button:hover {
+        .quick-panel-btns button:hover,
+        .quick-panel-btns button.selected {
             background: var(--primary);
             color: #fff;
             border-color: var(--primary);
@@ -139,53 +183,64 @@
                     </div>
                     <form id="malzemeForm">
                         <input type="hidden" id="editMaterialId">
-                        <div class="form-row" style="grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));">
-                            <div class="form-group">
-                                <label for="malzemeTuru">Grup *</label>
-                                <select id="malzemeTuru" class="form-control" required>
-                                    <option value="">Seçiniz...</option>
-                                    <option value="Kağıt">Kağıt</option>
-                                    <option value="Mürekkep">Mürekkep</option>
-                                    <option value="Sarf Malzeme">Sarf Malzeme</option>
-                                </select>
+                        <div class="malzeme-form-layout">
+                            <!-- Sol: form alanları -->
+                            <div>
+                                <div class="form-row" style="grid-template-columns: 1fr 1fr;">
+                                    <div class="form-group">
+                                        <label for="malzemeTuru">Grup *</label>
+                                        <select id="malzemeTuru" class="form-control" required>
+                                            <option value="">Seçiniz...</option>
+                                            <option value="Kağıt">Kağıt</option>
+                                            <option value="Mürekkep">Mürekkep</option>
+                                            <option value="Sarf Malzeme">Sarf Malzeme</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="malzemeAdi">Malzeme Adı *</label>
+                                        <input type="text" id="malzemeAdi" class="form-control" placeholder="örn: Kuşe" required>
+                                    </div>
+                                </div>
+                                <div class="form-row" style="grid-template-columns: 1fr 1fr 1fr;">
+                                    <div class="form-group">
+                                        <label for="birimFiyat">Birim Fiyat *</label>
+                                        <input type="number" id="birimFiyat" class="form-control" step="0.0001" placeholder="0.00" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="dovizCinsi">Para Birimi</label>
+                                        <select id="dovizCinsi" class="form-control" required>
+                                            <option value="USD">($)</option>
+                                            <option value="EUR">(€)</option>
+                                            <option value="TRY">(₺)</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="malzemeBirim">Birim</label>
+                                        <select id="malzemeBirim" class="form-control">
+                                            <option value="kg">kg</option>
+                                            <option value="m²">m²</option>
+                                            <option value="adet">adet</option>
+                                            <option value="Litre">Litre</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="malzemeStok">Mevcut Stok</label>
+                                    <input type="number" id="malzemeStok" class="form-control" step="0.01" min="0" placeholder="0">
+                                </div>
+                                <div style="margin-top: 1rem; display:flex; gap:0.5rem; justify-content:flex-end;">
+                                    <button type="button" id="iptalBtn" class="btn btn-outline" style="display:none;">İptal</button>
+                                    <button type="submit" id="kaydetBtn" class="btn btn-primary">Fiyatı Kaydet</button>
+                                </div>
                             </div>
-                            <div class="form-group">
-                                <label for="malzemeAdi">Malzeme Adı *</label>
-                                <input type="text" id="malzemeAdi" class="form-control" placeholder="Örn: Kuşe" required>
-                                <div class="quick-pick-bar" id="quickPickBar" style="display:none;"></div>
-                            </div>
-                            <div class="form-group">
-                                <label for="birimFiyat">Birim Fiyat *</label>
-                                <input type="number" id="birimFiyat" class="form-control" step="0.0001" placeholder="0.00" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="dovizCinsi">Para Birimi *</label>
-                                <select id="dovizCinsi" class="form-control" required>
-                                    <option value="USD">($)</option>
-                                    <option value="EUR">(€)</option>
-                                    <option value="TRY">(₺)</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="malzemeStok">Mevcut Stok</label>
-                                <input type="number" id="malzemeStok" class="form-control" step="0.01" min="0" placeholder="0">
-                            </div>
-                            <div class="form-group">
-                                <label for="malzemeBirim">Birim</label>
-                                <select id="malzemeBirim" class="form-control">
-                                    <option value="kg">kg</option>
-                                    <option value="m²">m²</option>
-                                    <option value="adet">adet</option>
-                                    <option value="Litre">Litre</option>
-                                </select>
+                            <!-- Sağ: Hızlı seçim panel -->
+                            <div class="quick-panel" id="quickPanel">
+                                <div class="quick-panel-title"><i class="fa-solid fa-bolt"></i> Hızlı Seçim</div>
+                                <div class="quick-panel-btns" id="quickPanelBtns"></div>
                             </div>
                         </div>
-                        <div style="margin-top: 1rem; text-align: right;">
-                            <button type="button" id="iptalBtn" class="btn btn-outline" style="display:none; margin-right:0.5rem;">İptal</button>
-                            <button type="submit" id="kaydetBtn" class="btn btn-primary">Fiyatı Kaydet</button>
-                        </div>
-                    </form>
                 </div>
+
 
     <script>
     const MATBAA_MALZEME = {
@@ -207,18 +262,21 @@
 
     document.getElementById('malzemeTuru').addEventListener('change', function() {
         const grp = this.value;
-        const bar = document.getElementById('quickPickBar');
-        bar.innerHTML = '';
-        if (!grp || !MATBAA_MALZEME[grp]) { bar.style.display='none'; return; }
-        bar.style.display = 'flex';
+        const panel = document.getElementById('quickPanel');
+        const btnsEl = document.getElementById('quickPanelBtns');
+        btnsEl.innerHTML = '';
+        if (!grp || !MATBAA_MALZEME[grp]) { panel.classList.remove('visible'); return; }
+        panel.classList.add('visible');
         MATBAA_MALZEME[grp].forEach(name => {
             const btn = document.createElement('button');
             btn.type = 'button';
             btn.textContent = name;
             btn.addEventListener('click', () => {
                 document.getElementById('malzemeAdi').value = name;
+                btnsEl.querySelectorAll('button').forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
             });
-            bar.appendChild(btn);
+            btnsEl.appendChild(btn);
         });
     });
     </script>
