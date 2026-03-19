@@ -258,6 +258,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (currentTheme === 'light') document.body.classList.add('light-mode');
     if (currentTheme === 'blue') document.body.classList.add('blue-mode');
 
+    // Özel Vurgu Rengi (Renk Paleti)
+    const savedPrimary = localStorage.getItem('etiket_crm_primary_color');
+    if (savedPrimary) {
+        document.documentElement.style.setProperty('--primary', savedPrimary);
+    }
+
     // Profil Baş Harfi Düzenleme
     const pName = localStorage.getItem('etiket_crm_userName');
     if (pName) {
