@@ -265,7 +265,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Özel Vurgu Rengi (Renk Paleti)
     const savedPrimary = localStorage.getItem('etiket_crm_primary_color');
     if (savedPrimary) {
-        document.documentElement.style.setProperty('--primary', savedPrimary);
+        document.body.style.setProperty('--primary', savedPrimary, 'important');
     }
 
     // Profil Baş Harfi Düzenleme
