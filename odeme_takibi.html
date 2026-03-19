@@ -21,21 +21,27 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @media print {
+            @page { size: A4; margin: 10mm; }
             /* Genel ekstralar gizlenir */
             .sidebar, .top-header, .mobile-bottom-nav, .sidebar-overlay, .no-print,
             .modal-overlay, .stats-grid, #sonIslemlerContainer { display: none !important; }
-            .main-content { margin-left: 0 !important; }
+            .main-content { margin-left: 0 !important; width: 100% !important; }
             .content-wrapper { padding: 0 !important; }
-            body { background: #fff !important; color: #000 !important; padding-bottom: 0 !important; }
+            body { background: #fff !important; color: #000 !important; padding-bottom: 0 !important; font-size: 0.82rem !important; }
             .panel { box-shadow: none !important; border: 1px solid #ccc !important; background: #fff !important; page-break-inside: avoid; }
+            .panel-header { display: flex !important; }
             .panel-title { color: #000 !important; }
             table { width: 100% !important; border-collapse: collapse !important; }
-            th, td { border: 1px solid #ccc !important; padding: 8px !important; color: #000 !important; background: #fff !important; font-size: 0.85rem !important; }
+            th, td { border: 1px solid #ccc !important; padding: 6px 8px !important; color: #000 !important; background: #fff !important; font-size: 0.78rem !important; }
             th { background: #f1f5f9 !important; font-weight: 700 !important; }
-            /* Yalnız o panelı bas */
-            body.print-firma .vade-panel, body.print-vade .firma-panel { display: none !important; }
+            /* Mobilde gizli sütunlar PDF'te görünsün */
+            .hide-mobile { display: table-cell !important; }
+            /* Yalnız o paneli bas */
+            body.print-firma .vade-panel { display: none !important; }
+            body.print-vade .firma-panel { display: none !important; }
         }
     </style>
+
 </head>
 <body>
 	<script>if(localStorage.getItem("etiket_crm_theme") === "light") document.body.classList.add("light-mode");</script>

@@ -226,8 +226,19 @@
 
         @media print {
             body { margin: 0; padding: 0; background: white; }
-            .invoice-box { border-radius: 0; border: none; box-shadow: none; padding: 20mm; width: 210mm; min-height: 297mm; margin: 0; }
+            @page { size: A4; margin: 8mm; }
+            .invoice-box {
+                border-radius: 0; border: none; box-shadow: none;
+                padding: 0; width: 100%; min-height: auto; margin: 0;
+                font-size: 0.78rem;
+            }
             .toolbar { display: none !important; }
+            .bill-to { grid-template-columns: 1fr 1fr !important; gap: 10px !important; margin-bottom: 12px !important; }
+            table { font-size: 0.75rem; }
+            th, td { padding: 6px 8px !important; }
+            .totals { width: 260px; }
+            .totals-row { padding: 5px 0; }
+            .footer-signs { margin-top: 30px !important; }
         }
 
         @media (max-width: 600px) {

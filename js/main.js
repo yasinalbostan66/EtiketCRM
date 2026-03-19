@@ -3,6 +3,14 @@ const FIRMALAR_KEY = 'etiket_crm_firmalar';
 const SIPARISLER_KEY = 'etiket_crm_siparisler';
 const TAHSILATLAR_KEY = 'etiket_crm_tahsilatlar';
 
+// Parlaklık ayarını uygula (ayarlardan kaydedilmişse)
+(function() {
+    const b = localStorage.getItem('etiket_crm_brightness');
+    if (b && parseInt(b) !== 100) {
+        document.documentElement.style.filter = `brightness(${b}%)`;
+    }
+})();
+
 // Firmalar
 function getFirmalar() {
     const items = localStorage.getItem(FIRMALAR_KEY);
