@@ -406,7 +406,11 @@
                 customerDiv.innerHTML = '<strong>Bilinmeyen Firma</strong>';
             }
 
-            document.getElementById('payMethod').textContent = order.paymentMethod || 'Kurum içi';
+            document.getElementById('payMethod').innerHTML = `${order.paymentMethod || 'Kurum içi'}`;
+            const dueStr = window.getDueDateStr ? window.getDueDateStr(order.paymentMethod, order.date) : null;
+            if (dueStr) {
+                document.getElementById('payMethod').innerHTML += `<br><span style="font-size: 0.8em; color: #ef4444; font-weight: 600;">Vade Tarihi: ${dueStr}</span>`;
+            }
             document.getElementById('subTotal').textContent = formatCurrency(order.totalPriceUSD);
 
             const tryTotal = order.totalPriceTRY ? `${order.totalPriceTRY.toLocaleString('tr-TR', {minimumFractionDigits:2, maximumFractionDigits:2})} TL` : '-';

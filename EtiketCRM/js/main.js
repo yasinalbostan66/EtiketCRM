@@ -161,6 +161,28 @@ function saveMalzemeFiyatlari(data) {
 
 // --- Ortak Fonksiyonlar ---
 
+window.getDueDateStr = function(method, date) {
+    if (!method || !method.includes('Gün Vadeli')) return null;
+    const match = method.match(/(\d+)\s*Gün/i);
+    if (match) {
+        const d = new Date(date);
+        d.setDate(d.getDate() + parseInt(match[1], 10));
+        return d.toLocaleDateString('tr-TR', {day:'2-digit', month:'2-digit', year:'numeric'});
+    }
+    return null;
+}
+
+window.getDueDateRaw = function(method, date) {
+    if (!method || !method.includes('Gün Vadeli')) return null;
+    const match = method.match(/(\d+)\s*Gün/i);
+    if (match) {
+        const d = new Date(date);
+        d.setDate(d.getDate() + parseInt(match[1], 10));
+        return d;
+    }
+    return null;
+}
+
 function showToast(message, type = 'success') {
     let container = document.getElementById('toast-container');
     if (!container) {
@@ -228,6 +250,7 @@ function showOrderDetails(orderId) {
                 <div>
                     <label style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase;">Ödeme Şekli</label>
                     <div style="font-weight:600; color:var(--primary);">${order.paymentMethod || 'Belirtilmedi'}</div>
+                    ${window.getDueDateStr(order.paymentMethod, order.date) ? `<div style="font-size:0.75rem; color:var(--danger); font-weight:700; margin-top:4px;">Vade: ${window.getDueDateStr(order.paymentMethod, order.date)}</div>` : ''}
                 </div>
             </div>
             <div style="background:var(--bg-color); padding:1rem; border-radius:8px; border:1px solid var(--border-color); margin-bottom:1.5rem;">
@@ -274,6 +297,35 @@ document.addEventListener('DOMContentLoaded', () => {
         const initials = pName.trim().substring(0, 2).toUpperCase();
         const avatarEl = document.getElementById('userAvatarStr');
         if (avatarEl && initials.length > 0) avatarEl.textContent = initials;
+    }
+
+    // --- Vade Gelmiş Sipariş Hatırlatması ---
+    const allFirms = getFirmalar();
+    const allOrds = getSiparisler();
+    const allPays = getTahsilatlar();
+    let pendingDueCount = 0;
+    const today = new Date();
+
+    allFirms.forEach(f => {
+        const fSip = allOrds.filter(s => s.firmaId === f.id);
+        const fTah = allPays.filter(t => t.firmaId === f.id);
+        const sSum = fSip.reduce((a,c) => a+(c.totalPriceUSD||0), 0);
+        const tSum = fTah.reduce((a,c) => a+(c.totalAmountUSD||0), 0);
+        
+        if (sSum - tSum > 0.1) {
+            fSip.forEach(s => {
+                const limitDt = window.getDueDateRaw(s.paymentMethod, s.date);
+                if (limitDt && limitDt <= today) {
+                    pendingDueCount++;
+                }
+            });
+        }
+    });
+
+    if (pendingDueCount > 0) {
+        setTimeout(() => {
+            showToast(`${pendingDueCount} adet siparişin vade tarihi geldi veya geçti!`, 'error');
+        }, 1500);
     }
 
 

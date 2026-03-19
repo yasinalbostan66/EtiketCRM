@@ -150,6 +150,15 @@
                     </div>
                 </div>
 
+                <!-- Yaklaşan & Geciken Vadeler -->
+                <div class="panel" style="margin-top: 2rem;">
+                    <div class="panel-header" style="display:flex; justify-content:space-between; align-items:center;">
+                        <h2 class="panel-title" style="color: var(--danger);"><i class="fa-regular fa-calendar-xmark"></i> Yaklaşan & Geciken Vadeler</h2>
+                        <span style="font-size: 0.85rem; color: var(--text-muted);">(Vadeli Siparişler)</span>
+                    </div>
+                    <div id="vadeTakipContainer"></div>
+                </div>
+
                 <!-- Son Cari Hareketler -->
                 <div class="panel" style="margin-top: 2rem;">
                     <div class="panel-header" style="display:flex; justify-content:space-between; align-items:center;">
@@ -279,7 +288,97 @@
                 document.getElementById('totalPaid').textContent = formatCurrency(totalPaidVal);
                 document.getElementById('netBalance').textContent = formatCurrency(totalOrderVal - totalPaidVal);
                 
+                renderVadeTakibi(siparisler, tahsilatlar, firmalar);
                 renderSonIslemler(siparisler, tahsilatlar, firmalar);
+            }
+
+            function renderVadeTakibi(currentSiparisler, currentTahsilatlar, currentFirmalar) {
+                const container = document.getElementById('vadeTakipContainer');
+                if (!container) return;
+                
+                let vadeList = [];
+                const today = new Date();
+                today.setHours(0,0,0,0);
+
+                currentFirmalar.forEach(f => {
+                    const fSip = currentSiparisler.filter(s => s.firmaId === f.id);
+                    const fTah = currentTahsilatlar.filter(t => t.firmaId === f.id);
+                    const sSum = fSip.reduce((a,c) => a+(c.totalPriceUSD||0), 0);
+                    const tSum = fTah.reduce((a,c) => a+(c.totalAmountUSD||0), 0);
+                    
+                    if (sSum - tSum > 0.1) {
+                        fSip.forEach(s => {
+                            const dueRaw = window.getDueDateRaw(s.paymentMethod, s.date);
+                            if (dueRaw) {
+                                const diffTime = dueRaw - today;
+                                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                                vadeList.push({
+                                    siparis: s,
+                                    firmaAd: f.ad,
+                                    dueRaw: dueRaw,
+                                    dueStr: window.getDueDateStr(s.paymentMethod, s.date),
+                                    diffDays: diffDays
+                                });
+                            }
+                        });
+                    }
+                });
+
+                vadeList.sort((a,b) => a.dueRaw - b.dueRaw);
+
+                if (vadeList.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state" style="text-align:center; padding:2rem; color:var(--text-muted);">
+                            <i class="fa-regular fa-calendar-check" style="font-size: 2rem; margin-bottom: 0.5rem; color:var(--success);"></i>
+                            <p>Ödeme bekleyen vadeli sipariş bulunmuyor.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                let html = `
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Firma</th>
+                                    <th class="hide-mobile">Sipariş</th>
+                                    <th>Vade Tarihi</th>
+                                    <th>Kalan Süre</th>
+                                    <th>Tutar ($)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+
+                vadeList.forEach(item => {
+                    let statusStyle = '';
+                    let statusText = '';
+                    
+                    if (item.diffDays < 0) {
+                        statusStyle = 'background: rgba(239, 68, 68, 0.15); color: var(--danger);';
+                        statusText = Math.abs(item.diffDays) + ' gün geçti';
+                    } else if (item.diffDays === 0) {
+                        statusStyle = 'background: rgba(245, 158, 11, 0.15); color: var(--warning);';
+                        statusText = 'Bugün bitiyor';
+                    } else {
+                        statusStyle = 'background: rgba(59, 130, 246, 0.15); color: var(--primary);';
+                        statusText = item.diffDays + ' gün kaldı';
+                    }
+
+                    html += `
+                        <tr style="cursor:pointer;" onclick="showOrderDetails('${item.siparis.id}')">
+                            <td style="font-weight:600;">${item.firmaAd}</td>
+                            <td class="hide-mobile" style="font-size:0.85rem; color:var(--text-muted);">${item.siparis.name || 'Siparişi Gör'}</td>
+                            <td style="font-weight:600;">${item.dueStr}</td>
+                            <td><span class="badge" style="${statusStyle}">${statusText}</span></td>
+                            <td style="color:var(--danger); font-weight:700;">${formatCurrency(item.siparis.totalPriceUSD)}</td>
+                        </tr>
+                    `;
+                });
+                
+                html += '</tbody></table></div>';
+                container.innerHTML = html;
             }
 
             function renderSonIslemler(currentSiparisler, currentTahsilatlar, currentFirmalar) {
