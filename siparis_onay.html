@@ -214,6 +214,29 @@
             .toolbar { display: none !important; }
         }
 
+        @media (max-width: 600px) {
+            body { padding: 15px; background: #fff; }
+            .invoice-box { padding: 20px; border-radius: 0; box-shadow: none; }
+            .header { flex-direction: column; gap: 15px; align-items: flex-start; }
+            .doc-title { text-align: left; }
+            .bill-to { grid-template-columns: 1fr; gap: 20px; }
+            
+            table, thead, tbody, th, td, tr { display: block; }
+            thead { display: none; }
+            tr { border-bottom: 2px solid #e2e8f0; padding-bottom: 15px; margin-bottom: 15px; }
+            td { padding: 8px 0; border: none; display: flex; justify-content: space-between; align-items: center; text-align: right; border-bottom: 1px solid #f1f5f9; }
+            td::before { content: attr(data-label); font-weight: 600; color: #64748b; font-size: 0.85rem; text-align: left; }
+            
+            td:first-child { display: none; }
+            td:nth-child(2) { flex-direction: column; align-items: flex-start; text-align: left; }
+            td:nth-child(2)::before { display: none; }
+            .calc-details { width: 100%; box-sizing: border-box; }
+            
+            .totals { width: 100%; margin-top: 30px; }
+            .footer-signs { grid-template-columns: 1fr; gap: 30px; }
+            div[style*="display: flex"] { flex-direction: column; }
+        }
+
         #errorArea {
             text-align: center;
             padding: 50px;
@@ -289,6 +312,10 @@
                 <div class="totals-row">
                     <span>Tutar ($):</span>
                     <strong id="subTotal">$0.00</strong>
+                </div>
+                <div class="totals-row">
+                    <span>Tutar (₺):</span>
+                    <strong id="subTotalTRY">--</strong>
                 </div>
                 <div class="totals-row grand-total">
                     <span>Genel Toplam:</span>
@@ -368,6 +395,10 @@
             document.getElementById('subTotal').textContent = formatCurrency(order.totalPriceUSD);
             document.getElementById('grandTotal').textContent = formatCurrency(order.totalPriceUSD);
 
+            const tryTotal = order.totalPriceTRY ? `₺${order.totalPriceTRY.toLocaleString('tr-TR', {minimumFractionDigits:2, maximumFractionDigits:2})}` : '-';
+            const trySubEl = document.getElementById('subTotalTRY');
+            if (trySubEl) trySubEl.textContent = tryTotal;
+
             const tbody = document.getElementById('tableBody');
             const detailsHtml = order.details ? `<div class="calc-details">${order.details.replace(/\|/g, '<br>')}</div>` : '';
             
@@ -388,10 +419,10 @@
                         <strong style="color: #1e3a8a;">${order.name || 'Hammadde Sevk Kalemi'}</strong>
                         ${detailsHtml}
                     </td>
-                    <td><span style="font-size:0.8rem; background: #e0f2fe; color: #0284c7; padding: 3px 8px; border-radius: 4px; font-weight:600;">${order.type}</span></td>
-                    <td>${order.quantity ? `${order.quantity} ${order.unit || ''}` : '-'}</td>
-                    <td style="text-align: right;">${unitPriceStr}</td>
-                    <td style="text-align: right; font-weight: 700;">${formatCurrency(order.totalPriceUSD)}</td>
+                    <td data-label="TÜR"><span style="font-size:0.8rem; background: #e0f2fe; color: #0284c7; padding: 3px 8px; border-radius: 4px; font-weight:600;">${order.type}</span></td>
+                    <td data-label="MİKTAR">${order.quantity ? `${order.quantity} ${order.unit || ''}` : '-'}</td>
+                    <td data-label="BİRİM FİYAT" style="text-align: right;">${unitPriceStr}</td>
+                    <td data-label="TOPLAM" style="text-align: right; font-weight: 700;">${formatCurrency(order.totalPriceUSD)}</td>
                 </tr>
             `;
         });

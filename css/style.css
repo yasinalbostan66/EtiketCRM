@@ -27,15 +27,21 @@
 }
 
 body.light-mode {
-    --bg-color: #f1f5f9; 
+    --bg-color: #f8fafc; 
     --surface-color: #ffffff;
-    --surface-hover: #e2e8f0; 
-    --border-color: #cbd5e1; 
+    --surface-hover: #f1f5f9; 
+    --border-color: #e2e8f0; 
     
     --text-main: #0f172a; 
-    --text-muted: #475569; 
+    --text-muted: #64748b; 
     
-    --primary-light: rgba(59, 130, 246, 0.06);
+    --primary: #2563eb; 
+    --primary-hover: #1d4ed8;
+    --primary-light: rgba(37, 99, 235, 0.05);
+
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.05);
+    --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.05);
 }
 
 body.blue-mode {

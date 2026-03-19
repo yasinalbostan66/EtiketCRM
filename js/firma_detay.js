@@ -218,7 +218,10 @@ function renderFirmaEkstresi(firmaId) {
                 <td data-label="İşlem Türü">${typeBadge}</td>
                 <td data-label="Açıklama" style="font-weight: 500;">${s.name || s.method} ${s.faturaNo ? `<br><small style="color:var(--text-muted)">Fat: ${s.faturaNo}</small>` : ''}</td>
                 <td data-label="Miktar">${s.quantity ? `${s.quantity} ${s.unit}` : (s.note || '-')}</td>
-                <td data-label="Tutar" style="font-weight: 700; color: ${amountColor};">${amountStr}</td>
+                <td data-label="Tutar" style="font-weight: 700; color: ${amountColor};">
+                    ${amountStr}
+                    ${s.totalPriceTRY ? `<br><small style="color:var(--text-muted); font-weight:400; font-size:0.75rem;">(₺${s.totalPriceTRY.toLocaleString('tr-TR', {minimumFractionDigits:2})})</small>` : ''}
+                </td>
                 <td style="text-align: right;" onclick="event.stopPropagation();">
                     ${actionBtn}
                 </td>
