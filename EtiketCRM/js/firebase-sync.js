@@ -158,40 +158,55 @@ document.addEventListener('DOMContentLoaded', () => {
     statusDiv.style.boxShadow = '0 0 6px #ef4444';
     statusDiv.style.zIndex = '99999';
     statusDiv.style.cursor = 'pointer';
-    statusDiv.style.transition = 'transform 0.2s';
     
-    // Log Kutusu (Log Box)
     const logBox = document.createElement('div');
     logBox.id = 'syncLogs';
     logBox.style.display = 'none';
     logBox.style.position = 'fixed';
     logBox.style.bottom = '105px';
     logBox.style.right = '20px';
-    logBox.style.width = '240px';
-    logBox.style.background = 'rgba(15, 23, 42, 0.95)';
-    logBox.style.padding = '12px';
+    logBox.style.width = '250px';
+    logBox.style.background = 'rgba(15, 23, 42, 0.96)';
+    logBox.style.padding = '15px';
     logBox.style.borderRadius = '12px';
     logBox.style.border = '1px solid rgba(255,255,255,0.08)';
-    logBox.style.backdropFilter = 'blur(10px)';
+    logBox.style.backdropFilter = 'blur(12px)';
     logBox.style.fontSize = '0.7rem';
-    logBox.style.color = '#94a3b8';
+    logBox.style.color = '#e2e8f0';
     logBox.style.maxHeight = '150px';
     logBox.style.overflowY = 'auto';
     logBox.style.zIndex = '99998';
-    logBox.style.boxShadow = '0 10px 25px rgba(0,0,0,0.4)';
+    logBox.style.boxShadow = '0 10px 30px rgba(0,0,0,0.5)';
+
+    // Title inside logBox to help close
+    const logTitle = document.createElement('div');
+    logTitle.style = 'font-weight:700; margin-bottom:8px; font-size:0.75rem; color:#fff; display:flex; justify-content:space-between; align-items:center;';
+    logTitle.innerHTML = '<span>⚡ Bağlantı Kayıtları</span> <span style="cursor:pointer; color:#94a3b8;" onclick="document.getElementById(\'syncLogs\').style.display=\'none\'"><i class="fa-solid fa-xmark"></i></span>';
+    logBox.appendChild(logTitle);
+
+    const logContent = document.createElement('div');
+    logContent.id = 'syncLogItems';
+    logBox.appendChild(logContent);
 
     document.body.appendChild(statusDiv);
     document.body.appendChild(logBox);
 
-    // Tıklayınca Aç/Kapat
+    // Tıklayınca Aç / Kapat
     statusDiv.addEventListener('click', (e) => {
         e.stopPropagation();
-        const isOn = logBox.style.display === 'block';
-        logBox.style.display = isOn ? 'none' : 'block';
+        const isOpen = logBox.style.display === 'block';
+        logBox.style.display = isOpen ? 'none' : 'block';
     });
 
-    document.addEventListener('click', () => {
-        logBox.style.display = 'none';
+    // Dışına tıklayınca kapansın
+    document.addEventListener('click', (e) => {
+        if (logBox.style.display === 'block' && e.target !== statusDiv && !logBox.contains(e.target)) {
+            logBox.style.display = 'none';
+        }
+    });
+
+    logBox.addEventListener('click', (e) => {
+        e.stopPropagation(); // Kutu içine tıklanınca kapanmasın
     });
 
     firebase.auth().onAuthStateChanged(user => {
@@ -211,7 +226,8 @@ document.addEventListener('DOMContentLoaded', () => {
         item.style.padding = '3px 0';
         item.style.borderBottom = '1px solid rgba(255,255,255,0.04)';
         item.textContent = `> ${msg}`;
-        logBox.prepend(item);
+        const container = document.getElementById('syncLogItems');
+        if (container) container.prepend(item);
     };
 });
 

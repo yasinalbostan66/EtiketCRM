@@ -215,26 +215,23 @@
         }
 
         @media (max-width: 600px) {
-            body { padding: 15px; background: #fff; }
-            .invoice-box { padding: 20px; border-radius: 0; box-shadow: none; }
+            body { padding: 10px; background: #fff; }
+            .invoice-box { padding: 15px; border-radius: 0; box-shadow: none; width: 100%; border: none; box-sizing: border-box; }
             .header { flex-direction: column; gap: 15px; align-items: flex-start; }
-            .doc-title { text-align: left; }
             .bill-to { grid-template-columns: 1fr; gap: 20px; }
             
-            table, thead, tbody, th, td, tr { display: block; }
-            thead { display: none; }
-            tr { border-bottom: 2px solid #e2e8f0; padding-bottom: 15px; margin-bottom: 15px; }
-            td { padding: 8px 0; border: none; display: flex; justify-content: space-between; align-items: center; text-align: right; border-bottom: 1px solid #f1f5f9; }
-            td::before { content: attr(data-label); font-weight: 600; color: #64748b; font-size: 0.85rem; text-align: left; }
+            table { display: block; width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; border-collapse: collapse; margin-bottom: 25px; }
+            th { padding: 8px; font-size: 0.75rem; white-space: nowrap; }
+            td { padding: 8px; font-size: 0.8rem; white-space: nowrap; }
+            td:nth-child(2) { white-space: normal; min-width: 180px; } 
             
-            td:first-child { display: none; }
-            td:nth-child(2) { flex-direction: column; align-items: flex-start; text-align: left; }
-            td:nth-child(2)::before { display: none; }
-            .calc-details { width: 100%; box-sizing: border-box; }
+            .calc-details { font-size: 0.8rem; padding: 10px; }
+            .totals { width: 100%; margin-top: 25px; }
+            .footer-signs { grid-template-columns: 1fr; gap: 35px; margin-top: 45px; }
             
-            .totals { width: 100%; margin-top: 30px; }
-            .footer-signs { grid-template-columns: 1fr; gap: 30px; }
-            div[style*="display: flex"] { flex-direction: column; }
+            /* Genel kutu kapsayıcısını hizala */
+            .toolbar { top: 10px; right: 10px; }
+            .btn { padding: 8px 12px; font-size: 0.8rem; }
         }
 
         #errorArea {
@@ -313,13 +310,9 @@
                     <span>Tutar ($):</span>
                     <strong id="subTotal">$0.00</strong>
                 </div>
-                <div class="totals-row">
-                    <span>Tutar (₺):</span>
-                    <strong id="subTotalTRY">--</strong>
-                </div>
                 <div class="totals-row grand-total">
-                    <span>Genel Toplam:</span>
-                    <span id="grandTotal">$0.00</span>
+                    <span>Genel Toplam (₺):</span>
+                    <span id="grandTotal">--</span>
                 </div>
             </div>
         </div>
@@ -393,11 +386,9 @@
 
             document.getElementById('payMethod').textContent = order.paymentMethod || 'Kurum içi';
             document.getElementById('subTotal').textContent = formatCurrency(order.totalPriceUSD);
-            document.getElementById('grandTotal').textContent = formatCurrency(order.totalPriceUSD);
 
             const tryTotal = order.totalPriceTRY ? `₺${order.totalPriceTRY.toLocaleString('tr-TR', {minimumFractionDigits:2, maximumFractionDigits:2})}` : '-';
-            const trySubEl = document.getElementById('subTotalTRY');
-            if (trySubEl) trySubEl.textContent = tryTotal;
+            document.getElementById('grandTotal').textContent = tryTotal;
 
             const tbody = document.getElementById('tableBody');
             const detailsHtml = order.details ? `<div class="calc-details">${order.details.replace(/\|/g, '<br>')}</div>` : '';
