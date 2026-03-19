@@ -266,53 +266,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (avatarEl && initials.length > 0) avatarEl.textContent = initials;
     }
 
-    if (headerActions) {
-        let toggleBtn = document.getElementById('themeToggle');
-        if (!toggleBtn) {
-            toggleBtn = document.createElement('button');
-            toggleBtn.className = 'btn-icon';
-            toggleBtn.id = 'themeToggle';
-            toggleBtn.title = 'Tema Değiştir';
-            
-            const getIcon = (t) => t === 'light' ? '<i class="fa-solid fa-sun" style="color:#eab308;"></i>' : (t === 'blue' ? '<i class="fa-solid fa-droplet" style="color:#0ea5e9;"></i>' : '<i class="fa-solid fa-moon" style="color:#a78bfa;"></i>');
-            
-            toggleBtn.innerHTML = getIcon(currentTheme);
-            headerActions.insertBefore(toggleBtn, headerActions.firstChild);
 
-            toggleBtn.addEventListener('click', () => {
-                const isLight = document.body.classList.contains('light-mode');
-                const isBlue = document.body.classList.contains('blue-mode');
-                
-                document.body.classList.remove('light-mode', 'blue-mode');
-                
-                let next = 'dark';
-                if (!isLight && !isBlue) { 
-                    next = 'light'; 
-                    document.body.classList.add('light-mode'); 
-                } else if (isLight) { 
-                    next = 'blue'; 
-                    document.body.classList.add('blue-mode'); 
-                }
-                
-                localStorage.setItem('etiket_crm_theme', next);
-                toggleBtn.innerHTML = getIcon(next);
-            });
-        }
-
-        let backupBtn = document.getElementById('backupBtn');
-        if (!backupBtn) {
-            backupBtn = document.createElement('button');
-            backupBtn.className = 'btn-icon';
-            backupBtn.id = 'backupBtn';
-            backupBtn.title = 'Veri Senkronizasyonu';
-            backupBtn.innerHTML = '<i class="fa-solid fa-cloud-arrow-down" style="color:var(--primary);"></i>';
-            headerActions.insertBefore(backupBtn, headerActions.firstChild);
-
-            backupBtn.addEventListener('click', () => {
-                showBackupModal();
-            });
-        }
-    }
 
     // --- Mobil Menü Toggle Ekle (Drawer Menü) ---
     const topHeader = document.querySelector('.top-header');
