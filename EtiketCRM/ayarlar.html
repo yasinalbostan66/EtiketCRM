@@ -173,6 +173,14 @@
                                 <span style="font-weight:600;">Gökyüzü Mavi</span>
                             </div>
                         </div>
+                        <div style="margin-top: 1.5rem; border-top: 1px solid var(--border-color); padding-top: 1.5rem;">
+                            <label style="display:block; font-weight:600; margin-bottom:10px;">Sistem Vurgu Rengi (Özel Renk Paleti)</label>
+                            <div style="display:flex; gap:10px; align-items:center;">
+                                <input type="color" id="primaryColorPicker" value="#0ea5e9" style="width: 50px; height: 40px; border:none; border-radius:8px; cursor:pointer; background: transparent;">
+                                <button class="btn btn-outline" id="resetColorBtn" style="font-size:0.8rem; padding:6px 12px; height: 40px;">Varsayılana Dön (#0ea5e9)</button>
+                            </div>
+                            <small style="color:var(--text-muted); margin-top:5px; display:block;">Seçiminiz otomatik olarak kaydedilir ve butonlar/grafikler dahil tüm uygulamanın renk tonunu belirler.</small>
+                        </div>
                     </div>
 
                     <!-- Profil & Şirket Bilgisi (Yerel) -->
@@ -317,6 +325,26 @@
                     document.querySelectorAll('.theme-option').forEach(t => t.classList.remove('active'));
                     el.classList.add('active');
                 });
+            });
+
+            // Primary Color Picker
+            const colorPicker = document.getElementById('primaryColorPicker');
+            const resetColorBtn = document.getElementById('resetColorBtn');
+            const currentGlobalColor = localStorage.getItem('etiket_crm_primary_color') || '#0ea5e9';
+            colorPicker.value = currentGlobalColor;
+
+            colorPicker.addEventListener('input', (e) => {
+                const color = e.target.value;
+                document.documentElement.style.setProperty('--primary', color);
+                localStorage.setItem('etiket_crm_primary_color', color);
+            });
+
+            resetColorBtn.addEventListener('click', () => {
+                const defaultColor = '#0ea5e9';
+                document.documentElement.style.setProperty('--primary', defaultColor);
+                localStorage.removeItem('etiket_crm_primary_color');
+                colorPicker.value = defaultColor;
+                showToast('Vurgu rengi varsayılana sıfırlandı.', 'success');
             });
 
             // Profile info handling
