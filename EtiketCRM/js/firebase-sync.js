@@ -144,7 +144,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// 4. Connection Status Indicator for Diagnostics (Static Dot)
+// 4. Connection Status Indicator for Diagnostics (Click to Expand)
 document.addEventListener('DOMContentLoaded', () => {
     const statusDiv = document.createElement('div');
     statusDiv.id = 'syncStatusIndicator';
@@ -158,13 +158,41 @@ document.addEventListener('DOMContentLoaded', () => {
     statusDiv.style.boxShadow = '0 0 6px #ef4444';
     statusDiv.style.zIndex = '99999';
     statusDiv.style.cursor = 'pointer';
+    statusDiv.style.transition = 'transform 0.2s';
     
-    document.body.appendChild(statusDiv);
-
+    // Log Kutusu (Log Box)
     const logBox = document.createElement('div');
     logBox.id = 'syncLogs';
-    logBox.style.display = 'none'; // Background compatibility
+    logBox.style.display = 'none';
+    logBox.style.position = 'fixed';
+    logBox.style.bottom = '105px';
+    logBox.style.right = '20px';
+    logBox.style.width = '240px';
+    logBox.style.background = 'rgba(15, 23, 42, 0.95)';
+    logBox.style.padding = '12px';
+    logBox.style.borderRadius = '12px';
+    logBox.style.border = '1px solid rgba(255,255,255,0.08)';
+    logBox.style.backdropFilter = 'blur(10px)';
+    logBox.style.fontSize = '0.7rem';
+    logBox.style.color = '#94a3b8';
+    logBox.style.maxHeight = '150px';
+    logBox.style.overflowY = 'auto';
+    logBox.style.zIndex = '99998';
+    logBox.style.boxShadow = '0 10px 25px rgba(0,0,0,0.4)';
+
+    document.body.appendChild(statusDiv);
     document.body.appendChild(logBox);
+
+    // Tıklayınca Aç/Kapat
+    statusDiv.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isOn = logBox.style.display === 'block';
+        logBox.style.display = isOn ? 'none' : 'block';
+    });
+
+    document.addEventListener('click', () => {
+        logBox.style.display = 'none';
+    });
 
     firebase.auth().onAuthStateChanged(user => {
         if (user) {
@@ -179,7 +207,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     window.addDiagLog = function(msg) {
-        if (typeof console.log === 'function') console.log(`[Diag] ${msg}`);
+        const item = document.createElement('div');
+        item.style.padding = '3px 0';
+        item.style.borderBottom = '1px solid rgba(255,255,255,0.04)';
+        item.textContent = `> ${msg}`;
+        logBox.prepend(item);
     };
 });
 

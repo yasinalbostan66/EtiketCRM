@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
         tableBody.innerHTML = '';
 
         if (visits.length === 0) {
-            tableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding:2rem;">Henüz ziyaret kaydı bulunmuyor.</td></tr>`;
+            tableBody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-muted); padding:2rem;">Henüz ziyaret kaydı bulunmuyor.</td></tr>`;
             return;
         }
 
@@ -63,9 +63,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td>${firmaAd}</td>
                     <td>${statusHTML}</td>
                     <td style="font-size:0.85rem; max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${v.note || ''}">${v.note || '-'}</td>
-                    <td style="text-align: right;">
-                        <button class="btn-icon" onclick="duzeltZiyaret('${v.id}')" style="color: var(--warning); margin-right: 0.5rem;" title="Düzenle"><i class="fa-solid fa-pen-to-square"></i></button>
-                        <button class="btn-icon" onclick="silZiyaret('${v.id}')" style="color: var(--danger);" title="Sil"><i class="fa-solid fa-trash"></i></button>
+                    <td>
+                        <div style="display: flex; justify-content: flex-end; gap: 10px; align-items: center;">
+                            <button class="btn-icon" onclick="duzeltZiyaret('${v.id}')" style="color: var(--warning);" title="Düzenle"><i class="fa-solid fa-pen-to-square"></i></button>
+                            <button class="btn-icon" onclick="silZiyaret('${v.id}')" style="color: var(--danger);" title="Sil"><i class="fa-solid fa-trash"></i></button>
+                        </div>
                     </td>
                 `;
                 tableBody.appendChild(tr);
@@ -73,7 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         if (filteredCount === 0 && visits.length > 0) {
-             tableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding:2rem;">Arama kriterine uygun kayıt bulunamadı.</td></tr>`;
+             tableBody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-muted); padding:2rem;">Arama kriterine uygun kayıt bulunamadı.</td></tr>`;
         }
     }
 
