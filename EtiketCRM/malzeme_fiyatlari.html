@@ -32,6 +32,27 @@
             gap: 0.5rem;
             justify-content: flex-end;
         }
+        .quick-pick-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 6px;
+        }
+        .quick-pick-bar button {
+            padding: 3px 10px;
+            font-size: 0.78rem;
+            border: 1px solid var(--border-color);
+            background: var(--surface-hover);
+            color: var(--text-main);
+            border-radius: 20px;
+            cursor: pointer;
+            transition: .2s;
+        }
+        .quick-pick-bar button:hover {
+            background: var(--primary);
+            color: #fff;
+            border-color: var(--primary);
+        }
     </style>
 </head>
 <body>
@@ -131,6 +152,7 @@
                             <div class="form-group">
                                 <label for="malzemeAdi">Malzeme Adı *</label>
                                 <input type="text" id="malzemeAdi" class="form-control" placeholder="Örn: Kuşe" required>
+                                <div class="quick-pick-bar" id="quickPickBar" style="display:none;"></div>
                             </div>
                             <div class="form-group">
                                 <label for="birimFiyat">Birim Fiyat *</label>
@@ -164,6 +186,42 @@
                         </div>
                     </form>
                 </div>
+
+    <script>
+    const MATBAA_MALZEME = {
+        'Kağıt': [
+            'Kuşe Kağıt','Parlak Kuşe','Mat Kuşe','Kraft Kağıt','Offset Kağıt','Termal Kağıt',
+            'Folyo Kağıt','Opak Filim','Silver Filim','Gold Filim','PP Filim','PET Filim',
+            'PVC Etiket','Bobin Kağıt','Yapışkanlı Etiket'
+        ],
+        'Mürekkep': [
+            'UV Mürekkep','Su Baz Baskı M.','Solvent Mürekkep','CMYK Siyah','CMYK Cyan',
+            'CMYK Magenta','CMYK Sarı','Beyaz Mürekkep','Vernik','OPV Vernik','Primer'
+        ],
+        'Sarf Malzeme': [
+            'Klışe','Bıçak','Zombıak','Japon Bıçak','Lastik','Piston Gömleği','Çıpa','Vida','Somun',
+            'Pres Altı','Silindir','Baskı Bezi','Zemin Plaketi','Aniloks Merdane','Kamera Filimi',
+            'Film','Plaka','Matris','Conta','Yatağı','Bant','Makine Yağı','Baskı Doğrulayıcısı'
+        ]
+    };
+
+    document.getElementById('malzemeTuru').addEventListener('change', function() {
+        const grp = this.value;
+        const bar = document.getElementById('quickPickBar');
+        bar.innerHTML = '';
+        if (!grp || !MATBAA_MALZEME[grp]) { bar.style.display='none'; return; }
+        bar.style.display = 'flex';
+        MATBAA_MALZEME[grp].forEach(name => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.textContent = name;
+            btn.addEventListener('click', () => {
+                document.getElementById('malzemeAdi').value = name;
+            });
+            bar.appendChild(btn);
+        });
+    });
+    </script>
 
                 <!-- Malzeme Listesi -->
                 <div class="panel">

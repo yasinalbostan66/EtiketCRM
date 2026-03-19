@@ -227,7 +227,7 @@
 
             if (siparisler.length === 0) {
                 document.getElementById('analysisTableBody').innerHTML = '<tr><td colspan="4" style="text-align:center;">Henüz sipariş bulunamadı.</td></tr>';
-                return;
+                // DEVAM ET - grafikleri yine de render et (boş göster)
             }
 
             // --- 1. Aylık Veri Gruplaması ---
@@ -294,35 +294,30 @@
             Chart.defaults.color = textColor;
             Chart.defaults.font.family = "'Inter', sans-serif";
 
-            // Aylık Grafik (Premium Area Chart)
+            // Aylık Grafik (Premium Gradient Bar Chart)
             const ctxMonthly = document.getElementById('monthlyChart').getContext('2d');
             
-            const gradientBg = ctxMonthly.createLinearGradient(0, 0, 0, 350);
-            gradientBg.addColorStop(0, 'rgba(59, 130, 246, 0.7)');
-            gradientBg.addColorStop(1, 'rgba(59, 130, 246, 0.05)');
-
+            const gradientBg = ctxMonthly.createLinearGradient(0, 0, 0, 400);
+            gradientBg.addColorStop(0, 'rgba(59, 130, 246, 0.9)');
+            gradientBg.addColorStop(1, 'rgba(16, 185, 129, 0.5)'); // Blue to Green Gradient
+            
             new Chart(ctxMonthly, {
-                type: 'line',
+                type: 'bar',
                 data: {
                     labels: monthLabels,
                     datasets: [{
-                        label: 'Satış Hacmi (USD)',
+                        label: 'Aylık Satış Hacmi ($)',
                         data: monthValues,
-                        borderColor: '#3b82f6',
                         backgroundColor: gradientBg,
-                        borderWidth: 3,
-                        pointBackgroundColor: '#ffffff',
-                        pointBorderColor: '#3b82f6',
-                        pointBorderWidth: 2,
-                        pointRadius: 5,
-                        pointHoverRadius: 8,
-                        fill: true,
-                        tension: 0.4 // Curve smoothing
+                        borderRadius: 8,
+                        barPercentage: 0.6,
+                        hoverBackgroundColor: 'rgba(59, 130, 246, 1)'
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    scaleShowValues: true,
                     interaction: {
                         mode: 'index',
                         intersect: false,
@@ -331,7 +326,7 @@
                         y: {
                             beginAtZero: true,
                             grid: { color: gridColor },
-                            ticks: { callback: function(val) { return '$' + val.toLocaleString('en-US'); } }
+                            ticks: { callback: function(val) { return '$' + val.toLocaleString('tr-TR'); } }
                         },
                         x: {
                             grid: { display: false }
@@ -346,9 +341,8 @@
                             padding: 14,
                             cornerRadius: 8,
                             displayColors: false,
-                            boxPadding: 6,
                             callbacks: {
-                                label: function(context) { return 'Ciro: $' + context.parsed.y.toLocaleString('en-US'); }
+                                label: function(context) { return 'Ciro: $' + context.parsed.y.toLocaleString('tr-TR'); }
                             }
                         }
                     }
