@@ -50,52 +50,61 @@
         /* Malzeme form 2 kolon düzeni */
         .malzeme-form-layout {
             display: grid;
-            grid-template-columns: 1fr 260px;
-            gap: 1.5rem;
+            grid-template-columns: 1fr;   /* Artık tek sütun - yan panel yok */
+            gap: 1rem;
             align-items: start;
         }
-        @media (max-width: 680px) {
-            .malzeme-form-layout { grid-template-columns: 1fr; }
-        }
-        .quick-panel {
-            background: var(--surface-hover);
+
+        /* Hızlı seçim dropdown - Malzeme adı input altında */
+        .quick-dropdown {
+            position: absolute;
+            top: calc(100% + 2px);
+            left: 0; right: 0;
+            background: var(--surface-color);
             border: 1px solid var(--border-color);
             border-radius: 10px;
-            padding: 0.75rem;
+            z-index: 9999;
             display: none;
-        }
-        .quick-panel.visible { display: block; }
-        .quick-panel-title {
-            font-size: 0.75rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            color: var(--text-muted);
-            margin-bottom: 8px;
-            letter-spacing: 0.5px;
-        }
-        .quick-panel-btns {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 5px;
+            padding: 8px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.25);
             max-height: 200px;
             overflow-y: auto;
         }
-        .quick-panel-btns button {
+        .quick-dropdown.open { display: block; }
+        .quick-dropdown-title {
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            letter-spacing: 0.5px;
+            padding: 0 2px;
+        }
+        .quick-dropdown-btns {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+        .quick-dropdown-btns button {
             padding: 4px 10px;
             font-size: 0.78rem;
             border: 1px solid var(--border-color);
-            background: var(--surface-color);
+            background: var(--surface-hover);
             color: var(--text-main);
-            border-radius: 16px;
+            border-radius: 14px;
             cursor: pointer;
-            transition: .15s;
+            transition: .12s;
             white-space: nowrap;
         }
-        .quick-panel-btns button:hover,
-        .quick-panel-btns button.selected {
+        .quick-dropdown-btns button:hover,
+        .quick-dropdown-btns button.selected {
             background: var(--primary);
             color: #fff;
             border-color: var(--primary);
+        }
+        /* Malzeme input wrapper – gerekli position:relative için */
+        .malzeme-adi-wrapper {
+            position: relative;
         }
     </style>
 </head>
@@ -198,7 +207,13 @@
                                     </div>
                                     <div class="form-group">
                                         <label for="malzemeAdi">Malzeme Adı *</label>
-                                        <input type="text" id="malzemeAdi" class="form-control" placeholder="örn: Kuşe" required>
+                                        <div class="malzeme-adi-wrapper">
+                                            <input type="text" id="malzemeAdi" class="form-control" placeholder="örn: Kuşe" required autocomplete="off">
+                                            <div class="quick-dropdown" id="quickDropdown">
+                                                <div class="quick-dropdown-title"><i class="fa-solid fa-bolt"></i> Hızlı Seçim</div>
+                                                <div class="quick-dropdown-btns" id="quickDropdownBtns"></div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="form-row" style="grid-template-columns: 1fr 1fr 1fr;">
@@ -232,13 +247,8 @@
                                     <button type="button" id="iptalBtn" class="btn btn-outline" style="display:none;">İptal</button>
                                     <button type="submit" id="kaydetBtn" class="btn btn-primary">Fiyatı Kaydet</button>
                                 </div>
-                            </div>
-                            <!-- Sağ: Hızlı seçim panel -->
-                            <div class="quick-panel" id="quickPanel">
-                                <div class="quick-panel-title"><i class="fa-solid fa-bolt"></i> Hızlı Seçim</div>
-                                <div class="quick-panel-btns" id="quickPanelBtns"></div>
-                            </div>
                         </div>
+                    </form>
                 </div>
 
 
@@ -260,24 +270,45 @@
         ]
     };
 
+    const malzemeAdiInput = document.getElementById('malzemeAdi');
+    const quickDropdown   = document.getElementById('quickDropdown');
+    const quickDropdownBtns = document.getElementById('quickDropdownBtns');
+
+    // Grup değişince dropdown butonlarını güncelle (dropout henüz açma)
     document.getElementById('malzemeTuru').addEventListener('change', function() {
         const grp = this.value;
-        const panel = document.getElementById('quickPanel');
-        const btnsEl = document.getElementById('quickPanelBtns');
-        btnsEl.innerHTML = '';
-        if (!grp || !MATBAA_MALZEME[grp]) { panel.classList.remove('visible'); return; }
-        panel.classList.add('visible');
+        quickDropdownBtns.innerHTML = '';
+        if (!grp || !MATBAA_MALZEME[grp]) {
+            quickDropdown.classList.remove('open');
+            return;
+        }
         MATBAA_MALZEME[grp].forEach(name => {
             const btn = document.createElement('button');
             btn.type = 'button';
             btn.textContent = name;
-            btn.addEventListener('click', () => {
-                document.getElementById('malzemeAdi').value = name;
-                btnsEl.querySelectorAll('button').forEach(b => b.classList.remove('selected'));
+            btn.addEventListener('mousedown', (e) => {
+                e.preventDefault(); // blur tetiklenmesin
+                malzemeAdiInput.value = name;
+                quickDropdownBtns.querySelectorAll('button').forEach(b => b.classList.remove('selected'));
                 btn.classList.add('selected');
+                quickDropdown.classList.remove('open');
             });
-            btnsEl.appendChild(btn);
+            quickDropdownBtns.appendChild(btn);
         });
+    });
+
+    // Malzeme adına tıklanınca / odaklanınca dropdown aç (eğer butonlar varsa)
+    malzemeAdiInput.addEventListener('focus', () => {
+        if (quickDropdownBtns.children.length > 0) {
+            quickDropdown.classList.add('open');
+        }
+    });
+
+    // Dışarı tıklayınca kapat
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.malzeme-adi-wrapper')) {
+            quickDropdown.classList.remove('open');
+        }
     });
     </script>
 
