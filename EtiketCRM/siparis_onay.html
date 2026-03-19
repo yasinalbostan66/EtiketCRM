@@ -260,6 +260,14 @@
 <body>
 
     <div class="toolbar">
+        <label style="color:#1e293b; font-size:0.8rem; font-weight:600;">KDV Oranı:
+            <select id="kdvSelect" onchange="applyKDV()" style="margin-left:4px; border:1px solid #cbd5e1; border-radius:4px; padding:2px 6px; font-size:0.8rem; cursor:pointer;">
+                <option value="0">%0 (Yok)</option>
+                <option value="10">%10</option>
+                <option value="18" selected>%18</option>
+                <option value="20">%20</option>
+            </select>
+        </label>
         <button class="btn btn-outline" onclick="window.close()"><i class="fa-solid fa-xmark"></i> Kapat</button>
         <button class="btn" onclick="window.print()"><i class="fa-solid fa-print"></i> Yazdır / PDF</button>
     </div>
@@ -323,12 +331,20 @@
                     <strong id="payMethod">-</strong>
                 </div>
                 <div class="totals-row">
-                    <span>Tutar:</span>
+                    <span>Ara Toplam:</span>
                     <strong id="subTotal">$0.00</strong>
                 </div>
+                <div class="totals-row" id="kdvRow">
+                    <span id="kdvLabel">KDV (%18):</span>
+                    <strong id="kdvAmount">$0.00</strong>
+                </div>
                 <div class="totals-row grand-total">
-                    <span>Genel Toplam:</span>
+                    <span>KDV Dahil Toplam:</span>
                     <span id="grandTotal">--</span>
+                </div>
+                <div class="totals-row" style="font-size:0.82rem; color:#64748b; margin-top:4px;">
+                    <span>TL Karşılığı:</span>
+                    <span id="tryTotal">-</span>
                 </div>
             </div>
         </div>
@@ -420,9 +436,16 @@
                 document.getElementById('payMethod').innerHTML += `<br><span style="font-size: 0.8em; color: #ef4444; font-weight: 600;">Vade Tarihi: ${dueStr}</span>`;
             }
             document.getElementById('subTotal').textContent = formatCurrency(order.totalPriceUSD);
+            window._orderUSD = order.totalPriceUSD; // KDV hesabı için sakla
+            window._orderTRY = order.totalPriceTRY || 0;
 
-            const tryTotal = order.totalPriceTRY ? `${order.totalPriceTRY.toLocaleString('tr-TR', {minimumFractionDigits:2, maximumFractionDigits:2})} TL` : '-';
-            document.getElementById('grandTotal').textContent = tryTotal;
+            const tryTotalEl = document.getElementById('tryTotal');
+            if (tryTotalEl) tryTotalEl.textContent = order.totalPriceTRY
+                ? `${order.totalPriceTRY.toLocaleString('tr-TR', {minimumFractionDigits:2, maximumFractionDigits:2})} TL`
+                : '-';
+
+            // Başlangıçta KDV'yi uygula (%18 default seçili)
+            applyKDV();
 
             const tbody = document.getElementById('tableBody');
 
@@ -466,6 +489,24 @@
                 </tr>
             `;
         });
+
+        // KDV Hesaplama
+        function applyKDV() {
+            const baseUSD = window._orderUSD || 0;
+            const kdvRate = parseInt(document.getElementById('kdvSelect')?.value || '18');
+            const kdvUSD = baseUSD * kdvRate / 100;
+            const totalWithKDV = baseUSD + kdvUSD;
+
+            const kdvLabel = document.getElementById('kdvLabel');
+            const kdvAmount = document.getElementById('kdvAmount');
+            const grandTotal = document.getElementById('grandTotal');
+            const kdvRow = document.getElementById('kdvRow');
+
+            if (kdvLabel) kdvLabel.textContent = `KDV (%${kdvRate}):`;
+            if (kdvAmount) kdvAmount.textContent = formatCurrency(kdvUSD);
+            if (grandTotal) grandTotal.textContent = formatCurrency(totalWithKDV);
+            if (kdvRow) kdvRow.style.display = kdvRate === 0 ? 'none' : 'flex';
+        }
     </script>
 </body>
 </html>

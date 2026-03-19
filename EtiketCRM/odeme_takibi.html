@@ -168,6 +168,9 @@
                             <tbody id="paymentTableBody">
                                 <!-- JS ile doldurulacak -->
                             </tbody>
+                            <tfoot id="paymentTableFoot" style="border-top:2px solid var(--border-color);">
+                                <!-- JS ile doldurulacak -->
+                            </tfoot>
                         </table>
                     </div>
                 </div>
@@ -314,9 +317,25 @@
                 document.getElementById('totalDebt').textContent = formatCurrency(totalOrderVal);
                 document.getElementById('totalPaid').textContent = formatCurrency(totalPaidVal);
                 document.getElementById('netBalance').textContent = formatCurrency(totalOrderVal - totalPaidVal);
+
+                // Toplam satırını tabloya ekle (tfoot)
+                const tfoot = document.getElementById('paymentTableFoot');
+                if (tfoot) {
+                    const netToplam = totalOrderVal - totalPaidVal;
+                    tfoot.innerHTML = `<tr style="background:rgba(59,130,246,0.08); font-weight:700;">
+                        <td style="font-weight:800;">TOPLAM</td>
+                        <td class="hide-mobile" style="font-weight:700;">${formatCurrency(totalOrderVal)}</td>
+                        <td class="hide-mobile" style="font-weight:700; color:var(--success);">${formatCurrency(totalPaidVal)}</td>
+                        <td style="font-weight:800; color:${netToplam > 0 ? 'var(--danger)' : 'var(--success)'};">${formatCurrency(netToplam)}</td>
+                        <td class="hide-mobile"></td>
+                        <td class="hide-mobile"></td>
+                        <td></td>
+                    </tr>`;
+                }
                 
                 renderVadeTakibi(siparisler, tahsilatlar, firmalar);
                 renderSonIslemler(siparisler, tahsilatlar, firmalar);
+
             }
 
             function renderVadeTakibi(currentSiparisler, currentTahsilatlar, currentFirmalar) {
@@ -404,8 +423,18 @@
                     `;
                 });
                 
-                html += '</tbody></table></div>';
+                const vadeTotal = vadeList.reduce((sum, item) => sum + (item.siparis.totalPriceUSD || 0), 0);
+                html += `</tbody>
+                    <tfoot style="border-top:2px solid var(--border-color);">
+                        <tr style="background:rgba(239,68,68,0.07); font-weight:700;">
+                            <td style="font-weight:800;" colspan="2">TOPLAM VADE TUTARı</td>
+                            <td></td><td></td>
+                            <td style="color:var(--danger); font-weight:800;">${formatCurrency(vadeTotal)}</td>
+                        </tr>
+                    </tfoot>
+                </table></div>`;
                 container.innerHTML = html;
+
             }
 
             function renderSonIslemler(currentSiparisler, currentTahsilatlar, currentFirmalar) {
