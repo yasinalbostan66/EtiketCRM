@@ -31,6 +31,8 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('detayFirmaAd').style.gap = '12px';
     document.getElementById('detayYetkili').textContent = firma.yetkili;
     document.getElementById('detayTelefon').textContent = firma.telefon;
+    document.getElementById('detayEmail').textContent = firma.email || '-';
+    document.getElementById('detayAdres').textContent = firma.adres || '-';
     
     const dateObj = new Date(firma.dateAdded);
     document.getElementById('detayTarih').textContent = dateObj.toLocaleDateString('tr-TR');

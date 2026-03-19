@@ -434,6 +434,7 @@
                     <td>1</td>
                     <td>
                         <strong style="color: #1e3a8a;">${order.name || 'Hammadde Sevk Kalemi'}</strong>
+                        ${detailsHtml}
                     </td>
                     <td data-label="MİKTAR">${order.quantity ? `${order.quantity} ${order.unit || ''}` : '-'}</td>
                     <td data-label="BİRİM FİYAT" style="text-align: right;">${unitPriceStr}</td>

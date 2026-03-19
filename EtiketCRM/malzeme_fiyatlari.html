@@ -112,7 +112,7 @@
             <!-- Content -->
             <div class="content-wrapper">
                 
-                <div class="panel">
+                <div class="panel no-print">
                     <div class="panel-header">
                         <h2 class="panel-title"><i class="fa-solid fa-plus-circle"></i> Yeni Malzeme Fiyatı Ekle / Güncelle</h2>
                     </div>
@@ -169,7 +169,7 @@
                 <div class="panel">
                     <div class="panel-header" style="flex-wrap: wrap; gap: 1rem;">
                         <h2 class="panel-title"><i class="fa-solid fa-list"></i> Kayıtlı Malzeme Fiyatları</h2>
-                        <div class="d-flex gap-2" style="flex-wrap: wrap; margin-left: auto;">
+                        <div class="d-flex gap-2 no-print" style="flex-wrap: wrap; margin-left: auto;">
                              <input type="text" id="searchInput" class="form-control" placeholder="Ara..." style="max-width:200px; padding: 5px 10px; font-size:0.9rem;">
                              <button type="button" class="btn btn-outline" onclick="document.getElementById('csvInput').click()" style="font-size: 0.85rem; padding: 6px 12px;">
                                  <i class="fa-solid fa-file-import"></i> İçe Aktar
@@ -185,7 +185,7 @@
                     </div>
 
                     <!-- Kategori Tabları -->
-                    <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; flex-wrap: wrap;">
+                    <div class="no-print" style="display: flex; gap: 0.5rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; flex-wrap: wrap;">
                         <button class="btn btn-outline active" onclick="filterCategory('Tümü')" id="tab_Tümü">Tümü</button>
                         <button class="btn btn-outline" onclick="filterCategory('Kağıt')" id="tab_Kağıt">Kağıt</button>
                         <button class="btn btn-outline" onclick="filterCategory('Mürekkep')" id="tab_Mürekkep">Mürekkep</button>
