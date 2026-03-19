@@ -160,6 +160,11 @@ body.blue-mode {
 html {
     font-size: 16px;
 }
+@media (min-width: 1200px) {
+    html {
+        font-size: 17px;
+    }
+}
 
 * {
     margin: 0;
@@ -307,8 +312,8 @@ body {
 
 /* Content Container */
 .content-wrapper {
-    padding: 1.5rem;
-    max-width: 1440px;
+    padding: 2rem;
+    max-width: 100%;
     width: 100%;
     margin: 0 auto;
 }

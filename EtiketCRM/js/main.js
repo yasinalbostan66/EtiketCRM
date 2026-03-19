@@ -253,7 +253,11 @@ window.showOrderDetails = showOrderDetails;
 document.addEventListener('DOMContentLoaded', () => {
     // Tema Değiştirme (3 Aşamalı: Koyu, Açık, Mavi)
     const headerActions = document.querySelector('.header-actions');
-    const currentTheme = localStorage.getItem('etiket_crm_theme') || 'dark';
+    let currentTheme = localStorage.getItem('etiket_crm_theme');
+    if (!currentTheme) {
+        currentTheme = 'light';
+        localStorage.setItem('etiket_crm_theme', 'light');
+    }
 
     if (currentTheme === 'light') document.body.classList.add('light-mode');
     if (currentTheme === 'blue') document.body.classList.add('blue-mode');
