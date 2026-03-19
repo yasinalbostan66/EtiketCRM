@@ -385,6 +385,14 @@
                 if (el) el.textContent = customVendor.trim();
             }
 
+            const customLogo = localStorage.getItem('etiket_crm_companyLogo');
+            if (customLogo) {
+                const logoContainer = document.querySelector('.logo');
+                if (logoContainer) {
+                    logoContainer.innerHTML = `<img src="${customLogo}" alt="Firma Logo" style="max-height: 55px; object-fit: contain;">`;
+                }
+            }
+
             const customerDiv = document.getElementById('customerInfo');
             if (firma) {
                 customerDiv.innerHTML = `

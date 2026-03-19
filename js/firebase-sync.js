@@ -237,24 +237,7 @@ window.runDiagnosticTest = function() {
     }
 };
 
-// Append Test Button into Diagnostic Div
-document.addEventListener('DOMContentLoaded', () => {
-    const statusDiv = document.getElementById('syncStatusIndicator');
-    if (statusDiv) {
-        const btn = document.createElement('button');
-        btn.textContent = '🔍 Bağlantıyı Test Et';
-        btn.style.marginTop = '8px';
-        btn.style.padding = '4px 8px';
-        btn.style.background = '#3b82f6';
-        btn.style.color = '#fff';
-        btn.style.border = 'none';
-        btn.style.borderRadius = '4px';
-        btn.style.fontSize = '0.65rem';
-        btn.style.cursor = 'pointer';
-        btn.onclick = (e) => { e.stopPropagation(); window.runDiagnosticTest(); };
-        statusDiv.appendChild(btn);
-    }
-});
+// Removed Test Button
 
 // Logout Button Injection to Main Sidebar
 document.addEventListener('DOMContentLoaded', () => {
