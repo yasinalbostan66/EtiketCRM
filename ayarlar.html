@@ -159,47 +159,51 @@
                     <!-- Görünüm / Tema Ayarları -->
                     <div class="settings-card" style="grid-column: 1 / -1;">
                         <h2 class="settings-card-title"><i class="fa-solid fa-palette"></i> Görünüm / Tema</h2>
-                        <!-- Tema Seçimi - Yatay kompakt -->
-                        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:1.2rem;">
-                            <div class="theme-option" data-theme="dark" id="theme-dark" style="padding:10px 16px; display:flex; align-items:center; gap:8px; flex:1; min-width:110px; justify-content:center;">
-                                <i class="fa-solid fa-moon" style="color: #a78bfa; font-size:1.2rem;"></i>
-                                <span style="font-weight:600; font-size:0.9rem;">Karanlık</span>
+                        <!-- Tema Seçimi - Küçük pill butonlar -->
+                        <div style="display:flex; gap:6px; flex-wrap:nowrap; margin-bottom:1.2rem; overflow-x:auto; padding-bottom:4px;">
+                            <div class="theme-option" data-theme="dark" id="theme-dark"
+                                style="padding:6px 14px; display:flex; align-items:center; gap:6px; border-radius:20px; white-space:nowrap; cursor:pointer;">
+                                <i class="fa-solid fa-moon" style="color:#a78bfa; font-size:0.9rem;"></i>
+                                <span style="font-weight:600; font-size:0.82rem;">Karanlık</span>
                             </div>
-                            <div class="theme-option" data-theme="light" id="theme-light" style="padding:10px 16px; display:flex; align-items:center; gap:8px; flex:1; min-width:110px; justify-content:center;">
-                                <i class="fa-solid fa-sun" style="color: #eab308; font-size:1.2rem;"></i>
-                                <span style="font-weight:600; font-size:0.9rem;">Aydınlık</span>
+                            <div class="theme-option" data-theme="light" id="theme-light"
+                                style="padding:6px 14px; display:flex; align-items:center; gap:6px; border-radius:20px; white-space:nowrap; cursor:pointer;">
+                                <i class="fa-solid fa-sun" style="color:#eab308; font-size:0.9rem;"></i>
+                                <span style="font-weight:600; font-size:0.82rem;">Aydınlık</span>
                             </div>
-                            <div class="theme-option" data-theme="blue" id="theme-blue" style="padding:10px 16px; display:flex; align-items:center; gap:8px; flex:1; min-width:110px; justify-content:center;">
-                                <i class="fa-solid fa-droplet" style="color: #0ea5e9; font-size:1.2rem;"></i>
-                                <span style="font-weight:600; font-size:0.9rem;">Gökyüzü</span>
+                            <div class="theme-option" data-theme="blue" id="theme-blue"
+                                style="padding:6px 14px; display:flex; align-items:center; gap:6px; border-radius:20px; white-space:nowrap; cursor:pointer;">
+                                <i class="fa-solid fa-droplet" style="color:#0ea5e9; font-size:0.9rem;"></i>
+                                <span style="font-weight:600; font-size:0.82rem;">Gökyüzü</span>
                             </div>
                         </div>
 
                         <!-- Ekran Parlaklığı -->
                         <div style="border-top:1px solid var(--border-color); padding-top:1rem; margin-bottom:1rem;">
-                            <label style="display:flex; align-items:center; gap:8px; font-weight:600; margin-bottom:10px;">
+                            <label style="display:flex; align-items:center; gap:8px; font-weight:600; margin-bottom:10px; font-size:0.9rem;">
                                 <i class="fa-solid fa-sun" style="color:#f59e0b;"></i> Ekran Parlaklığı
                             </label>
-                            <div style="display:flex; align-items:center; gap:12px;">
-                                <i class="fa-solid fa-moon" style="color:var(--text-muted); font-size:0.85rem;"></i>
-                                <input type="range" id="brightnessSlider" min="30" max="100" value="100" style="flex:1; cursor:pointer; accent-color:var(--primary);">
-                                <i class="fa-solid fa-sun" style="color:#f59e0b; font-size:0.85rem;"></i>
-                                <span id="brightnessVal" style="font-size:0.85rem; color:var(--text-muted); min-width:38px; text-align:right;">100%</span>
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <i class="fa-solid fa-moon" style="color:var(--text-muted); font-size:0.8rem;"></i>
+                                <input type="range" id="brightnessSlider" min="30" max="100" value="100" style="flex:1; cursor:pointer; accent-color:var(--primary); height:4px;">
+                                <i class="fa-solid fa-sun" style="color:#f59e0b; font-size:0.8rem;"></i>
+                                <span id="brightnessVal" style="font-size:0.82rem; color:var(--text-muted); min-width:36px; text-align:right; font-weight:600;">100%</span>
                             </div>
-                            <small style="color:var(--text-muted); margin-top:5px; display:block;">Uygulamanın ekran parlaklığını ayarlar (tarayıcı içi).</small>
+                            <small style="color:var(--text-muted); margin-top:6px; display:block; font-size:0.75rem;">Uygulamanın ekran parlaklığını ayarlar (tarayıcı içi).</small>
                         </div>
 
                         <!-- Vurgu Rengi -->
                         <div style="border-top: 1px solid var(--border-color); padding-top: 1rem;">
-                            <label style="display:block; font-weight:600; margin-bottom:10px;">Sistem Vurgu Rengi (Özel Renk Paleti)</label>
-                            <div style="display:flex; gap:10px; align-items:center;">
-                                <input type="color" id="primaryColorPicker" value="#0ea5e9" style="width: 50px; height: 40px; border:none; border-radius:8px; cursor:pointer; background: transparent;">
-                                <button class="btn btn-primary" id="saveColorBtn" style="font-size:0.8rem; padding:6px 12px; height: 40px;"><i class="fa-solid fa-check"></i> Seçimi Kaydet</button>
-                                <button class="btn btn-outline" id="resetColorBtn" style="font-size:0.8rem; padding:6px 12px; height: 40px;">Varsayılana Dön</button>
+                            <label style="display:block; font-weight:600; margin-bottom:10px; font-size:0.9rem;">Sistem Vurgu Rengi</label>
+                            <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                                <input type="color" id="primaryColorPicker" value="#0ea5e9" style="width: 44px; height: 36px; border:none; border-radius:8px; cursor:pointer; background: transparent;">
+                                <button class="btn btn-primary" id="saveColorBtn" style="font-size:0.78rem; padding:6px 12px; height:36px;"><i class="fa-solid fa-check"></i> Kaydet</button>
+                                <button class="btn btn-outline" id="resetColorBtn" style="font-size:0.78rem; padding:6px 12px; height:36px;">Sıfırla</button>
                             </div>
-                            <small style="color:var(--text-muted); margin-top:5px; display:block;">İstediğiniz rengi seçtikten sonra "Seçimi Kaydet" butonuna tıklayınız.</small>
+                            <small style="color:var(--text-muted); margin-top:5px; display:block; font-size:0.75rem;">Seçtikten sonra "Kaydet" butonuna tıklayınız.</small>
                         </div>
                     </div>
+
 
 
                     <!-- Profil & Şirket Bilgisi (Yerel) -->
@@ -401,12 +405,16 @@
             const savedBrightness = parseInt(localStorage.getItem('etiket_crm_brightness') || '100');
             brightnessSlider.value = savedBrightness;
             brightnessVal.textContent = savedBrightness + '%';
-            document.querySelector('.app-wrapper') && (document.querySelector('.app-wrapper').style.filter = `brightness(${savedBrightness}%)`);
+            // App-wrapper'a uygula (global scope ile aynı mantık)
+            const appWrapper = document.querySelector('.app-wrapper');
+            if (appWrapper && savedBrightness < 100) appWrapper.style.filter = `brightness(${savedBrightness}%)`;
 
             brightnessSlider.addEventListener('input', () => {
-                const val = brightnessSlider.value;
+                const val = parseInt(brightnessSlider.value);
                 brightnessVal.textContent = val + '%';
-                document.body.style.filter = `brightness(${val}%)`;
+                if (appWrapper) {
+                    appWrapper.style.filter = val < 100 ? `brightness(${val}%)` : '';
+                }
                 localStorage.setItem('etiket_crm_brightness', val);
             });
 

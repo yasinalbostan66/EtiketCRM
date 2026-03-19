@@ -3,11 +3,20 @@ const FIRMALAR_KEY = 'etiket_crm_firmalar';
 const SIPARISLER_KEY = 'etiket_crm_siparisler';
 const TAHSILATLAR_KEY = 'etiket_crm_tahsilatlar';
 
-// Parlaklık ayarını uygula (ayarlardan kaydedilmişse)
-(function() {
+// Parlaklık ayarını uygula – her sayfada çalışır
+(function applyBrightness() {
     const b = localStorage.getItem('etiket_crm_brightness');
-    if (b && parseInt(b) !== 100) {
+    if (b && parseInt(b) < 100) {
+        // body'i hemen ayarla; DOMContentLoaded beklemeye gerek yok
         document.documentElement.style.filter = `brightness(${b}%)`;
+        // DOMContentLoaded sonrası app-wrapper'a da uygula
+        document.addEventListener('DOMContentLoaded', () => {
+            const w = document.querySelector('.app-wrapper');
+            if (w) {
+                document.documentElement.style.filter = '';
+                w.style.filter = `brightness(${b}%)`;
+            }
+        });
     }
 })();
 
