@@ -691,33 +691,40 @@ tbody tr:hover {
 /* Tablet ve Mobil Düzenlemeleri */
 @media (max-width: 768px) {
     .content-wrapper {
-        padding: 1rem;
+        padding: 0.85rem;
     }
 
     .stats-grid {
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-        gap: 1rem;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
     }
 
     .panel-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 12px;
+        flex-wrap: wrap;
+        gap: 8px;
+        padding-bottom: 0.75rem;
+        margin-bottom: 1rem;
     }
 
-    .panel-header .btn, .panel-header input, .panel-header .form-control {
-        width: 100% !important;
+    /* Panel header'daki butonlar ve inputlar tam genişlik olmasın */
+    .panel-header .btn {
+        font-size: 0.78rem;
+        padding: 6px 10px;
+    }
+    .panel-header input.form-control {
+        max-width: 100%;
+        font-size: 0.85rem;
     }
 
-    /* Modal Başlıklarının Yan yana Kalması */
+    /* Modal Başlıkları Yan Yana Kalın */
     .modal-content .panel-header {
         flex-direction: row !important;
         align-items: center !important;
         justify-content: space-between !important;
-        width: 100%;
+        flex-wrap: nowrap !important;
     }
 
-    /* Mobil Tablo Kart Düzeni */
+    /* Mobil Tablo Kart Düzeni - sadece firma ekstresi */
     #siparisTableContainer table, 
     #siparisTableContainer thead, 
     #siparisTableContainer tbody, 
@@ -735,7 +742,7 @@ tbody tr:hover {
         background: var(--surface-color);
         margin-bottom: 1rem;
         border-radius: 12px;
-        padding: 1.25rem;
+        padding: 1rem;
         border: 1px solid var(--border-color);
         box-shadow: var(--shadow-sm);
     }
@@ -744,9 +751,9 @@ tbody tr:hover {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 10px 0;
+        padding: 8px 0;
         border-bottom: 1px solid rgba(255,255,255,0.04) !important;
-        font-size: 0.9rem;
+        font-size: 0.88rem;
     }
     
     #siparisTableContainer td:last-child {
@@ -754,7 +761,7 @@ tbody tr:hover {
         justify-content: flex-end;
         gap: 12px;
         margin-top: 8px;
-        padding-top: 15px;
+        padding-top: 12px;
         border-top: 1px solid var(--border-color);
     }
 
@@ -762,87 +769,124 @@ tbody tr:hover {
         content: attr(data-label);
         font-weight: 600;
         color: var(--text-muted);
-        font-size: 0.8rem;
+        font-size: 0.78rem;
     }
 
     .form-grid {
         grid-template-columns: 1fr;
-        gap: 1rem;
+        gap: 0.85rem;
     }
 
     .modal-content {
-        margin: 10px;
-        max-width: calc(100% - 20px);
+        margin: 8px;
+        max-width: calc(100% - 16px);
+        max-height: 92vh;
+        overflow-y: auto;
     }
 
-    /* Kurları mobilde alta alalım veya düzenleyelim */
+    .modal-overlay {
+        padding: 0.5rem;
+        align-items: flex-end; /* Modal ekranın altından çıksın */
+    }
+
+    /* Kurlar mobilden gizle - zaten header'da var */
     .header-rates {
-        width: 100%;
-        order: 3;
-        justify-content: center;
-        background: rgba(255,255,255,0.03) !important;
-        margin-top: 8px;
-        padding: 5px 12px !important;
-        font-size: 0.78rem !important;
-        border-radius: 12px !important;
-        gap: 10px !important;
+        display: none !important;
     }
 }
 
+
 @media (max-width: 576px) {
-    html { font-size: 14px; } /* Yazı boyutlarını biraz küçültelim */
+    html { font-size: 14px; }
     
     .content-wrapper {
-        padding: 0.75rem; /* İçe itme daraltıldı */
+        padding: 0.65rem;
     }
 
     .stats-grid {
-        grid-template-columns: repeat(2, 1fr) !important; 
-        gap: 0.75rem;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 0.6rem;
+        margin-bottom: 1rem;
     }
 
     .stat-card {
-        padding: 0.85rem;
+        padding: 0.75rem;
         gap: 8px;
+        border-radius: 10px;
     }
 
     .stat-icon {
-        width: 36px;
-        height: 36px;
-        font-size: 1.1rem;
+        width: 34px;
+        height: 34px;
+        font-size: 1rem;
+        border-radius: 8px;
     }
 
     .stat-info h3 {
-        font-size: 1.25rem !important;
+        font-size: 1.1rem !important;
         font-weight: 700;
     }
 
     .stat-info p {
-        font-size: 0.7rem !important;
+        font-size: 0.65rem !important;
         opacity: 0.8;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* Tablolarda yatay kaydırma yerine sadece önemli sutunlar */
+    .table-responsive {
+        -webkit-overflow-scrolling: touch;
+        overflow-x: auto;
+        border-radius: 8px;
     }
 
     table th, table td {
-        padding: 8px 4px;
-        font-size: 0.8rem;
+        padding: 7px 6px;
+        font-size: 0.77rem;
+        white-space: nowrap;
+    }
+
+    /* thead uppercase küçültsün */
+    th {
+        font-size: 0.7rem;
+        letter-spacing: 0;
     }
 
     .page-title {
-        font-size: 1rem;
+        font-size: 0.95rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 180px;
     }
     
     .panel {
-        padding: 1rem;
-        margin-bottom: 1rem !important; /* Reduces large gaps on mobile */
+        padding: 0.85rem;
+        margin-bottom: 0.85rem !important;
+        border-radius: 10px;
     }
     
     .panel-title {
-        font-size: 0.95rem;
+        font-size: 0.88rem;
+    }
+
+    .panel-header {
+        margin-bottom: 0.75rem;
+        padding-bottom: 0.6rem;
     }
 
     .btn {
-        padding: 6px 12px;
-        font-size: 0.8rem;
+        padding: 8px 12px; /* Parmaklarla tıklanabilir boyut */
+        font-size: 0.78rem;
+        min-height: 36px;
+    }
+
+    .btn-icon {
+        min-width: 36px;
+        min-height: 36px;
+        padding: 8px;
     }
 
     .hide-mobile {
@@ -850,8 +894,20 @@ tbody tr:hover {
     }
     
     .form-control {
-        padding: 8px 12px;
-        font-size: 0.85rem;
+        padding: 10px 12px;
+        font-size: 0.88rem;
+        min-height: 42px; /* Mobil dokunma alanı */
+    }
+
+    /* Badge daha kompakt */
+    .badge {
+        font-size: 0.68rem;
+        padding: 3px 6px;
+    }
+
+    /* Bottom nav için alan bırak */
+    .content-wrapper:last-child {
+        padding-bottom: 90px;
     }
 }
 
@@ -958,6 +1014,20 @@ tbody tr:hover {
 
 #mobileMenuBtn {
     display: none;
+}
+
+/* Masaüstünde gizlenecek öğeler için */
+.hide-desktop {
+    display: none !important;
+}
+
+@media (max-width: 992px) {
+    .hide-desktop {
+        display: inline-flex !important;
+    }
+    .show-desktop-only {
+        display: none !important;
+    }
 }
 
 /* Baskı / PDF Çıktı Düzenlemeleri */
