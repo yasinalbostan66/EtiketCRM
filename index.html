@@ -184,8 +184,8 @@
                                 <tr>
                                     <th>Tarih</th>
                                     <th>Firma Adı</th>
-                                    <th>İşlem Türü</th>
-                                    <th>Detay</th>
+                                    <th>İşlem</th>
+                                    <th class="hide-mobile">Detay</th>
                                     <th>Tutar ($)</th>
                                 </tr>
                             </thead>
@@ -303,7 +303,7 @@
                     <td style="color: var(--text-muted); font-size: 0.9rem;">${dateStr}</td>
                     <td style="font-weight: 500;">${firmaAdi}</td>
                     <td>${badgeHTML}</td>
-                    <td style="font-size: 0.85rem; max-width: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${detailText}">${detailText}</td>
+                    <td class="hide-mobile" style="font-size: 0.85rem; max-width: 280px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${detailText}">${detailText}</td>
                     <td style="font-weight: 600; color: ${amountColor};">${amountText}</td>
                 `;
                 tbody.appendChild(tr);

@@ -116,7 +116,52 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Cari Ekstreyi render et
     renderFirmaEkstresi(firmaId);
+    renderAktiviteler(firmaId);
 });
+
+function renderAktiviteler(firmaId) {
+    const container = document.getElementById('aktivitelerContainer');
+    if (!container) return;
+
+    const siparisler = (getSiparisler ? getSiparisler() : []).filter(s => s.firmaId === firmaId);
+    const tahsilatlar = (getTahsilatlar ? getTahsilatlar() : []).filter(t => t.firmaId === firmaId);
+    const allVisits = JSON.parse(localStorage.getItem('etiket_crm_visits') || '[]');
+    const ziyaretler = allVisits.filter(v => v.firmaId === firmaId);
+
+    const rows = [
+        ...siparisler.map(s => ({ date: s.date, tip: 'SİPARİŞ', tur: s.type || '-', aciklama: s.name || '-', tutar: formatCurrency(s.totalPriceUSD), turarColor: 'var(--text-main)', raw: s })),
+        ...tahsilatlar.map(t => ({ date: t.date, tip: 'TAHSİLAT', tur: t.method || '-', aciklama: t.note || 'Tahsilat', tutar: '− ' + formatCurrency(t.totalAmountUSD), turarColor: 'var(--success)', raw: t })),
+        ...ziyaretler.map(v => ({ date: v.date, tip: 'ZİYARET', tur: v.time || '-', aciklama: v.note || 'Ziyaret', tutar: '—', turarColor: 'var(--text-muted)', raw: v }))
+    ].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    if (rows.length === 0) {
+        container.innerHTML = `<div class="empty-state" style="text-align:center;padding:2rem;color:var(--text-muted);"><i class="fa-solid fa-folder-open" style="font-size:2rem;opacity:0.5;"></i><p style="margin-top:0.5rem;">Bu firmaya ait aktivite bulunamadı.</p></div>`;
+        return;
+    }
+
+    const tipRenk = { 'SİPARİŞ': '#f59e0b', 'TAHSİLAT': '#3b82f6', 'ZİYARET': '#a78bfa' };
+
+    let html = `<div class="table-responsive"><table>
+        <thead><tr>
+            <th>Tarih</th><th>Tür</th><th>Kategori / Yöntem</th><th>Açıklama</th><th style="text-align:right;">Tutar ($)</th>
+        </tr></thead><tbody>`;
+
+    rows.forEach(r => {
+        const dateStr = new Date(r.date).toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        const renk = tipRenk[r.tip] || '#64748b';
+        html += `<tr>
+            <td style="color:var(--text-muted);font-size:0.85rem;">${dateStr}</td>
+            <td><span class="badge" style="background:${renk}25;color:${renk};font-weight:700;">${r.tip}</span></td>
+            <td style="font-size:0.88rem;color:var(--text-muted);">${r.tur}</td>
+            <td style="font-weight:500;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${r.aciklama}">${r.aciklama}</td>
+            <td style="text-align:right;font-weight:700;color:${r.turarColor};">${r.tutar}</td>
+        </tr>`;
+    });
+
+    html += `</tbody></table></div>`;
+    container.innerHTML = html;
+}
+
 
 window.openTahsilatModal = function() {
     document.getElementById('tahsilatModal').style.display = 'flex';
