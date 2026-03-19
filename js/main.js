@@ -251,14 +251,12 @@ function showOrderDetails(orderId) {
 window.showOrderDetails = showOrderDetails;
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Tema Değiştirme (Koyu/Açık)
+    // Tema Değiştirme (3 Aşamalı: Koyu, Açık, Mavi)
     const headerActions = document.querySelector('.header-actions');
     const currentTheme = localStorage.getItem('etiket_crm_theme') || 'dark';
 
-    // Sayfa yüklenir yüklenmez temayı uygula (Yazma hatasını önlemek için JS ile body eklensin)
-    if (currentTheme === 'light') {
-        document.body.classList.add('light-mode');
-    }
+    if (currentTheme === 'light') document.body.classList.add('light-mode');
+    if (currentTheme === 'blue') document.body.classList.add('blue-mode');
 
     if (headerActions) {
         let toggleBtn = document.getElementById('themeToggle');
@@ -267,14 +265,29 @@ document.addEventListener('DOMContentLoaded', () => {
             toggleBtn.className = 'btn-icon';
             toggleBtn.id = 'themeToggle';
             toggleBtn.title = 'Tema Değiştir';
-            toggleBtn.innerHTML = currentTheme === 'light' ? '<i class="fa-solid fa-sun" style="color:#eab308;"></i>' : '<i class="fa-solid fa-moon" style="color:#60a5fa;"></i>';
+            
+            const getIcon = (t) => t === 'light' ? '<i class="fa-solid fa-sun" style="color:#eab308;"></i>' : (t === 'blue' ? '<i class="fa-solid fa-droplet" style="color:#0ea5e9;"></i>' : '<i class="fa-solid fa-moon" style="color:#a78bfa;"></i>');
+            
+            toggleBtn.innerHTML = getIcon(currentTheme);
             headerActions.insertBefore(toggleBtn, headerActions.firstChild);
 
             toggleBtn.addEventListener('click', () => {
-                document.body.classList.toggle('light-mode');
                 const isLight = document.body.classList.contains('light-mode');
-                localStorage.setItem('etiket_crm_theme', isLight ? 'light' : 'dark');
-                toggleBtn.innerHTML = isLight ? '<i class="fa-solid fa-sun" style="color:#eab308;"></i>' : '<i class="fa-solid fa-moon" style="color:#60a5fa;"></i>';
+                const isBlue = document.body.classList.contains('blue-mode');
+                
+                document.body.classList.remove('light-mode', 'blue-mode');
+                
+                let next = 'dark';
+                if (!isLight && !isBlue) { 
+                    next = 'light'; 
+                    document.body.classList.add('light-mode'); 
+                } else if (isLight) { 
+                    next = 'blue'; 
+                    document.body.classList.add('blue-mode'); 
+                }
+                
+                localStorage.setItem('etiket_crm_theme', next);
+                toggleBtn.innerHTML = getIcon(next);
             });
         }
 

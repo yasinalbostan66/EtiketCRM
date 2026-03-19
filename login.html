@@ -21,7 +21,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body {
-            background: #0f172a;
+            background: #0b0f17;
             color: #f8fafc;
             display: flex;
             align-items: center;
@@ -31,13 +31,15 @@
             font-family: 'Inter', system-ui, -apple-system, sans-serif;
         }
         .login-card {
-            background: #1e293b;
+            background: rgba(20, 27, 38, 0.8);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
             padding: 2.5rem;
-            border-radius: 16px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            border-radius: 20px;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.5);
             width: 100%;
             max-width: 400px;
-            border: 1px solid rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.06);
         }
         .login-header {
             text-align: center;
@@ -47,9 +49,10 @@
             font-size: 3rem;
             color: #3b82f6;
             margin-bottom: 1rem;
+            filter: drop-shadow(0 0 10px rgba(59, 130, 246, 0.3));
         }
         .login-header h1 {
-            font-size: 1.5rem;
+            font-size: 1.6rem;
             font-weight: 700;
             margin-bottom: 0.5rem;
         }
@@ -71,17 +74,17 @@
         }
         .input-icon-group i {
             position: absolute;
-            left: 12px;
+            left: 14px;
             top: 50%;
             transform: translateY(-50%);
             color: #64748b;
         }
         .input-icon-group input {
             width: 100%;
-            padding: 10px 12px 10px 38px;
-            background: #0f172a;
-            border: 1px solid #334155;
-            border-radius: 8px;
+            padding: 12px 12px 12px 42px;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
             color: white;
             font-size: 0.95rem;
             transition: all 0.2s;
@@ -90,22 +93,24 @@
         .input-icon-group input:focus {
             outline: none;
             border-color: #3b82f6;
-            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
         }
         .btn-login {
             width: 100%;
             padding: 12px;
-            background: #3b82f6;
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
             color: white;
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
             font-weight: 600;
             cursor: pointer;
-            transition: background 0.2s;
+            transition: transform 0.2s, box-shadow 0.2s;
             margin-top: 1rem;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
         }
         .btn-login:hover {
-            background: #2563eb;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(59, 130, 246, 0.3);
         }
         #loginError {
             color: #ef4444;
