@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const vergiNo = document.getElementById('vergiNo').value.trim();
             const sektor = document.getElementById('firmaSektor').value.trim();
             const adres = document.getElementById('firmaAdres').value.trim();
+            const logoInput = document.getElementById('firmaLogo');
             
             if (!ad) {
                 showToast('Lütfen firma adını girin.', 'error');
@@ -35,23 +36,37 @@ document.addEventListener('DOMContentLoaded', () => {
                 adres: adres || '-'
             };
             
-            if (mode === 'edit' && editId) {
-                firmaObj.id = editId;
-                updateFirma(firmaObj);
-                showToast('Firma başarıyla güncellendi.', 'success');
+            const finalizeSave = (obj) => {
+                if (mode === 'edit' && editId) {
+                    obj.id = editId;
+                    // Eğer yeni logo seçilmediyse eski logoyu koru
+                    const eski = getFirmaById(editId);
+                    if (eski && eski.logo && !obj.logo) { obj.logo = eski.logo; }
+                    updateFirma(obj);
+                    showToast('Firma başarıyla güncellendi.', 'success');
+                } else {
+                    addFirma(obj);
+                    showToast('Firma başarıyla kaydedildi.', 'success');
+                }
+                
+                firmaForm.reset();
+                firmaForm.removeAttribute('data-mode');
+                firmaForm.removeAttribute('data-id');
+                document.querySelector('.panel-title').innerHTML = '<i class="fa-solid fa-address-book"></i> Firma Kayıt Formu';
+                document.getElementById('addFirmaModal').style.display='none';
+                renderFirmalar();
+            };
+
+            if (logoInput && logoInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    firmaObj.logo = evt.target.result;
+                    finalizeSave(firmaObj);
+                };
+                reader.readAsDataURL(logoInput.files[0]);
             } else {
-                addFirma(firmaObj);
-                showToast('Firma başarıyla kaydedildi.', 'success');
+                finalizeSave(firmaObj);
             }
-            
-            // Formu temizle ve modalı kapat
-            firmaForm.reset();
-            firmaForm.removeAttribute('data-mode');
-            firmaForm.removeAttribute('data-id');
-            document.querySelector('.panel-title').textContent = 'Firma Kayıt Formu';
-            document.getElementById('addFirmaModal').style.display='none';
-            
-            renderFirmalar();
         });
 
         // Arama (Filter) İşlemi
@@ -93,8 +108,8 @@ function renderFirmalar(filterVal = '') {
         const tr = document.createElement('tr');
         tr.innerHTML = `
             <td>
-                <a href="firma_detay.html?id=${firma.id}" style="color: var(--primary); font-weight: 600; text-decoration: none; display: flex; align-items: center; gap: 8px;">
-                    <i class="fa-solid fa-building"></i> ${firma.ad}
+                <a href="firma_detay.html?id=${firma.id}" style="color: var(--primary); font-weight: 600; text-decoration: none; display: flex; align-items: center; gap: 10px;">
+                    ${firma.logo ? `<img src="${firma.logo}" style="width:28px; height:28px; border-radius:6px; object-fit:cover; border:1px solid rgba(255,255,255,0.1);">` : '<i class="fa-solid fa-building"></i>'} ${firma.ad}
                 </a>
             </td>
             <td>${firma.yetkili}</td>

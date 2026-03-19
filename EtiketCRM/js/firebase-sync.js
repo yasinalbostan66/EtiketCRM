@@ -144,60 +144,42 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// 4. Connection Status Indicator for Diagnostics
+// 4. Connection Status Indicator for Diagnostics (Static Dot)
 document.addEventListener('DOMContentLoaded', () => {
     const statusDiv = document.createElement('div');
     statusDiv.id = 'syncStatusIndicator';
     statusDiv.style.position = 'fixed';
-    statusDiv.style.bottom = '80px';
+    statusDiv.style.bottom = '85px';
     statusDiv.style.right = '20px';
-    statusDiv.style.padding = '6px 12px';
-    statusDiv.style.borderRadius = '20px';
-    statusDiv.style.background = 'rgba(15, 30, 50, 0.85)';
-    statusDiv.style.color = '#e2e8f0';
-    statusDiv.style.fontSize = '0.75rem';
-    statusDiv.style.fontWeight = '600';
-    statusDiv.style.zIndex = '9999';
-    statusDiv.style.border = '1px solid rgba(255,255,255,0.05)';
-    statusDiv.style.display = 'flex';
-    statusDiv.style.alignItems = 'center';
-    statusDiv.style.gap = '6px';
-    statusDiv.style.backdropFilter = 'blur(4px)';
-    statusDiv.innerHTML = '<span style="width:8px; height:8px; border-radius:50%; background:#ef4444; display:inline-block;" id="statusDot"></span> Bağlantı Yok';
-    document.body.appendChild(statusDiv);
+    statusDiv.style.width = '12px';
+    statusDiv.style.height = '12px';
+    statusDiv.style.borderRadius = '50%';
+    statusDiv.style.background = '#ef4444';
+    statusDiv.style.boxShadow = '0 0 6px #ef4444';
+    statusDiv.style.zIndex = '99999';
+    statusDiv.style.cursor = 'pointer';
     
+    document.body.appendChild(statusDiv);
+
+    const logBox = document.createElement('div');
+    logBox.id = 'syncLogs';
+    logBox.style.display = 'none'; // Background compatibility
+    document.body.appendChild(logBox);
+
     firebase.auth().onAuthStateChanged(user => {
         if (user) {
-            statusDiv.innerHTML = '<span style="width:8px; height:8px; border-radius:50%; background:#22c55e; display:inline-block; box-shadow:0 0 6px #22c55e;"></span> Bulut Senkronizasyonu Aktif';
-            statusDiv.style.color = '#22c55e';
+            statusDiv.style.background = '#22c55e';
+            statusDiv.style.boxShadow = '0 0 8px #22c55e';
+            statusDiv.title = 'Bulut Senkronizasyonu Aktif';
         } else {
-            statusDiv.innerHTML = '<span style="width:8px; height:8px; border-radius:50%; background:#ef4444; display:inline-block; box-shadow:0 0 6px #ef4444;"></span> Oturum Açılmadı (Bulut Pasif)';
-            statusDiv.style.color = '#f87171';
+            statusDiv.style.background = '#ef4444';
+            statusDiv.style.boxShadow = '0 0 8px #ef4444';
+            statusDiv.title = 'Oturum Açılmadı';
         }
     });
 
-    // 4b. Log Kutusu (Log Box)
-    statusDiv.style.flexDirection = 'column';
-    statusDiv.style.alignItems = 'stretch';
-    statusDiv.style.width = '240px';
-    
-    const logBox = document.createElement('div');
-    logBox.id = 'syncLogs';
-    logBox.style.marginTop = '8px';
-    logBox.style.maxHeight = '120px';
-    logBox.style.overflowY = 'auto';
-    logBox.style.fontSize = '0.65rem';
-    logBox.style.color = '#94a3b8';
-    logBox.style.borderTop = '1px solid rgba(255,255,255,0.08)';
-    logBox.style.paddingTop = '5px';
-    statusDiv.appendChild(logBox);
-
     window.addDiagLog = function(msg) {
-        const item = document.createElement('div');
-        item.style.padding = '2px 0';
-        item.style.borderBottom = '1px solid rgba(255,255,255,0.03)';
-        item.textContent = `> ${msg}`;
-        logBox.prepend(item); // En yeni log en üstte
+        if (typeof console.log === 'function') console.log(`[Diag] ${msg}`);
     };
 });
 

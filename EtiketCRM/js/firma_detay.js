@@ -22,7 +22,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // Firma bilgilerini bas
     contentArea.style.display = 'block';
     
-    document.getElementById('detayFirmaAd').textContent = firma.ad;
+    document.getElementById('detayFirmaAd').innerHTML = `
+        ${firma.logo ? `<img src="${firma.logo}" style="width: 36px; height: 36px; border-radius: 6px; object-fit: cover; border: 1px solid var(--border-color);">` : '<i class="fa-solid fa-building" style="color: var(--primary);"></i>'}
+        ${firma.ad}
+    `;
+    document.getElementById('detayFirmaAd').style.display = 'flex';
+    document.getElementById('detayFirmaAd').style.alignItems = 'center';
+    document.getElementById('detayFirmaAd').style.gap = '12px';
     document.getElementById('detayYetkili').textContent = firma.yetkili;
     document.getElementById('detayTelefon').textContent = firma.telefon;
     
@@ -192,6 +198,7 @@ function renderFirmaEkstresi(firmaId) {
             amountStr = formatCurrency(s.totalPriceUSD);
             amountColor = 'var(--text-main)';
             actionBtn = `
+                <a href="siparis_onay.html?id=${s.id}" target="_blank" class="btn-icon" style="color: var(--primary); margin-right: 0.5rem; text-decoration: none; display: inline-flex; align-items: center; justify-content: center;" title="Onay Formu"><i class="fa-solid fa-file-contract"></i></a>
                 <button class="btn-icon" onclick="duzeltSiparis('${s.id}')" style="color: var(--warning); margin-right: 0.5rem;" title="Düzenle"><i class="fa-solid fa-pen-to-square"></i></button>
                 <button class="btn-icon" onclick="silSiparis('${s.id}', '${firmaId}')" style="color: var(--danger);" title="Sil"><i class="fa-solid fa-trash"></i></button>
             `;
@@ -207,11 +214,11 @@ function renderFirmaEkstresi(firmaId) {
         
         tableHTML += `
             <tr style="${trStyle} cursor:pointer;" onclick="${s.transType === 'SIPARIS' ? `showOrderDetails('${s.id}')` : ''}">
-                <td style="color: var(--text-muted); font-size: 0.85rem;">${dateStr}</td>
-                <td>${typeBadge}</td>
-                <td style="font-weight: 500;">${s.name || s.method} ${s.faturaNo ? `<br><small style="color:var(--text-muted)">Fat: ${s.faturaNo}</small>` : ''}</td>
-                <td style="font-size: 0.85rem; color: var(--text-muted);">${s.quantity ? `${s.quantity} ${s.unit}` : (s.note || '-')}</td>
-                <td style="font-weight: 700; color: ${amountColor};">${amountStr}</td>
+                <td data-label="Tarih" style="color: var(--text-muted); font-size: 0.85rem;">${dateStr}</td>
+                <td data-label="İşlem Türü">${typeBadge}</td>
+                <td data-label="Açıklama" style="font-weight: 500;">${s.name || s.method} ${s.faturaNo ? `<br><small style="color:var(--text-muted)">Fat: ${s.faturaNo}</small>` : ''}</td>
+                <td data-label="Miktar">${s.quantity ? `${s.quantity} ${s.unit}` : (s.note || '-')}</td>
+                <td data-label="Tutar" style="font-weight: 700; color: ${amountColor};">${amountStr}</td>
                 <td style="text-align: right;" onclick="event.stopPropagation();">
                     ${actionBtn}
                 </td>

@@ -102,7 +102,7 @@
                 text-align: left !important;
                 margin-left: 0 !important;
                 margin-top: 1rem;
-                background: rgba(255,255,255,0.02);
+                background: var(--surface-hover);
                 padding: 1rem;
                 border-radius: 8px;
                 border: 1px solid var(--border-color);
@@ -114,7 +114,11 @@
     </style>
 </head>
 <body>
-	<script>if(localStorage.getItem("etiket_crm_theme") === "light") document.body.classList.add("light-mode");</script>
+	<script>
+        const currTheme = localStorage.getItem("etiket_crm_theme");
+        if(currTheme === "light") document.body.classList.add("light-mode");
+        if(currTheme === "blue") document.body.classList.add("blue-mode");
+    </script>
 
     <div class="app-wrapper">
         <!-- Sidebar -->
