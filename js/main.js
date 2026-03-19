@@ -332,20 +332,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Mobil Menü Toggle Ekle (Drawer Menü) ---
     const topHeader = document.querySelector('.top-header');
-    if (topHeader && !document.getElementById('mobileMenuBtn')) {
-        const menuBtn = document.createElement('button');
+    let menuBtn = document.getElementById('mobileMenuBtn');
+    
+    if (topHeader && !menuBtn) {
+        menuBtn = document.createElement('button');
         menuBtn.id = 'mobileMenuBtn';
-        menuBtn.className = 'btn-icon';
+        menuBtn.className = 'btn-icon hide-desktop';
         menuBtn.style.marginRight = '12px';
         menuBtn.innerHTML = '<i class="fa-solid fa-bars"></i>';
         topHeader.insertBefore(menuBtn, topHeader.firstChild);
-
+    }
+    
+    if (menuBtn && !document.querySelector('.sidebar-overlay')) {
         // Karartma perdesi (Overlay)
         const overlay = document.createElement('div');
         overlay.className = 'sidebar-overlay';
         document.body.appendChild(overlay);
 
-        menuBtn.addEventListener('click', () => {
+        menuBtn.addEventListener('click', (e) => {
+            e.preventDefault();
             document.body.classList.toggle('sidebar-open');
         });
 

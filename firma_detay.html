@@ -203,10 +203,16 @@
                 <div class="detail-header panel">
                     <div>
                         <h1 style="font-size: 1.8rem; margin-bottom: 0.5rem;" id="detayFirmaAd">...</h1>
-                        <div class="firma-meta">
-                            <span><i class="fa-solid fa-user"></i> Yetkili: <span id="detayYetkili"></span></span>
-                            <span><i class="fa-solid fa-phone"></i> Tel: <span id="detayTelefon"></span></span>
-                            <span><i class="fa-solid fa-calendar"></i> Kayıt: <span id="detayTarih"></span></span>
+                        <div class="firma-meta" style="flex-direction: column; gap: 0.5rem;">
+                            <div style="display:flex; gap: 2rem; flex-wrap: wrap;">
+                                <span><i class="fa-solid fa-user"></i> Yetkili: <span id="detayYetkili"></span></span>
+                                <span><i class="fa-solid fa-phone"></i> Tel: <span id="detayTelefon"></span></span>
+                                <span><i class="fa-solid fa-calendar"></i> Kayıt: <span id="detayTarih"></span></span>
+                            </div>
+                            <div style="display:flex; gap: 2rem; flex-wrap: wrap; margin-top: 5px;">
+                                <span><i class="fa-solid fa-envelope"></i> E-Posta: <span id="detayEmail"></span></span>
+                                <span><i class="fa-solid fa-location-dot"></i> Adres: <span id="detayAdres"></span></span>
+                            </div>
                         </div>
                     </div>
                     <div class="action-buttons" style="align-items: center;">

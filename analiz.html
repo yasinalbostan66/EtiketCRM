@@ -294,27 +294,44 @@
             Chart.defaults.color = textColor;
             Chart.defaults.font.family = "'Inter', sans-serif";
 
-            // Aylık Grafik
+            // Aylık Grafik (Premium Area Chart)
             const ctxMonthly = document.getElementById('monthlyChart').getContext('2d');
+            
+            const gradientBg = ctxMonthly.createLinearGradient(0, 0, 0, 350);
+            gradientBg.addColorStop(0, 'rgba(59, 130, 246, 0.7)');
+            gradientBg.addColorStop(1, 'rgba(59, 130, 246, 0.05)');
+
             new Chart(ctxMonthly, {
-                type: 'bar',
+                type: 'line',
                 data: {
                     labels: monthLabels,
                     datasets: [{
                         label: 'Satış Hacmi (USD)',
                         data: monthValues,
-                        backgroundColor: 'rgba(59, 130, 246, 0.8)',
-                        borderRadius: 6
+                        borderColor: '#3b82f6',
+                        backgroundColor: gradientBg,
+                        borderWidth: 3,
+                        pointBackgroundColor: '#ffffff',
+                        pointBorderColor: '#3b82f6',
+                        pointBorderWidth: 2,
+                        pointRadius: 5,
+                        pointHoverRadius: 8,
+                        fill: true,
+                        tension: 0.4 // Curve smoothing
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
                     scales: {
                         y: {
                             beginAtZero: true,
                             grid: { color: gridColor },
-                            ticks: { callback: function(val) { return '$' + val; } }
+                            ticks: { callback: function(val) { return '$' + val.toLocaleString('en-US'); } }
                         },
                         x: {
                             grid: { display: false }
@@ -323,8 +340,15 @@
                     plugins: {
                         legend: { display: false },
                         tooltip: {
+                            backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                            titleFont: { size: 14, family: "'Inter', sans-serif" },
+                            bodyFont: { size: 15, family: "'Inter', sans-serif", weight: 'bold' },
+                            padding: 14,
+                            cornerRadius: 8,
+                            displayColors: false,
+                            boxPadding: 6,
                             callbacks: {
-                                label: function(context) { return '$' + context.parsed.y.toLocaleString('en-US'); }
+                                label: function(context) { return 'Ciro: $' + context.parsed.y.toLocaleString('en-US'); }
                             }
                         }
                     }

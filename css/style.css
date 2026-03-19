@@ -607,6 +607,17 @@ tbody tr:hover {
     animation: modalSlide 0.3s ease-out;
 }
 
+.modal-content > .panel-header {
+    position: sticky;
+    top: -1.5rem; /* negate the parent padding to stick to the very edge */
+    z-index: 50;
+    margin: -1.5rem -1.5rem 1.5rem -1.5rem;
+    padding: 1.5rem;
+    background: var(--surface-color);
+    border-bottom: 1px solid var(--border-color);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
 @keyframes modalSlide {
     from { transform: translateY(-30px); opacity: 0; }
     to { transform: translateY(0); opacity: 1; }

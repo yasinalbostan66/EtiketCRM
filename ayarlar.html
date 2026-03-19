@@ -244,6 +244,23 @@
                         </div>
                     </div>
 
+                    <!-- Yeni Ekip Kullanıcısı Ekleme -->
+                    <div class="settings-card" style="border-left: 4px solid var(--success);">
+                        <h2 class="settings-card-title" style="color:var(--success); border-bottom-color:rgba(16, 185, 129, 0.2);"><i class="fa-solid fa-user-plus"></i> Alt Kullanıcı / Ekip Arkadaşı Ekle</h2>
+                        <div class="form-group">
+                            <label>Yeni Kullanıcı E-Posta Adresi</label>
+                            <input type="email" class="form-control" id="newUserEmail" placeholder="Örn: satis@sirketiniz.com">
+                        </div>
+                        <div class="form-group">
+                            <label>Yeni Kullanıcı Şifresi (En az 6 karakter)</label>
+                            <input type="password" class="form-control" id="newUserPassTemp" placeholder="Giriş yapması için geçici bir şifre verin">
+                        </div>
+                        <div style="margin-top:0.5rem;">
+                            <button class="btn" style="width:100%; background:var(--success); color:#fff; font-weight:600;" id="btnCreateNewUser"><i class="fa-solid fa-check-circle"></i> Kullanıcı Hesabını Aç</button>
+                            <small style="color:var(--text-muted); display:block; margin-top:8px;">* Güvenlik gereği yeni hesabı açtığınız an o kullanıcının paneline geçiş yaparsınız. Sisteminize dönmek için çıkış yapıp eski hesabınıza şifrenizle tekrar girmeniz gerekir.</small>
+                        </div>
+                    </div>
+
                     <!-- Veri Yedekleme -->
                     <div class="settings-card">
                         <h2 class="settings-card-title"><i class="fa-solid fa-cloud"></i> Veri Senkronizasyonu & Yedekleme</h2>
@@ -471,6 +488,32 @@
                         showToast('Hata: ' + err.message, 'error');
                     }
                 });
+            });
+
+            // Yeni Kullanıcı Ekleme
+            document.getElementById('btnCreateNewUser').addEventListener('click', () => {
+                const email = document.getElementById('newUserEmail').value.trim();
+                const pass = document.getElementById('newUserPassTemp').value;
+                
+                if (!email || pass.length < 6) {
+                    showToast('Geçerli bir e-posta ve en az 6 haneli şifre giriniz.', 'error');
+                    return;
+                }
+
+                if (typeof firebase !== 'undefined' && firebase.auth) {
+                    showToast('Kullanıcı hesabı açılıyor...', 'success');
+                    firebase.auth().createUserWithEmailAndPassword(email, pass)
+                        .then((userCred) => {
+                            showToast('Sistem kullanıcısı başarıyla yaratıldı! Kendi hesabınıza dönmek için çıkış yapıp eski şifrenizle giriş yapın.', 'success');
+                            document.getElementById('newUserEmail').value = '';
+                            document.getElementById('newUserPassTemp').value = '';
+                        })
+                        .catch((err) => {
+                            showToast('Hata: ' + err.message, 'error');
+                        });
+                } else {
+                    showToast('Sistem ağına bağlanılamadı.', 'error');
+                }
             });
 
 
