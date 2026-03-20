@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="manifest" href="manifest.json">
@@ -18,7 +18,7 @@
     </script>
     <title>Ziyaret Takvimi | SATIŞ KİŞİSEL KULLANIM</title>
     <!-- CSS -->
-    <link rel="stylesheet" href="css/style.css?v=3.0">
+    <link rel="stylesheet" href="css/style.css?v=3.4">
     <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- FullCalendar JS -->
@@ -164,33 +164,35 @@
             </div>
             <form id="visitForm">
                 <input type="hidden" id="editVisitId">
-                <div class="form-group">
-                    <label for="visitFirma">Firma Seç *</label>
-                    <select id="visitFirma" class="form-control" required>
-                        <option value="">Seçiniz...</option>
-                    </select>
+                <div class="modal-body-scroll">
+                    <div class="form-group">
+                        <label for="visitFirma">Firma Seç *</label>
+                        <select id="visitFirma" class="form-control" required>
+                            <option value="">Seçiniz...</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="visitTarih">Ziyaret Tarihi *</label>
+                        <input type="date" id="visitTarih" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="visitSaat">Ziyaret Saati (Opsiyonel)</label>
+                        <input type="time" id="visitSaat" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="visitDurum">Ziyaret Durumu</label>
+                        <select id="visitDurum" class="form-control">
+                            <option value="Planlandı">⏳ Planlandı</option>
+                            <option value="Tamamlandı">✅ Tamamlandı</option>
+                            <option value="İptal Edildi">❌ İptal Edildi</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="visitNot">Açıklama / Not</label>
+                        <textarea id="visitNot" class="form-control" rows="3" placeholder="Ziyaret detayları, görüşülen konular..."></textarea>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="visitTarih">Ziyaret Tarihi *</label>
-                    <input type="date" id="visitTarih" class="form-control" required>
-                </div>
-                <div class="form-group">
-                    <label for="visitSaat">Ziyaret Saati (Opsiyonel)</label>
-                    <input type="time" id="visitSaat" class="form-control">
-                </div>
-                <div class="form-group">
-                    <label for="visitDurum">Ziyaret Durumu</label>
-                    <select id="visitDurum" class="form-control">
-                        <option value="Planlandı">⏳ Planlandı</option>
-                        <option value="Tamamlandı">✅ Tamamlandı</option>
-                        <option value="İptal Edildi">❌ İptal Edildi</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="visitNot">Açıklama / Not</label>
-                    <textarea id="visitNot" class="form-control" rows="3" placeholder="Ziyaret detayları, görüşülen konular..."></textarea>
-                </div>
-                <div class="d-flex gap-2" style="justify-content: flex-end; margin-top: 1.5rem;">
+                <div class="modal-footer">
                     <button type="button" class="btn btn-outline" onclick="document.getElementById('visitModal').style.display='none'">İptal</button>
                     <button type="submit" class="btn btn-primary" id="visitSubmitBtn">Kaydet</button>
                 </div>
@@ -204,8 +206,8 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
     <!-- Firebase Sync Logic -->
-    <script src="js/firebase-sync.js?v=3.0"></script>
-    <script src="js/main.js?v=3.0"></script>
+    <script src="js/firebase-sync.js?v=3.1"></script>
+    <script src="js/main.js?v=3.1"></script>
     <script src="js/takvim.js"></script>
 </body>
 </html>
