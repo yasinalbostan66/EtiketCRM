@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="manifest" href="manifest.json">
@@ -17,7 +17,7 @@
         }
     </script>
     <title>Ödeme Takibi | SATIŞ KİŞİSEL KULLANIM</title>
-    <link rel="stylesheet" href="css/style.css?v=3.0">
+    <link rel="stylesheet" href="css/style.css?v=3.4">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @media print {
@@ -217,39 +217,41 @@
                 </button>
             </div>
             <form id="globalTahsilatForm">
-                <div class="form-group">
-                    <label for="globalTahsilatFirma">Firma Seç *</label>
-                    <select id="globalTahsilatFirma" class="form-control" required>
-                        <option value="">Firma Seçiniz...</option>
-                    </select>
+                <div class="modal-body-scroll">
+                    <div class="form-group">
+                        <label for="globalTahsilatFirma">Firma Seç *</label>
+                        <select id="globalTahsilatFirma" class="form-control" required>
+                            <option value="">Firma Seçiniz...</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="globalTahsilatTutar">Ödeme Tutarı ($) *</label>
+                        <input type="number" id="globalTahsilatTutar" class="form-control" step="0.01" min="0.01" required placeholder="0.00">
+                    </div>
+                    <div class="form-group">
+                        <label for="globalTahsilatMetodu">Ödeme Yöntemi</label>
+                        <select id="globalTahsilatMetodu" class="form-control">
+                            <option value="Nakit">Nakit</option>
+                            <option value="Havale/EFT">Havale/EFT</option>
+                            <option value="Kredi Kartı">Kredi Kartı</option>
+                            <option value="Çek">Çek</option>
+                            <option value="Senet">Senet</option>
+                            <option value="30 Gün Vadeli">30 Gün Vadeli</option>
+                            <option value="60 Gün Vadeli">60 Gün Vadeli</option>
+                            <option value="90 Gün Vadeli">90 Gün Vadeli</option>
+                            <option value="120 Gün Vadeli">120 Gün Vadeli</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="globalTahsilatFaturaNo">Fatura No</label>
+                        <input type="text" id="globalTahsilatFaturaNo" class="form-control" placeholder="Örn: FT-2024-001">
+                    </div>
+                    <div class="form-group">
+                        <label for="globalTahsilatNot">Açıklama / Not</label>
+                        <textarea id="globalTahsilatNot" class="form-control" rows="2" placeholder="Örn: X nolu fatura tahsilatı"></textarea>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="globalTahsilatTutar">Ödeme Tutarı ($) *</label>
-                    <input type="number" id="globalTahsilatTutar" class="form-control" step="0.01" min="0.01" required placeholder="0.00">
-                </div>
-                <div class="form-group">
-                    <label for="globalTahsilatMetodu">Ödeme Yöntemi</label>
-                    <select id="globalTahsilatMetodu" class="form-control">
-                        <option value="Nakit">Nakit</option>
-                        <option value="Havale/EFT">Havale/EFT</option>
-                        <option value="Kredi Kartı">Kredi Kartı</option>
-                        <option value="Çek">Çek</option>
-                        <option value="Senet">Senet</option>
-                        <option value="30 Gün Vadeli">30 Gün Vadeli</option>
-                        <option value="60 Gün Vadeli">60 Gün Vadeli</option>
-                        <option value="90 Gün Vadeli">90 Gün Vadeli</option>
-                        <option value="120 Gün Vadeli">120 Gün Vadeli</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="globalTahsilatFaturaNo">Fatura No</label>
-                    <input type="text" id="globalTahsilatFaturaNo" class="form-control" placeholder="Örn: FT-2024-001">
-                </div>
-                <div class="form-group">
-                    <label for="globalTahsilatNot">Açıklama / Not</label>
-                    <textarea id="globalTahsilatNot" class="form-control" rows="2" placeholder="Örn: X nolu fatura tahsilatı"></textarea>
-                </div>
-                <div class="d-flex gap-2" style="justify-content: flex-end; margin-top: 1.5rem;">
+                <div class="modal-footer">
                     <button type="button" class="btn btn-outline" onclick="document.getElementById('globalTahsilatModal').style.display='none'">İptal</button>
                     <button type="submit" class="btn btn-primary">Tahsilatı Kaydet</button>
                 </div>
@@ -262,8 +264,8 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
     <!-- Firebase Sync Logic -->
-    <script src="js/firebase-sync.js?v=3.0"></script>
-    <script src="js/main.js?v=3.0"></script>
+    <script src="js/firebase-sync.js?v=3.1"></script>
+    <script src="js/main.js?v=3.1"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const tableBody = document.getElementById('paymentTableBody');

@@ -613,20 +613,53 @@ tbody tr:hover {
 .modal-content {
     width: 100%;
     max-width: 500px;
-    margin: auto; /* For scroll-ability when content > height */
+    margin: auto;
     position: relative;
     animation: modalSlide 0.3s ease-out;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--surface-color);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 0; /* panel dolgusu ezilmeli */
+    box-shadow: var(--shadow-lg);
 }
 
-.modal-content > .panel-header {
-    position: sticky;
-    top: -1.5rem; /* negate the parent padding to stick to the very edge */
-    z-index: 50;
-    margin: -1.5rem -1.5rem 1.5rem -1.5rem;
-    padding: 1.5rem;
-    background: var(--surface-color);
+/* Modal içindeki form flex container olmalı ki kaydırma ve footer sığsın */
+.modal-content form {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    overflow: hidden;
+    min-height: 0;
+}
+
+.modal-content .panel-header {
+    flex-shrink: 0;
+    z-index: 10;
+    padding: 1.25rem 1.5rem;
+    margin: 0 !important;
     border-bottom: 1px solid var(--border-color);
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    background: var(--surface-color);
+}
+
+.modal-body-scroll {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 1.5rem;
+}
+
+.modal-footer {
+    flex-shrink: 0;
+    z-index: 10;
+    background: var(--surface-color);
+    border-top: 1px solid var(--border-color);
+    padding: 1rem 1.5rem;
+    display: flex;
+    gap: 0.75rem;
+    justify-content: flex-end;
 }
 
 @keyframes modalSlide {
@@ -788,15 +821,68 @@ tbody tr:hover {
         gap: 0.85rem;
     }
 
+    .modal-overlay {
+        overflow: hidden !important; /* iOS Safari elastik scroll çakışmasını önle */
+        padding: 0;
+        align-items: flex-end; /* Mobilde her zaman alttan açılsın */
+    }
+
     .modal-content {
-        margin: 8px;
-        max-width: calc(100% - 16px);
-        max-height: 92vh;
+        margin: 0;
+        max-width: 100%;
+        width: 100%;
+        height: 100%; /* iOS Safari flex bounding fix */
+        max-height: calc(100dvh - 130px); /* Bottom Nav (64px) + Boşluk (20px) + Güvenli alan */
+        display: flex;
+        flex-direction: column;
+        border-radius: 24px 24px 0 0;
+        overflow: hidden;
+        padding: 0;
+    }
+
+    /* Modal içindeki form etiketini flex column yapalım ki altındaki scroll ve footer sığsın */
+    .modal-content form {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        overflow: hidden;
+        min-height: 0; /* Flexbox taşma formülü */
+    }
+
+    /* Header: en üstte yapışık kalır */
+    .modal-content .panel-header {
+        flex-shrink: 0;
+        z-index: 10;
+        border-radius: 20px 20px 0 0;
+        padding: 1.1rem 1.25rem;
+        margin: 0 !important;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    /* Scrollable orta alan */
+    .modal-body-scroll {
+        flex: 1;
         overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        padding: 1rem 1.25rem;
+    }
+
+    /* Footer: en altta yapışık, her zaman görünür */
+    .modal-footer {
+        flex-shrink: 0;
+        position: sticky;
+        bottom: 0;
+        z-index: 10;
+        background: var(--surface-color);
+        border-top: 1px solid var(--border-color);
+        padding: 0.85rem 1.25rem;
+        display: flex;
+        gap: 0.75rem;
+        justify-content: flex-end;
     }
 
     .modal-overlay {
-        padding: 0.5rem;
+        padding: 0;
         align-items: flex-end; /* Modal ekranın altından çıksın */
     }
 
@@ -920,6 +1006,29 @@ tbody tr:hover {
     .content-wrapper:last-child {
         padding-bottom: 90px;
     }
+
+    /* 576px altında modal tam ekran alttan açılır */
+    .modal-overlay {
+        padding: 0;
+        align-items: flex-end;
+        overflow: hidden !important; /* iOS elastik scroll çakışması engellensin */
+    }
+
+    .modal-content {
+        height: 100%;
+        max-height: calc(100dvh - 130px);
+        border-radius: 24px 24px 0 0;
+    }
+
+    /* Modal footer butonları tam genişlik */
+    .modal-footer {
+        flex-direction: row;
+        gap: 0.6rem;
+    }
+    .modal-footer .btn {
+        flex: 1;
+        justify-content: center;
+    }
 }
 
 /* --- Professional Mobile Bottom Nav --- */
@@ -1020,6 +1129,11 @@ tbody tr:hover {
     
     .calc-grid .panel[style*="position: sticky"] {
         position: static !important;
+    }
+
+    /* Mobilde sonuncu paneli (Sonuç Özeti ve Kaydet butonu) en tepeye alalım */
+    .calc-grid .panel:last-child {
+        order: -1;
     }
 }
 

@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="manifest" href="manifest.json">
@@ -18,7 +18,7 @@
     </script>
     <title>Müşteri Detayı | SATIŞ KİŞİSEL KULLANIM</title>
     <!-- CSS -->
-    <link rel="stylesheet" href="css/style.css?v=3.0">
+    <link rel="stylesheet" href="css/style.css?v=3.4">
     <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -305,37 +305,39 @@
                 </button>
             </div>
             <form id="tahsilatForm">
-                <div class="form-group">
-                    <label for="tahsilatTutar">Ödeme Tutarı ($) *</label>
-                    <input type="number" id="tahsilatTutar" class="form-control" step="0.01" min="0.01" required placeholder="0.00">
+                <input type="hidden" id="editTahsilatId">
+                <div class="modal-body-scroll">
+                    <div class="form-group">
+                        <label for="tahsilatTutar">Ödeme Tutarı ($) *</label>
+                        <input type="number" id="tahsilatTutar" class="form-control" step="0.01" min="0.01" required placeholder="0.00">
+                    </div>
+                    <div class="form-group">
+                        <label for="tahsilatMetodu">Ödeme Yöntemi</label>
+                        <select id="tahsilatMetodu" class="form-control">
+                            <option value="Nakit">Nakit</option>
+                            <option value="Havale/EFT">Havale/EFT</option>
+                            <option value="Kredi Kartı">Kredi Kartı</option>
+                            <option value="Çek">Çek</option>
+                            <option value="Senet">Senet</option>
+                            <option value="30 Gün Vadeli">30 Gün Vadeli</option>
+                            <option value="60 Gün Vadeli">60 Gün Vadeli</option>
+                            <option value="90 Gün Vadeli">90 Gün Vadeli</option>
+                            <option value="120 Gün Vadeli">120 Gün Vadeli</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="tahsilatFaturaNo">Fatura No</label>
+                        <input type="text" id="tahsilatFaturaNo" class="form-control" placeholder="Örn: FT-2024-001">
+                    </div>
+                    <div class="form-group">
+                        <label for="tahsilatNot">Açıklama / Not</label>
+                        <textarea id="tahsilatNot" class="form-control" rows="2" placeholder="Örn: X nolu fatura tahsilatı"></textarea>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="tahsilatMetodu">Ödeme Yöntemi</label>
-                    <select id="tahsilatMetodu" class="form-control">
-                        <option value="Nakit">Nakit</option>
-                        <option value="Havale/EFT">Havale/EFT</option>
-                        <option value="Kredi Kartı">Kredi Kartı</option>
-                        <option value="Çek">Çek</option>
-                        <option value="Senet">Senet</option>
-                        <option value="30 Gün Vadeli">30 Gün Vadeli</option>
-                        <option value="60 Gün Vadeli">60 Gün Vadeli</option>
-                        <option value="90 Gün Vadeli">90 Gün Vadeli</option>
-                        <option value="120 Gün Vadeli">120 Gün Vadeli</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="tahsilatFaturaNo">Fatura No</label>
-                    <input type="text" id="tahsilatFaturaNo" class="form-control" placeholder="Örn: FT-2024-001">
-                </div>
-                <div class="form-group">
-                    <label for="tahsilatNot">Açıklama / Not</label>
-                    <textarea id="tahsilatNot" class="form-control" rows="2" placeholder="Örn: X nolu fatura tahsilatı"></textarea>
-                </div>
-                <div class="d-flex gap-2" style="justify-content: flex-end; margin-top: 1.5rem;">
+                <div class="modal-footer">
                     <button type="button" class="btn btn-outline" onclick="document.getElementById('tahsilatModal').style.display='none'">İptal</button>
                     <button type="submit" class="btn btn-primary" id="tahsilatSubmitBtn">Tahsilatı Kaydet</button>
                 </div>
-                <input type="hidden" id="editTahsilatId">
             </form>
         </div>
     </div>
@@ -351,38 +353,40 @@
             </div>
             <form id="siparisForm">
                 <input type="hidden" id="editSiparisId">
-                <div class="form-group">
-                    <label for="siparisToplamTutar">Toplam Tutar ($) *</label>
-                    <input type="number" id="siparisToplamTutar" class="form-control" step="0.01" min="0.01" required placeholder="0.00">
+                <div class="modal-body-scroll">
+                    <div class="form-group">
+                        <label for="siparisToplamTutar">Toplam Tutar ($) *</label>
+                        <input type="number" id="siparisToplamTutar" class="form-control" step="0.01" min="0.01" required placeholder="0.00">
+                    </div>
+                    <div class="form-group">
+                        <label for="siparisMetodu">Ödeme Yöntemi</label>
+                        <select id="siparisMetodu" class="form-control">
+                            <option value="Nakit">Nakit</option>
+                            <option value="Havale/EFT">Havale/EFT</option>
+                            <option value="Kredi Kartı">Kredi Kartı</option>
+                            <option value="Çek">Çek</option>
+                            <option value="Senet">Senet</option>
+                            <option value="30 Gün Vadeli">30 Gün Vadeli</option>
+                            <option value="60 Gün Vadeli">60 Gün Vadeli</option>
+                            <option value="90 Gün Vadeli">90 Gün Vadeli</option>
+                            <option value="120 Gün Vadeli">120 Gün Vadeli</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="siparisDetaylar">Açıklama / Detaylar (Aralara | koyarak alt satıra geçebilirsiniz)</label>
+                        <textarea id="siparisDetaylar" class="form-control" rows="4" placeholder="Sipariş detayları..."></textarea>
+                    </div>
+                    <div class="form-group" style="margin-top: 1rem;">
+                        <label for="siparisDurum">İşlem Durumu</label>
+                        <select id="siparisDurum" class="form-control">
+                            <option value="Ödeme Bekliyor">Ödeme Bekliyor</option>
+                            <option value="Kısmi Ödendi">Kısmi Ödendi</option>
+                            <option value="Ödendi">Ödendi</option>
+                            <option value="Sevk Edildi">Sevk Edildi</option>
+                        </select>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="siparisMetodu">Ödeme Yöntemi</label>
-                    <select id="siparisMetodu" class="form-control">
-                        <option value="Nakit">Nakit</option>
-                        <option value="Havale/EFT">Havale/EFT</option>
-                        <option value="Kredi Kartı">Kredi Kartı</option>
-                        <option value="Çek">Çek</option>
-                        <option value="Senet">Senet</option>
-                        <option value="30 Gün Vadeli">30 Gün Vadeli</option>
-                        <option value="60 Gün Vadeli">60 Gün Vadeli</option>
-                        <option value="90 Gün Vadeli">90 Gün Vadeli</option>
-                        <option value="120 Gün Vadeli">120 Gün Vadeli</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="siparisDetaylar">Açıklama / Detaylar (Aralara | koyarak alt satıra geçebilirsiniz)</label>
-                    <textarea id="siparisDetaylar" class="form-control" rows="4" placeholder="Sipariş detayları..."></textarea>
-                </div>
-                <div class="form-group" style="margin-top: 1rem;">
-                    <label for="siparisDurum">İşlem Durumu</label>
-                    <select id="siparisDurum" class="form-control">
-                        <option value="Ödeme Bekliyor">Ödeme Bekliyor</option>
-                        <option value="Kısmi Ödendi">Kısmi Ödendi</option>
-                        <option value="Ödendi">Ödendi</option>
-                        <option value="Sevk Edildi">Sevk Edildi</option>
-                    </select>
-                </div>
-                <div class="d-flex gap-2" style="justify-content: flex-end; margin-top: 1.5rem;">
+                <div class="modal-footer">
                     <button type="button" class="btn btn-outline" onclick="document.getElementById('siparisModal').style.display='none'">İptal</button>
                     <button type="submit" class="btn btn-primary">Değişiklikleri Kaydet</button>
                 </div>
@@ -396,8 +400,8 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
     <!-- Firebase Sync Logic -->
-    <script src="js/firebase-sync.js?v=3.0"></script>
-    <script src="js/main.js?v=3.0"></script>
+    <script src="js/firebase-sync.js?v=3.1"></script>
+    <script src="js/main.js?v=3.1"></script>
     <script src="js/firma_detay.js"></script>
 </body>
 </html>

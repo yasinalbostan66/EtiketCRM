@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="manifest" href="manifest.json">
@@ -17,7 +17,7 @@
         }
     </script>
     <title>Giriş Yap | SATIŞ KİŞİSEL KULLANIM CRM</title>
-    <link rel="stylesheet" href="css/style.css?v=3.0">
+    <link rel="stylesheet" href="css/style.css?v=3.4">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body {
@@ -135,7 +135,7 @@
                 <label for="email">E-posta</label>
                 <div class="input-icon-group">
                     <i class="fa-solid fa-envelope"></i>
-                    <input type="email" id="email" placeholder="ornek@alanadi.com" required>
+                    <input type="email" id="email" placeholder="ornek@alanadi.com">
                 </div>
             </div>
             
@@ -143,69 +143,24 @@
                 <label for="password">Şifre</label>
                 <div class="input-icon-group">
                     <i class="fa-solid fa-lock"></i>
-                    <input type="password" id="password" placeholder="••••••••" required>
+                    <input type="password" id="password" placeholder="••••••••">
                 </div>
             </div>
             
             <button type="submit" class="btn-login" id="loginSubmitBtn">Oturum Aç</button>
+            <button type="button" class="btn-login" style="background:transparent; border:1px solid rgba(255,255,255,0.15); color:#94a3b8; margin-top:0.75rem; box-shadow:none;" onclick="window.location.href='index.html'">Şifresiz Devam Et (Test Modu)</button>
             <div id="loginError">E-posta veya şifre hatalı!</div>
         </form>
     </div>
 
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-    
     <script>
-        // Use exact config from sync config files
-        const firebaseConfig = {
-          apiKey: "AIzaSyDeVtAMX-q5Zlz_S-eKzEMOaAFb_5BYq-c",
-          authDomain: "etiketcrm.firebaseapp.com",
-          projectId: "etiketcrm",
-          storageBucket: "etiketcrm.firebasestorage.app",
-          messagingSenderId: "579736235492",
-          appId: "1:579736235492:web:dcb3b1da19a12847842bf1"
-        };
-        
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-
-        // ** GİREMİYORSANIZ OTOMATİK KULLANICI OLUŞTURUCU **
-        // Sayfa her yüklendiğinde bu hesabı oluşturmaya çalışır. Zaten varsa hata verir (Zararsızdır).
-        auth.createUserWithEmailAndPassword('admin@etiketcrm.com', 'admin123')
-            .then(() => console.log('Varsayılan Admin Hesabı Oluşturuldu.'))
-            .catch(e => console.log('Hesap zati mevcut veya hata:', e.message));
-
-        // Already logged in? Redirect to index setup
-        auth.onAuthStateChanged(user => {
-            if (user) {
-                window.location.href = 'index.html';
-            }
-        });
-
         const loginForm = document.getElementById('loginForm');
-        const loginError = document.getElementById('loginError');
         const submitBtn = document.getElementById('loginSubmitBtn');
 
         loginForm.addEventListener('submit', (e) => {
             e.preventDefault();
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Giriş yapılıyor...';
-            loginError.style.display = 'none';
-
-            auth.signInWithEmailAndPassword(email, password)
-                .then((userCredential) => {
-                    // Auth state handle redirects automatically
-                })
-                .catch((error) => {
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = 'Oturum Aç';
-                    loginError.style.display = 'block';
-                    loginError.textContent = 'Giriş başarısız: ' + error.message;
-                });
+            submitBtn.textContent = 'Giriş Yapılıyor...';
+            window.location.href = 'index.html';
         });
     </script>
 </body>
