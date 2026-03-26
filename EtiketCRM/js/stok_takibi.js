@@ -200,4 +200,66 @@ document.addEventListener('DOMContentLoaded', () => {
         doc.save(`Stok_Raporu_${new Date().toISOString().slice(0,10)}.pdf`);
         showToast('PDF Dosyası oluşturuldu.', 'success');
     };
+
+    // Stok Raporu Paylaş (NEW)
+    window.shareStokReport = async function() {
+        if (!navigator.share) {
+            window.exportToPDF();
+            showToast('Cihazınızda paylaşım desteklenmiyor, PDF indirildi.', 'warning');
+            return;
+        }
+
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        const trMap = { 'ç': 'c', 'Ç': 'C', 'ğ': 'g', 'Ğ': 'G', 'ı': 'i', 'İ': 'I', 'ö': 'o', 'Ö': 'O', 'ş': 's', 'Ş': 'S', 'ü': 'u', 'Ü': 'U' };
+        function fixTr(text) { return text.replace(/[çÇğĞıİöÖşŞüÜ]/g, m => trMap[m]); }
+
+        const typeFilter = filterType.value;
+        const search = searchTerm.value.toLowerCase().trim();
+        const filtered = allMaterials.filter(m => {
+            const matchesType = (typeFilter === 'HEPSİ') || (m.turu === typeFilter);
+            const matchesSearch = m.adi.toLowerCase().includes(search);
+            return matchesType && matchesSearch;
+        });
+
+        const tableData = filtered.map(m => [
+            fixTr(m.adi),
+            fixTr(m.turu),
+            m.stok || 0,
+            fixTr(m.birim || '-')
+        ]);
+
+        doc.setFontSize(18);
+        doc.text(fixTr("Malzeme Stok Raporu"), 14, 20);
+        doc.setFontSize(10);
+        doc.text(`Tarih: ${new Date().toLocaleDateString('tr-TR')}`, 14, 30);
+        doc.text(`Filtre: ${fixTr(typeFilter)} | Arama: ${fixTr(search) || 'Yok'}`, 14, 35);
+
+        doc.autoTable({
+            startY: 45,
+            head: [[fixTr('Malzeme Adı'), fixTr('Tur'), fixTr('Stok'), fixTr('Birim')]],
+            body: tableData,
+            theme: 'striped',
+            headStyles: { fillColor: [56, 189, 248] }
+        });
+
+        try {
+            const pdfOutput = doc.output('blob');
+            const file = new File([pdfOutput], `Stok_Raporu_${new Date().toISOString().slice(0,10)}.pdf`, { type: 'application/pdf' });
+            
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                await navigator.share({
+                    title: 'Malzeme Stok Raporu',
+                    text: 'Güncel stok ve malzeme dökümü.',
+                    files: [file]
+                });
+            } else {
+                window.exportToPDF();
+                showToast('Paylaşım desteklenmiyor, PDF indirildi.', 'warning');
+            }
+        } catch (err) {
+            console.error('Paylaşım hatası:', err);
+            showToast('Paylaşım sırasında bir hata oluştu.', 'error');
+        }
+    };
 });
