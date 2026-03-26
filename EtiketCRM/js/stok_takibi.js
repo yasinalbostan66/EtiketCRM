@@ -111,4 +111,93 @@ document.addEventListener('DOMContentLoaded', () => {
         allMaterials = getMalzemeFiyatlari();
         renderTable();
     });
+
+    // --- CSV İçe Aktar ---
+    const csvInput = document.getElementById('csvInput');
+    if (csvInput) {
+        csvInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const text = event.target.result;
+                const rows = text.split('\n');
+                let count = 0;
+
+                // Skip header (CSV format: Grup,Malzeme Adı,Birim Fiyat,Döviz,Stok,Birim)
+                for (let i = 1; i < rows.length; i++) {
+                    const columns = rows[i].split(',');
+                    if (columns.length < 5) continue;
+
+                    const turu = columns[0].trim();
+                    const adi = columns[1].trim();
+                    const stok = parseFloat(columns[4]);
+
+                    if (adi && !isNaN(stok)) {
+                        // Mevcut malzemeyi bul ve stok güncelle
+                        const mat = allMaterials.find(m => m.adi.toLowerCase() === adi.toLowerCase() && m.turu === turu);
+                        if (mat) {
+                            mat.stok = stok;
+                            count++;
+                        }
+                    }
+                }
+
+                if (count > 0) {
+                    saveMalzemeFiyatlari(allMaterials);
+                    renderTable();
+                    showToast(`${count} kalemin stoğu güncellendi!`, 'success');
+                } else {
+                    showToast('Eşleşen malzeme bulunamadı veya CSV formatı hatalı!', 'error');
+                }
+                csvInput.value = '';
+            };
+            reader.readAsText(file);
+        });
+    }
+
+    // --- PDF Dışa Aktar ---
+    window.exportToPDF = function() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        // Türkçe Karakter Desteği için latinze (Opsiyonel ama güvenli)
+        const trMap = { 'ç': 'c', 'Ç': 'C', 'ğ': 'g', 'Ğ': 'G', 'ı': 'i', 'İ': 'I', 'ö': 'o', 'Ö': 'O', 'ş': 's', 'Ş': 'S', 'ü': 'u', 'Ü': 'U' };
+        function fixTr(text) {
+            return text.replace(/[çÇğĞıİöÖşŞüÜ]/g, m => trMap[m]);
+        }
+
+        const typeFilter = filterType.value;
+        const search = searchTerm.value.toLowerCase().trim();
+        const filtered = allMaterials.filter(m => {
+            const matchesType = (typeFilter === 'HEPSİ') || (m.turu === typeFilter);
+            const matchesSearch = m.adi.toLowerCase().includes(search);
+            return matchesType && matchesSearch;
+        });
+
+        const tableData = filtered.map(m => [
+            fixTr(m.adi),
+            fixTr(m.turu),
+            m.stok || 0,
+            fixTr(m.birim || '-')
+        ]);
+
+        doc.setFontSize(18);
+        doc.text(fixTr("Malzeme Stok Raporu"), 14, 20);
+        doc.setFontSize(10);
+        doc.text(`Tarih: ${new Date().toLocaleDateString('tr-TR')}`, 14, 30);
+        doc.text(`Filtre: ${fixTr(typeFilter)} | Arama: ${fixTr(search) || 'Yok'}`, 14, 35);
+
+        doc.autoTable({
+            startY: 45,
+            head: [[fixTr('Malzeme Adı'), fixTr('Tur'), fixTr('Stok'), fixTr('Birim')]],
+            body: tableData,
+            theme: 'striped',
+            headStyles: { fillColor: [56, 189, 248] }
+        });
+
+        doc.save(`Stok_Raporu_${new Date().toISOString().slice(0,10)}.pdf`);
+        showToast('PDF Dosyası oluşturuldu.', 'success');
+    };
 });
