@@ -42,10 +42,11 @@ document.addEventListener('DOMContentLoaded', () => {
         headerToolbar: {
             left: 'prev,next today',
             center: 'title',
-            right: 'dayGridMonth,timeGridWeek,timeGridDay'
+            right: 'multiMonthYear,dayGridMonth,timeGridWeek,timeGridDay'
         },
         buttonText: {
             today: 'Bugün',
+            year: 'Yıl',
             month: 'Ay',
             week: 'Hafta',
             day: 'Gün'
