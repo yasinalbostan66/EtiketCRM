@@ -159,13 +159,14 @@
                         <h2 class="panel-title"><i class="fa-solid fa-list-check"></i> Firma Bazlı Ödeme Durumları</h2>
                         <div class="d-flex gap-2 align-center">
                             <input type="text" id="firmaAra" class="form-control no-print" placeholder="Firma Ara..." style="width: 200px;">
-                            <button class="btn btn-outline no-print" style="padding:4px 10px; font-size:0.82rem; white-space:nowrap;" onclick="document.body.classList.remove('print-vade'); document.body.classList.add('print-firma'); window.print(); document.body.classList.remove('print-firma');">
+                            <button class="btn btn-outline no-print" style="padding:4px 10px; font-size:0.82rem; white-space:nowrap;" onclick="exportTableToPDF()">
                                 <i class="fa-solid fa-file-pdf"></i> PDF
                             </button>
                         </div>
                     </div>
                     <div class="table-responsive">
-                        <table>
+                        <table id="paymentTable">
+                            <thead>
                                         <tr>
                                     <th>Firma Adı</th>
                                     <th class="hide-mobile">Toplam Sipariş ($)</th>
@@ -192,7 +193,7 @@
                         <h2 class="panel-title" style="color: var(--danger);"><i class="fa-regular fa-calendar-xmark"></i> Yaklaşan &amp; Geciken Vadeler</h2>
                         <div class="d-flex gap-2 no-print">
                             <span style="font-size: 0.85rem; color: var(--text-muted);">(Vadeli Siparişler)</span>
-                            <button class="btn btn-outline" style="padding:4px 10px; font-size:0.82rem;" onclick="document.body.classList.remove('print-firma'); document.body.classList.add('print-vade'); window.print(); document.body.classList.remove('print-vade');">
+                            <button class="btn btn-outline" style="padding:4px 10px; font-size:0.82rem;" onclick="exportVadeToPDF()">
                                 <i class="fa-solid fa-file-pdf"></i> PDF
                             </button>
                         </div>
@@ -269,9 +270,85 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
     <!-- Firebase Sync Logic -->
-    <script src="js/firebase-sync.js?v=3.1"></script>
-    <script src="js/main.js?v=3.1"></script>
+    <!-- PDF Dışa Aktarım Kütüphaneleri -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+
+    <script src="js/firebase-sync.js?v=3.2"></script>
+    <script src="js/main.js?v=3.4"></script>
     <script>
+        // Hızlı PDF Dışa Aktarım Fonksiyonları
+        function fixTrForPDF(text) {
+            const trMap = { 'ç': 'c', 'Ç': 'C', 'ğ': 'g', 'Ğ': 'G', 'ı': 'i', 'İ': 'I', 'ö': 'o', 'Ö': 'O', 'ş': 's', 'Ş': 'S', 'ü': 'u', 'Ü': 'U' };
+            return text ? text.toString().replace(/[çÇğĞıİöÖşŞüÜ]/g, m => trMap[m]) : '';
+        }
+
+        window.exportTableToPDF = function() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            doc.setFontSize(16);
+            doc.text(fixTrForPDF("Cari Borc/Alacak Durumu"), 14, 15);
+            doc.setFontSize(10);
+            doc.text(`Tarih: ${new Date().toLocaleDateString('tr-TR')}`, 14, 22);
+
+            const table = document.getElementById('paymentTable');
+            const rows = [];
+            const trs = table.querySelectorAll('tbody tr');
+            trs.forEach(tr => {
+                if (tr.style.display !== 'none') {
+                    const row = [];
+                    // Firma Adı, Borç, Alacak, Net Bakiye
+                    row.push(fixTrForPDF(tr.cells[0].textContent.trim()));
+                    row.push(tr.cells[1].textContent.trim());
+                    row.push(tr.cells[2].textContent.trim());
+                    row.push(tr.cells[3].textContent.trim().split('$')[1] ? '$' + tr.cells[3].textContent.trim().split('$')[1] : tr.cells[3].textContent.trim());
+                    rows.push(row);
+                }
+            });
+
+            doc.autoTable({
+                head: [[fixTrForPDF('Firma Adi'), 'Siparis Toplami ($)', 'Tahsilat ($)', 'Net Bakiye']],
+                body: rows,
+                startY: 30,
+                theme: 'striped',
+                headStyles: { fillColor: [79, 70, 229] }
+            });
+
+            doc.save(`Cari_Durum_${new Date().toISOString().slice(0,10)}.pdf`);
+            showToast('PDF Hazırlandı!', 'success');
+        };
+
+        window.exportVadeToPDF = function() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            doc.setFontSize(16);
+            doc.text(fixTrForPDF("Yakin Vade/Odeme Takvimi"), 14, 15);
+            
+            const table = document.getElementById('vadeTable');
+            const rows = [];
+            const trs = table.querySelectorAll('tbody tr');
+            trs.forEach(tr => {
+                const row = [];
+                row.push(fixTrForPDF(tr.cells[0].textContent.trim()));
+                row.push(fixTrForPDF(tr.cells[1].textContent.trim()));
+                row.push(tr.cells[2].textContent.trim());
+                row.push(fixTrForPDF(tr.cells[3].textContent.trim()));
+                row.push(tr.cells[4].textContent.trim().split('$')[1] ? '$' + tr.cells[4].textContent.trim().split('$')[1] : tr.cells[4].textContent.trim());
+                rows.push(row);
+            });
+
+            doc.autoTable({
+                head: [[fixTrForPDF('Firma'), fixTrForPDF('Detay'), fixTrForPDF('Vade'), fixTrForPDF('Durum'), 'Tutar']],
+                body: rows,
+                startY: 25,
+                theme: 'grid',
+                headStyles: { fillColor: [245, 158, 11] }
+            });
+
+            doc.save(`Odeme_Takvimi_${new Date().toISOString().slice(0,10)}.pdf`);
+            showToast('Takvim PDF Hazırlandı!', 'success');
+        };
+
         document.addEventListener('DOMContentLoaded', () => {
             const tableBody = document.getElementById('paymentTableBody');
             const sonIslemlerContainer = document.getElementById('sonIslemlerContainer');
