@@ -673,3 +673,182 @@ window.openYeniMalzemeModal = function(turu) {
         window.dispatchEvent(new CustomEvent('malzemeEklendi', { detail: obj }));
     });
 };
+
+// --- Bildirim Sistemi ---
+document.addEventListener('DOMContentLoaded', () => {
+    initNotificationSystem();
+});
+
+function initNotificationSystem() {
+    // Zil butonunu bul (i.fa-bell'i içeren butonu seç)
+    const bellIcon = document.querySelector('.fa-bell');
+    if (!bellIcon) return;
+    const bellBtn = bellIcon.closest('button');
+    if (!bellBtn) return;
+
+    // Bell butonunu sarmala
+    const wrapper = document.createElement('div');
+    wrapper.className = 'bell-container';
+    bellBtn.parentNode.insertBefore(wrapper, bellBtn);
+    wrapper.appendChild(bellBtn);
+
+    // Kırmızı nokta (badge) ekle
+    const badge = document.createElement('div');
+    badge.className = 'notification-badge';
+    badge.id = 'notifBadge';
+    wrapper.appendChild(badge);
+
+    // Dropdown ekle
+    const dropdown = document.createElement('div');
+    dropdown.className = 'notification-dropdown';
+    dropdown.id = 'notifDropdown';
+    dropdown.innerHTML = `
+        <div class="notification-header" style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.25rem; border-bottom: 1px solid var(--border-color);">
+            <h4 style="margin:0; font-size:0.95rem; font-weight:700;">Bildirimler</h4>
+            <span id="notifCount" style="font-size: 0.75rem; background: var(--primary); color: #fff; padding: 2px 8px; border-radius: 10px; font-weight: 700;">0</span>
+        </div>
+        <div class="notification-body" id="notifBody" style="max-height: 400px; overflow-y: auto;">
+            <div class="notification-empty" style="padding: 2rem; text-align: center; color: var(--text-muted);">Bildiriminiz bulunmuyor.</div>
+        </div>
+    `;
+    wrapper.appendChild(dropdown);
+
+    // Click olayı
+    bellBtn.onclick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const isOpen = dropdown.style.display === 'flex';
+        // Tüm dropdownları kapat (başka varsa)
+        document.querySelectorAll('.notification-dropdown').forEach(d => d.style.display = 'none');
+        dropdown.style.display = isOpen ? 'none' : 'flex';
+        if (!isOpen) updateNotifications();
+    };
+
+    document.addEventListener('click', () => {
+        dropdown.style.display = 'none';
+    });
+
+    dropdown.onclick = (e) => e.stopPropagation();
+
+    // İlk kontrol
+    updateNotifications();
+}
+
+function updateNotifications() {
+    const list = calculateAllNotifications();
+    const badge = document.getElementById('notifBadge');
+    const body = document.getElementById('notifBody');
+    const countEl = document.getElementById('notifCount');
+
+    if (!badge || !body || !countEl) return;
+
+    if (list.length > 0) {
+        badge.style.display = 'block';
+        countEl.textContent = list.length;
+        body.innerHTML = '';
+        list.forEach(item => {
+            const div = document.createElement('a');
+            div.className = 'notification-item';
+            div.href = item.link || '#';
+            div.style.display = 'flex';
+            div.style.padding = '1rem 1.25rem';
+            div.style.borderBottom = '1px solid var(--border-color)';
+            div.style.textDecoration = 'none';
+            div.style.gap = '12px';
+            
+            div.innerHTML = `
+                <i class="${item.icon}" style="color: ${item.color}; font-size: 1.1rem; padding-top: 3px;"></i>
+                <div class="content" style="flex:1;">
+                    <div class="title" style="font-weight:700; font-size:0.85rem; color: var(--text-main);">${item.title}</div>
+                    <div class="desc" style="font-size:0.8rem; color: var(--text-muted); margin-top:2px; line-height:1.4;">${item.desc}</div>
+                    <div class="time" style="font-size:0.75rem; color: var(--primary); margin-top:4px; font-weight:500;">${item.timeText}</div>
+                </div>
+            `;
+            body.appendChild(div);
+        });
+    } else {
+        badge.style.display = 'none';
+        countEl.textContent = '0';
+        body.innerHTML = '<div class="notification-empty" style="padding: 2rem; text-align: center; color: var(--text-muted);">Şu an için yeni bir bildirim yok.</div>';
+    }
+}
+
+function calculateAllNotifications() {
+    const notifications = [];
+    const today = new Date();
+    today.setHours(0,0,0,0);
+
+    // 1. Düşük Stok Kontrolü
+    const malzemeler = getMalzemeFiyatlari();
+    malzemeler.forEach(m => {
+        const stok = parseFloat(m.stok || 0);
+        if (stok <= 10) {
+            notifications.push({
+                type: 'STOCK',
+                title: 'Düşük Stok Uyarsı!',
+                desc: `${m.adi} stoğu azalıyor (${stok} ${m.birim || ''}).`,
+                timeText: 'Stok Yönetimine Git',
+                icon: 'fa-solid fa-boxes-stacked',
+                color: '#f59e0b',
+                link: 'stok_takibi.html'
+            });
+        }
+    });
+
+    // 2. Vadesi Gelen/Geçen Ödemeler
+    const siparisler = getSiparisler();
+    const tahsilatlar = getTahsilatlar();
+    const firmalar = getFirmalar();
+
+    firmalar.forEach(f => {
+        const fSip = siparisler.filter(s => s.firmaId === f.id);
+        const fTah = tahsilatlar.filter(t => t.firmaId === f.id);
+        const sSum = fSip.reduce((a,c) => a+(c.totalPriceUSD||0), 0);
+        const tSum = fTah.reduce((a,c) => a+(c.totalAmountUSD||0), 0);
+
+        if (sSum - tSum > 1) { // 1 dolardan fazla borç varsa
+            fSip.forEach(s => {
+                const dueDt = window.getDueDateRaw(s.paymentMethod, s.date);
+                if (dueDt) {
+                    const diff = Math.ceil((dueDt - today) / (1000 * 3600 * 24));
+                    if (diff <= 5) { // 5 gün ve altı
+                        notifications.push({
+                            type: 'PAYMENT',
+                            title: diff < 0 ? 'Gecikmiş Ödeme!' : 'Ödeme Vadesi Yaklaştı',
+                            desc: `${f.ad} firmasının ${formatCurrency(s.totalPriceUSD)} tutarlı ödemesi.`,
+                            timeText: diff < 0 ? `${Math.abs(diff)} gün gecikti` : (diff === 0 ? 'Vade BUGÜN!' : `${diff} gün kaldı`),
+                            icon: 'fa-solid fa-hand-holding-dollar',
+                            color: diff < 0 ? '#ef4444' : '#f59e0b',
+                            link: 'odeme_takibi.html'
+                        });
+                    }
+                }
+            });
+        }
+    });
+
+    // 3. Yaklaşan Ziyaretler
+    const ziyaretler = JSON.parse(localStorage.getItem('etiket_crm_ziyaretler') || '[]');
+    ziyaretler.forEach(z => {
+        if (z.status === 'Planlandı') {
+            const zDate = new Date(z.date);
+            zDate.setHours(0,0,0,0);
+            const diff = Math.ceil((zDate - today) / (1000 * 3600 * 24));
+            
+            if (diff >= 0 && diff <= 1) { // Bugün veya Yarın
+                const f = firmalar.find(fr => fr.id === z.firmaId);
+                notifications.push({
+                    type: 'VISIT',
+                    title: diff === 0 ? 'Bugün Ziyaretiniz Var' : 'Yarın Ziyaretiniz Var',
+                    desc: `${f ? f.ad : 'Bilinmeyen Firma'} ziyareti planlandı.`,
+                    timeText: diff === 0 ? `Saat: ${z.time || '--:--'}` : 'Ziyaret Zamanı Yaklaşıyor',
+                    icon: 'fa-solid fa-calendar-check',
+                    color: '#4f46e5',
+                    link: 'takvim.html'
+                });
+            }
+        }
+    });
+
+    return notifications;
+}
