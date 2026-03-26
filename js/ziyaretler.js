@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 filteredCount++;
                 const tr = document.createElement('tr');
                 const dateStr = new Date(v.date).toLocaleDateString('tr-TR');
-                const statusHTML = `<span class="badge ${v.status === 'Tamamlandı' ? 'badge-green' : (v.status === 'İptal Edildi' ? 'badge-orange' : 'badge-blue')}">${v.status || 'Planlandı'}</span>`;
+                const statusHTML = `<span class="badge ${v.status === 'Tamamlandı' ? 'badge-green' : (v.status === 'İptal Edildi' ? 'badge-orange' : (v.status === 'Demo' ? 'badge-purple' : 'badge-blue'))}">${v.status || 'Planlandı'}</span>`;
                 tr.innerHTML = `
                     <td style="font-weight:600;">${dateStr}</td>
                     <td>${v.time || '-'}</td>

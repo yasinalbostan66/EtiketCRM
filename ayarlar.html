@@ -267,33 +267,48 @@
                     <!-- Veri Yedekleme -->
                     <div class="settings-card">
                         <h2 class="settings-card-title"><i class="fa-solid fa-cloud"></i> Veri Senkronizasyonu & Yedekleme</h2>
-                        <div style="margin-bottom:1.5rem;">
-                            <label style="font-weight:600; font-size:0.85rem; color:var(--text-muted); display:block; margin-bottom:0.5rem;">Cihazınıza İndirin (Tüm Veriler)</label>
-                            <button class="btn btn-outline" style="width:100%; justify-content:center;" onclick="exportData()"><i class="fa-solid fa-file-export"></i> Yedek İndir (.json)</button>
+                        
+                        <!-- Google Drive Sync (NEW) -->
+                        <div style="background:var(--bg-color); border:1px solid var(--border-color); border-radius:10px; padding:1.2rem; margin-bottom:1.5rem;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+                                <div style="display:flex; align-items:center; gap:8px; font-weight:600; font-size:0.95rem;">
+                                    <i class="fa-brands fa-google-drive" style="color:#34a853; font-size:1.2rem;"></i> Google Drive Sync
+                                </div>
+                                <span id="driveStatus" style="font-size:0.75rem; color:var(--text-muted); padding:3px 8px; border-radius:12px; border:1px solid var(--border-color);">Bağlı Değil</span>
+                            </div>
+                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                                <button class="btn btn-outline" id="btnDriveAuth" style="grid-column: 1 / -1; justify-content:center; border-color:#4285f4; color:#4285f4; font-weight:600;">
+                                    <i class="fa-brands fa-google"></i> Oturum Aç
+                                </button>
+                                <button class="btn btn-primary" id="btnDriveSave" style="justify-content:center; display:none;" disabled>
+                                    <i class="fa-solid fa-cloud-arrow-up"></i> Buluta Yedekle
+                                </button>
+                                <button class="btn btn-outline" id="btnDriveLoad" style="justify-content:center; display:none;" disabled>
+                                    <i class="fa-solid fa-cloud-arrow-down"></i> Buluttan Geri Yükle
+                                </button>
+                            </div>
+                            <small id="driveUserEmail" style="color:var(--text-muted); display:block; margin-top:8px; font-size:0.75rem;"></small>
                         </div>
-                        <div style="margin-bottom:1.5rem;">
-                            <label style="font-weight:600; font-size:0.85rem; color:var(--text-muted); display:block; margin-bottom:0.5rem;">Yedeği Geri Yükle</label>
-                            <label class="btn btn-outline" style="display:flex; justify-content:center; cursor:pointer; width:100%;">
-                                <i class="fa-solid fa-file-import"></i> Dosya Seç ve Yükle
-                                <input type="file" id="importFile" style="display:none;" accept=".json" onchange="importData(this)">
-                            </label>
+
+                        <div style="margin-bottom:1rem;">
+                            <label style="font-weight:600; font-size:0.85rem; color:var(--text-muted); display:block; margin-bottom:0.5rem;">Cihazınıza İndirin (Manuel)</label>
+                            <button class="btn btn-outline" style="width:100%; justify-content:center;" onclick="exportData()"><i class="fa-solid fa-file-export"></i> Manuel Yedek İndir (.json)</button>
                         </div>
+                        
                         <hr style="border:0; border-top:1px solid var(--border-color); margin: 15px 0;">
                         <div>
-                            <label style="font-weight:600; font-size:0.85rem; color:var(--text-muted); display:block; margin-bottom:0.5rem;">GitHub / URL'den Veri Çek</label>
-                            <div style="display:flex; gap:0.5rem;">
-                                <input type="text" id="githubUrl" class="form-control" placeholder="Raw JSON URL (GitHub, Gist vb.)" style="flex:1;">
-                                <button class="btn btn-primary" onclick="loadFromUrl()"><i class="fa-solid fa-cloud-arrow-down"></i> Yükle</button>
+                            <label style="font-weight:600; font-size:0.85rem; color:var(--text-muted); display:block; margin-bottom:0.5rem;">Yedeği Geri Yükle / GitHub'dan Çek</label>
+                            <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+                                <label class="btn btn-outline" style="flex:1; justify-content:center; cursor:pointer; min-width:140px;">
+                                    <i class="fa-solid fa-file-import"></i> Dosya Seç
+                                    <input type="file" id="importFile" style="display:none;" accept=".json" onchange="importData(this)">
+                                </label>
+                                <button class="btn btn-primary" onclick="loadFromUrl()" style="flex:1; justify-content:center; min-width:140px;"><i class="fa-solid fa-cloud-arrow-down"></i> URL'den Yükle</button>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Sistemi Sıfırla -->
-                    <div class="settings-card" style="border-color: rgba(239, 68, 68, 0.3);">
-                        <h2 class="settings-card-title" style="color: var(--danger); border-color: rgba(239, 68, 68, 0.3);"><i class="fa-solid fa-triangle-exclamation"></i> Tehlikeli İşlemler</h2>
-                        <p style="font-size: 0.9rem; margin-bottom: 1rem; line-height: 1.5;">Dikkat: Bu işlem tarayıcınızdaki (veya cihazınızdaki) **tüm siparişleri, firmaları ve ayarları** kalıcı olarak siler ve başa döndürür. Lütfen önce yedek aldığınızdan emin olun.</p>
-                        <button class="btn btn-danger" onclick="resetSystemData()"><i class="fa-solid fa-trash-can"></i> Tüm Sistemi Sıfırla (Verileri Sil)</button>
-                    </div>
+
 
                 </div>
 
@@ -331,6 +346,10 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
     <script src="js/firebase-sync.js?v=3.1"></script>
+    <!-- Google Drive Sync Library -->
+    <script src="https://accounts.google.com/gsi/client" onload="gisLoaded()" async defer></script>
+    <script src="https://apis.google.com/js/api.js" onload="gapiLoaded()" async defer></script>
+    <script src="js/google-drive-sync.js?v=1.0"></script>
     <script src="js/main.js?v=3.1"></script>
 
     <script>

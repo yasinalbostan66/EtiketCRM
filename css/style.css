@@ -598,6 +598,7 @@ tbody tr:hover {
 .badge-blue { background: var(--primary-light); color: var(--primary); }
 .badge-green { background: rgba(16, 185, 129, 0.1); color: var(--success); }
 .badge-orange { background: rgba(245, 158, 11, 0.1); color: var(--warning); }
+.badge-purple { background: rgba(167, 139, 250, 0.15); color: #a78bfa; }
 
 /* Utility */
 .text-right { text-align: right; }

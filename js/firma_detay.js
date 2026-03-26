@@ -34,6 +34,27 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('detayEmail').textContent = firma.email || '-';
     document.getElementById('detayAdres').textContent = firma.adres || '-';
     
+    // Google Maps Preview (NEW)
+    const address = firma.adres || '';
+    const mapPreview = document.getElementById('map-preview');
+    const mapIframe = document.getElementById('map-iframe');
+    const btnFullMap = document.getElementById('btnFullMap');
+
+    if (address && address !== '-' && address.length > 5) {
+        if (mapPreview) mapPreview.style.display = 'block';
+        if (mapIframe) {
+            const searchUrl = `https://www.google.com/maps?q=${encodeURIComponent(address)}&output=embed`;
+            mapIframe.src = searchUrl;
+        }
+        if (btnFullMap) {
+            btnFullMap.onclick = () => {
+                window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`, '_blank');
+            };
+        }
+    } else {
+        if (mapPreview) mapPreview.style.display = 'none';
+    }
+    
     const dateObj = new Date(firma.dateAdded);
     document.getElementById('detayTarih').textContent = dateObj.toLocaleDateString('tr-TR');
     
