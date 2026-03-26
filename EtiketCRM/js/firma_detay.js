@@ -351,3 +351,45 @@ window.duzeltSiparis = function(id) {
 
     document.getElementById('siparisModal').style.display = 'flex';
 };
+
+function fixTrForPDF(text) {
+    const trMap = { 'ç': 'c', 'Ç': 'C', 'ğ': 'g', 'Ğ': 'G', 'ı': 'i', 'İ': 'I', 'ö': 'o', 'Ö': 'O', 'ş': 's', 'Ş': 'S', 'ü': 'u', 'Ü': 'U' };
+    return text ? text.toString().replace(/[çÇğĞıİöÖşŞüÜ]/g, m => trMap[m]) : '';
+}
+
+window.exportFirmaEkstraToPDF = function() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    const firmaAd = document.getElementById('detayFirmaAd').textContent.trim();
+    
+    doc.setFontSize(16);
+    doc.text(fixTrForPDF(firmaAd + " - Cari Ekstre"), 14, 15);
+    doc.setFontSize(10);
+    doc.text(`Tarih: ${new Date().toLocaleDateString('tr-TR')}`, 14, 22);
+
+    const table = document.querySelector('#siparisTableContainer table');
+    if(!table) return showToast('Veri bulunamadi!', 'error');
+
+    const rows = [];
+    const trs = table.querySelectorAll('tbody tr');
+    trs.forEach(tr => {
+        const row = [];
+        row.push(tr.cells[0].textContent.trim()); // Tarih
+        row.push(fixTrForPDF(tr.cells[1].textContent.trim())); // İşlem
+        row.push(fixTrForPDF(tr.cells[2].textContent.trim())); // Detay
+        row.push(fixTrForPDF(tr.cells[3].textContent.trim())); // Miktar/Not
+        row.push(tr.cells[4].textContent.trim().split('(')[0].trim()); // USD Tutar
+        rows.push(row);
+    });
+
+    doc.autoTable({
+        head: [[fixTrForPDF('Tarih'), fixTrForPDF('Islem'), fixTrForPDF('Detay'), fixTrForPDF('Miktar/Not'), 'Tutar ($)']],
+        body: rows,
+        startY: 30,
+        theme: 'striped',
+        headStyles: { fillColor: [59, 130, 246] }
+    });
+
+    doc.save(`${fixTrForPDF(firmaAd).replace(/\s+/g, '_')}_Ekstre.pdf`);
+    showToast('Ekstre PDF Hazırlandı!', 'success');
+};

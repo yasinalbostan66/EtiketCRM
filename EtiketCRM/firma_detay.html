@@ -244,9 +244,14 @@
                         <h2 class="panel-title">
                             <i class="fa-solid fa-clipboard-list"></i> Firmanın Sipariş Geçmişi
                         </h2>
-                        <button class="btn btn-outline" onclick="window.print()" style="padding: 6px 12px; font-size: 0.85rem;">
-                            <i class="fa-solid fa-print"></i> Ekstreyi Yazdır
-                        </button>
+                        <div class="d-flex gap-2 no-print">
+                            <button class="btn btn-outline" onclick="exportFirmaEkstraToPDF()" style="padding: 6px 12px; font-size: 0.85rem;">
+                                <i class="fa-solid fa-bolt"></i> Hızlı PDF (Mobil)
+                            </button>
+                            <button class="btn btn-outline" onclick="window.print()" style="padding: 6px 12px; font-size: 0.85rem;">
+                                <i class="fa-solid fa-print"></i> Yazdır
+                            </button>
+                        </div>
                     </div>
                     
                     <div id="siparisTableContainer">
@@ -384,9 +389,13 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
-    <!-- Firebase Sync Logic -->
-    <script src="js/firebase-sync.js?v=3.1"></script>
-    <script src="js/main.js?v=3.1"></script>
-    <script src="js/firma_detay.js"></script>
+    <!-- PDF Kütüphaneleri -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+
+    <!-- Core JS -->
+    <script src="js/firebase-sync.js?v=3.2"></script>
+    <script src="js/main.js?v=3.4"></script>
+    <script src="js/firma_detay.js?v=3.2"></script>
 </body>
 </html>
