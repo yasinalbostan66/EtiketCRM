@@ -256,24 +256,17 @@
             .footer-signs { margin-top: 30px !important; }
         }
 
-        @media (max-width: 600px) {
-            body { padding: 10px; background: #fff; }
-            .invoice-box { padding: 15px; border-radius: 0; box-shadow: none; width: 100%; border: none; box-sizing: border-box; }
-            .header { flex-direction: column; gap: 15px; align-items: flex-start; }
-            .bill-to { grid-template-columns: 1fr 1fr; gap: 20px; } /* Müşteri/Satıcı mobilde de yan yana olsun */
-            
-            table { display: block; width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; border-collapse: collapse; margin-bottom: 25px; }
-            th { padding: 8px; font-size: 0.75rem; white-space: nowrap; }
-            td { padding: 8px; font-size: 0.8rem; white-space: nowrap; }
-            td:nth-child(2) { white-space: normal; min-width: 180px; } 
-            
-            .calc-details { font-size: 0.8rem; padding: 10px; }
-            .totals { width: 100%; margin-top: 25px; }
-            .footer-signs { grid-template-columns: 1fr; gap: 35px; margin-top: 45px; }
-            
-            /* Genel kutu kapsayıcısını hizala */
-            .toolbar { top: 10px; right: 10px; }
-            .btn { padding: 8px 12px; font-size: 0.8rem; }
+        /* Mobilde de döküman yapısını korumak için responsive kısıtlamalar kaldırıldı */
+        @media (max-width: 800px) {
+            body { padding: 10px; background: #f1f5f9; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+            .invoice-box { 
+                width: 210mm !important; /* A4 genişliğini koru */
+                transform-origin: top left;
+                /* İsteğe bağlı: Ekrana sığdırmak için küçük bir ölçekleme yapılabilir ama 'aynı görünsün' dendiği için genişlik sabit tutuldu */
+            }
+            .toolbar { 
+                position: fixed; top: 10px; right: 10px; flex-wrap: wrap; justify-content: flex-end; width: calc(100% - 20px);
+            }
         }
 
         #errorArea {
