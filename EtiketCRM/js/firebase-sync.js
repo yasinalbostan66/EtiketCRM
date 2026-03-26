@@ -13,6 +13,28 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const auth = firebase.auth();
 
+// Global Logout Function - Hardened & Moved to Top
+window.handleLogout = function(e) {
+    if (e && e.preventDefault) e.preventDefault();
+    console.log("Logout function triggered");
+    
+    if (confirm('Oturumu kapatmak istediğinize emin misiniz?')) {
+        try {
+            firebase.auth().signOut().catch(e => console.error("Firebase SignOut Error:", e));
+        } catch(err) {
+            console.error("Auth SignOut Error:", err);
+        }
+        
+        // Clear all session related data
+        localStorage.clear();
+        sessionStorage.clear();
+        
+        // Force redirect
+        window.location.replace('login.html');
+    }
+    return false;
+};
+
 // 0. Auth Guard
 auth.onAuthStateChanged(user => {
     if (!user && !window.location.pathname.endsWith('login.html')) {
@@ -239,27 +261,22 @@ window.runDiagnosticTest = function() {
 
 // Removed Test Button
 
-// Logout Button Injection to Main Sidebar
+// Global Logout Function - Hardened (Already defined at top)
+
+
 document.addEventListener('DOMContentLoaded', () => {
-    const nav = document.querySelector('.sidebar-nav');
-    if (nav && !document.getElementById('sidebarLogoutBtn')) {
-        const logoutBtn = document.createElement('a');
-        logoutBtn.href = '#';
-        logoutBtn.className = 'nav-item';
-        logoutBtn.style.marginTop = '2rem';
-        logoutBtn.style.color = '#ef4444';
-        logoutBtn.innerHTML = '<i class="fa-solid fa-right-from-bracket"></i> Çıkış Yap';
-        logoutBtn.id = 'sidebarLogoutBtn';
-        nav.appendChild(logoutBtn);
-        
-        logoutBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            if (confirm('Oturumu kapatmak istediğinize emin misiniz?')) {
-                firebase.auth().signOut().then(() => {
-                    localStorage.clear();
-                    window.location.href = 'login.html';
-                });
-            }
-        });
+    console.log("Auth-Sync Loaded, attaching listeners...");
+    // Topbar Avatar click to logout
+    const avatar = document.getElementById('userAvatarStr');
+    if (avatar) {
+        avatar.style.cursor = 'pointer';
+        avatar.title = 'Çıkış Yap (Oturumu Kapat)';
+        avatar.onclick = window.handleLogout;
+    }
+
+    // Sidebar button listener (if exists in HTML)
+    const sideLogout = document.getElementById('sidebarLogoutBtn');
+    if (sideLogout) {
+        sideLogout.onclick = window.handleLogout;
     }
 });

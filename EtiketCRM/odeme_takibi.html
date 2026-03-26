@@ -17,7 +17,7 @@
         }
     </script>
     <title>Ödeme Takibi | SATIŞ KİŞİSEL KULLANIM</title>
-    <link rel="stylesheet" href="css/style.css?v=3.4">
+    <link rel="stylesheet" href="css/style.css?v=3.5">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @media print {
@@ -61,6 +61,18 @@
             }
             
             /* Seçilen panele göre filtreleme */
+            th { text-transform: uppercase !important; font-size: 0.75rem !important; letter-spacing: 0.05em !important; }
+            .uppercase { text-transform: uppercase !important; }
+        }
+        
+        /* Consisten UI Capitalization */
+        th { text-transform: uppercase; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.03em; color: var(--text-muted); }
+        .panel-title { text-transform: uppercase; letter-spacing: 0.02em; }
+        .stat-info p { text-transform: uppercase; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.05em; }
+        
+        @media (max-width: 768px) {
+            .table-responsive td { padding: 12px 10px !important; }
+            .table-responsive th { padding: 10px !important; }
         }
     </style>
 
@@ -157,9 +169,6 @@
                         <h2 class="panel-title"><i class="fa-solid fa-list-check"></i> Firma Bazlı Ödeme Durumları</h2>
                         <div class="d-flex gap-2 align-center">
                             <input type="text" id="firmaAra" class="form-control no-print" placeholder="Firma Ara..." style="width: 200px;">
-                            <button class="btn btn-outline no-print" style="padding:4px 10px; font-size:0.82rem; white-space:nowrap;" onclick="exportTableToPDF()">
-                                <i class="fa-solid fa-file-pdf"></i> PDF
-                            </button>
                             <button class="btn btn-primary no-print" style="padding:4px 10px; font-size:0.82rem; white-space:nowrap;" onclick="shareCariDurum()">
                                 <i class="fa-solid fa-share-nodes"></i> Paylaş
                             </button>
@@ -170,12 +179,12 @@
                             <thead>
                                         <tr>
                                     <th>Firma Adı</th>
-                                    <th class="hide-mobile">Toplam Sipariş ($)</th>
-                                    <th class="hide-mobile">Toplam Tahsilat ($)</th>
-                                    <th>Net Bakiye ($)</th>
+                                    <th class="hide-mobile text-right">Toplam Sipariş ($)</th>
+                                    <th class="hide-mobile text-right">Toplam Tahsilat ($)</th>
+                                    <th class="text-right">Net Bakiye ($)</th>
                                     <th class="hide-mobile">Son Ödeme</th>
                                     <th class="hide-mobile">Durum</th>
-                                    <th>İşlem</th>
+                                    <th class="text-center">İşlem</th>
                                 </tr>
                             </thead>
                             <tbody id="paymentTableBody">
@@ -194,9 +203,6 @@
                         <h2 class="panel-title" style="color: var(--danger);"><i class="fa-regular fa-calendar-xmark"></i> Yaklaşan &amp; Geciken Vadeler</h2>
                         <div class="d-flex gap-2 no-print">
                             <span style="font-size: 0.85rem; color: var(--text-muted);">(Vadeli Siparişler)</span>
-                            <button class="btn btn-outline" style="padding:4px 10px; font-size:0.82rem;" onclick="exportVadeToPDF()">
-                                <i class="fa-solid fa-file-pdf"></i> PDF
-                            </button>
                             <button class="btn btn-primary" style="padding:4px 10px; font-size:0.82rem;" onclick="shareVadeTakvimi()">
                                 <i class="fa-solid fa-share-nodes"></i> Paylaş
                             </button>
@@ -279,7 +285,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
 
     <script src="js/firebase-sync.js?v=3.2"></script>
-    <script src="js/main.js?v=3.4"></script>
+    <script src="js/main.js?v=3.5"></script>
     <script>
         // Hızlı PDF Dışa Aktarım Fonksiyonları
         function fixTrForPDF(text) {
@@ -302,10 +308,10 @@
                 if (tr.style.display !== 'none' && tr.cells.length >= 4) {
                     const row = [];
                     // Firma Adı, Toplam Sipariş, Tahsilat, Net Bakiye
-                    row.push(fixTrForPDF(tr.cells[0].textContent.trim())); // Firma
-                    row.push(tr.cells[1].textContent.trim()); // Sipariş
-                    row.push(tr.cells[2].textContent.trim()); // Tahsilat
-                    row.push(tr.cells[3].textContent.trim().split('$')[0].trim() + '$'); // Bakiye (birinci satır)
+                    row.push(fixTrForPDF(tr.cells[0].innerText.split(/\r?\n/)[0].trim())); 
+                    row.push(tr.cells[1].innerText.split(/\r?\n/)[0].trim()); 
+                    row.push(tr.cells[2].innerText.split(/\r?\n/)[0].trim()); 
+                    row.push(tr.cells[3].innerText.split(/\r?\n/)[0].trim()); 
                     rows.push(row);
                 }
             });
@@ -338,11 +344,11 @@
             trs.forEach(tr => {
                 if(tr.cells.length >= 5) {
                     const row = [];
-                    row.push(fixTrForPDF(tr.cells[0].textContent.trim())); // Firma
-                    row.push(fixTrForPDF(tr.cells[1].textContent.trim())); // Sipariş Adı
-                    row.push(tr.cells[2].textContent.trim()); // Vade Tarihi
-                    row.push(fixTrForPDF(tr.cells[3].textContent.trim())); // Kalan Gün
-                    row.push(tr.cells[4].textContent.trim().split('$')[0].trim() + '$'); // Tutar
+                    row.push(fixTrForPDF(tr.cells[0].innerText.split(/\r?\n/)[0].trim())); 
+                    row.push(fixTrForPDF(tr.cells[1].innerText.split(/\r?\n/)[0].trim())); 
+                    row.push(tr.cells[2].innerText.split(/\r?\n/)[0].trim()); 
+                    row.push(fixTrForPDF(tr.cells[3].innerText.split(/\r?\n/)[0].trim())); 
+                    row.push(tr.cells[4].innerText.split(/\r?\n/)[0].trim()); 
                     rows.push(row);
                 }
             });
@@ -371,23 +377,39 @@
             const table = document.getElementById('paymentTable');
             const rows = [];
             const trs = table.querySelectorAll('tbody tr');
-            trs.forEach(tr => {
-                if (tr.style.display !== 'none' && tr.cells.length >= 4) {
-                    const row = [];
-                    row.push(fixTrForPDF(tr.cells[0].textContent.trim())); 
-                    row.push(tr.cells[1].textContent.trim()); 
-                    row.push(tr.cells[2].textContent.trim()); 
-                    row.push(tr.cells[3].textContent.trim().split('$')[0].trim() + '$'); 
-                    rows.push(row);
-                }
+            (window.latestCariData || []).forEach(d => {
+                rows.push([
+                    fixTrForPDF(d.ad),
+                    formatCurrency(d.siparis),
+                    formatCurrency(d.tahsilat),
+                    formatCurrency(d.bakiye)
+                ]);
             });
+
+            const totalSip = (window.latestCariData || []).reduce((s,c) => s + c.siparis, 0);
+            const totalTah = (window.latestCariData || []).reduce((s,c) => s + c.tahsilat, 0);
+            const totalBak = totalSip - totalTah;
+
+            rows.push([
+                fixTrForPDF('GENEL TOPLAM:'),
+                formatCurrency(totalSip),
+                formatCurrency(totalTah),
+                formatCurrency(totalBak)
+            ]);
 
             doc.autoTable({
                 head: [[fixTrForPDF('Firma Adi'), 'Siparis ($)', 'Tahsilat ($)', 'Bakiye ($)']],
                 body: rows,
                 startY: 25,
                 theme: 'striped',
-                headStyles: { fillColor: [59, 130, 246] }
+                headStyles: { fillColor: [59, 130, 246] },
+                columnStyles: { 1: { halign: 'right' }, 2: { halign: 'right' }, 3: { halign: 'right' } },
+                didParseCell: function(data) {
+                    if (data.row.index === rows.length - 1) {
+                        data.cell.styles.fontStyle = 'bold';
+                        data.cell.styles.fillColor = [240, 240, 240];
+                    }
+                }
             });
 
             try {
@@ -413,24 +435,31 @@
 
             const rows = [];
             const trs = table.querySelectorAll('tbody tr');
-            trs.forEach(tr => {
-                if(tr.cells.length >= 5) {
-                    const row = [];
-                    row.push(fixTrForPDF(tr.cells[0].textContent.trim()));
-                    row.push(fixTrForPDF(tr.cells[1].textContent.trim()));
-                    row.push(tr.cells[2].textContent.trim());
-                    row.push(fixTrForPDF(tr.cells[3].textContent.trim()));
-                    row.push(tr.cells[4].textContent.trim().split('$')[0].trim() + '$');
-                    rows.push(row);
-                }
+            (window.latestVadeData || []).forEach(d => {
+                rows.push([
+                    fixTrForPDF(d.firmaAd),
+                    fixTrForPDF(d.siparisName),
+                    d.dueStr,
+                    fixTrForPDF(d.status),
+                    formatCurrency(d.amount)
+                ]);
             });
+
+            const totalVade = (window.latestVadeData || []).reduce((s,c) => s + c.amount, 0);
+            rows.push(['', '', '', fixTrForPDF('TOPLAM:'), formatCurrency(totalVade)]);
 
             doc.autoTable({
                 head: [[fixTrForPDF('Firma'), fixTrForPDF('Siparis'), 'Vade', fixTrForPDF('Durum'), 'Tutar ($)']],
                 body: rows,
                 startY: 25,
                 theme: 'grid',
-                headStyles: { fillColor: [245, 158, 11] }
+                headStyles: { fillColor: [245, 158, 11] },
+                columnStyles: { 4: { halign: 'right' } },
+                didParseCell: function(data) {
+                    if (data.row.index === rows.length - 1) {
+                        data.cell.styles.fontStyle = 'bold';
+                    }
+                }
             });
 
             try {
@@ -444,7 +473,10 @@
             } catch (err) { console.error('Share error:', err); }
         };
 
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Döviz Kurlarını Çek
+            await fetchExchangeRates();
+            
             const tableBody = document.getElementById('paymentTableBody');
             const sonIslemlerContainer = document.getElementById('sonIslemlerContainer');
             
@@ -459,6 +491,7 @@
                 tableBody.innerHTML = '';
                 totalOrderVal = 0;
                 totalPaidVal = 0;
+                window.latestCariData = []; 
 
                 firmalar.forEach(firma => {
                     const firmaSiparisleri = siparisler.filter(s => s.firmaId === firma.id);
@@ -475,6 +508,13 @@
                     totalOrderVal += siparisToplami;
                     totalPaidVal += tahsilatToplami;
 
+                    window.latestCariData.push({
+                        ad: firma.ad,
+                        siparis: siparisToplami,
+                        tahsilat: tahsilatToplami,
+                        bakiye: netBakiye
+                    });
+
                     const tr = document.createElement('tr');
                     let statusBadge = '';
                     if (netBakiye <= 0) {
@@ -488,15 +528,15 @@
 
                     tr.innerHTML = `
                         <td style="font-weight:600;">${firma.ad}</td>
-                        <td class="hide-mobile">${formatCurrency(siparisToplami)}</td>
-                        <td class="hide-mobile" style="color:var(--success);">${formatCurrency(tahsilatToplami)}</td>
-                        <td style="font-weight:700;">
+                        <td class="hide-mobile text-right">${formatCurrency(siparisToplami)}</td>
+                        <td class="hide-mobile text-right" style="color:var(--success); font-weight:600;">${formatCurrency(tahsilatToplami)}</td>
+                        <td class="text-right" style="font-weight:700;">
                             <div style="color:${netBakiye > 0 ? 'var(--danger)' : 'var(--success)'};">${formatCurrency(netBakiye)}</div>
                             <div style="font-size:0.75rem; color:var(--text-muted); font-weight:400; margin-top:2px;">${formatTRY(netBakiyeTRY)}</div>
                         </td>
                         <td class="hide-mobile" style="color: var(--text-muted); font-size: 0.85rem;">${sonTahsilatDate}</td>
                         <td class="hide-mobile">${statusBadge}</td>
-                        <td>
+                        <td class="text-center">
                             <a href="firma_detay.html?id=${firma.id}" class="btn-icon" title="Cari Detay ve Tahsilat Ekle">
                                 <i class="fa-solid fa-magnifying-glass-dollar"></i>
                             </a>
@@ -535,6 +575,7 @@
                 if (!container) return;
                 
                 let vadeList = [];
+                window.latestVadeData = [];
                 const today = new Date();
                 today.setHours(0,0,0,0);
 
@@ -556,6 +597,15 @@
                                     dueRaw: dueRaw,
                                     dueStr: window.getDueDateStr(s.paymentMethod, s.date),
                                     diffDays: diffDays
+                                });
+
+                                let vStatus = diffDays < 0 ? `${Math.abs(diffDays)} gun gecti` : (diffDays === 0 ? 'Bugun' : `${diffDays} gun kaldi`);
+                                window.latestVadeData.push({
+                                    firmaAd: f.ad,
+                                    siparisName: s.name || 'Siparis',
+                                    dueStr: window.getDueDateStr(s.paymentMethod, s.date),
+                                    status: vStatus,
+                                    amount: s.totalPriceUSD
                                 });
                             }
                         });
@@ -624,9 +674,8 @@
                 html += `</tbody>
                     <tfoot style="border-top:2px solid var(--border-color);">
                         <tr style="background:rgba(239,68,68,0.07); font-weight:700;">
-                            <td style="font-weight:800;" colspan="2">TOPLAM VADE TUTARı</td>
-                            <td></td><td></td>
-                            <td style="color:var(--danger); font-weight:800;">${formatCurrency(vadeTotal)}</td>
+                            <td style="font-weight:800; text-transform: uppercase; padding: 12px;" colspan="4">TOPLAM VADE TUTARI</td>
+                            <td class="text-right" style="color:var(--danger); font-weight:800; padding: 12px;">${formatCurrency(vadeTotal)}</td>
                         </tr>
                     </tfoot>
                 </table></div>`;
