@@ -589,7 +589,7 @@ window.openYeniMalzemeModal = function(turu) {
     }
     
     modal.innerHTML = `
-        <div class="modal-content panel" style="max-width: 450px;">
+        <div class="modal-content panel" style="max-width: 480px; width: 95%;">
             <div class="panel-header">
                 <h2 class="panel-title"><i class="fa-solid fa-plus-circle"></i> Yeni ${turu} Ekle</h2>
                 <button class="btn-icon" onclick="document.getElementById('yeniMalzemeModal').style.display='none'">
@@ -597,35 +597,47 @@ window.openYeniMalzemeModal = function(turu) {
                 </button>
             </div>
             <form id="yeniMalzemeFormModal">
-                <div class="form-group">
-                    <label>Malzeme Adı *</label>
-                    <input type="text" id="ymAdi" class="form-control" placeholder="Örn: X Marka Kuşe" required>
-                </div>
-                <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
+                <div class="modal-body-scroll">
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem; text-align: center;">Bu formu kullanarak veritabanına yeni malzeme ekleyebilirsiniz.</p>
+                    
                     <div class="form-group">
-                        <label>Birim Fiyat *</label>
-                        <input type="number" id="ymFiyat" class="form-control" step="0.0001" placeholder="0.00" required>
+                        <label>Malzeme Adı *</label>
+                        <input type="text" id="ymAdi" class="form-control" placeholder="Örn: X Marka Kuşe" required>
                     </div>
+                    
+                    <div class="form-grid" style="grid-template-columns: 1fr 1fr; margin-bottom: 1rem;">
+                        <div class="form-group">
+                            <label>Birim Fiyat *</label>
+                            <input type="number" id="ymFiyat" class="form-control" step="0.0001" placeholder="0.00" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Para Birimi</label>
+                            <select id="ymDoviz" class="form-control" required>
+                                <option value="USD">$ USD</option>
+                                <option value="EUR">€ EUR</option>
+                                <option value="TRY">₺ TRY</option>
+                            </select>
+                        </div>
+                    </div>
+                    
                     <div class="form-group">
-                        <label>Para Birimi</label>
-                        <select id="ymDoviz" class="form-control" required>
-                            <option value="USD">$ USD</option>
-                            <option value="EUR">€ EUR</option>
-                            <option value="TRY">₺ TRY</option>
+                        <label>Ölçü Birimi</label>
+                        <select id="ymBirim" class="form-control">
+                            <option value="kg">kg</option>
+                            <option value="m²">m²</option>
+                            <option value="cm²">cm²</option>
+                            <option value="adet">adet</option>
+                            <option value="Litre">Litre</option>
+                            <option value="Rulo">Rulo</option>
+                            <option value="Paket">Paket</option>
                         </select>
+                        <small style="color: var(--text-muted); font-size:0.75rem;">Hesaplamada kullanılacak miktar birimi.</small>
                     </div>
                 </div>
-                <div class="form-group">
-                    <label>Birim</label>
-                    <select id="ymBirim" class="form-control">
-                        <option value="kg">kg</option>
-                        <option value="m²">m²</option>
-                        <option value="cm²">cm²</option>
-                        <option value="adet">adet</option>
-                        <option value="Litre">Litre</option>
-                    </select>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="document.getElementById('yeniMalzemeModal').style.display='none'">Vazgeç</button>
+                    <button type="submit" class="btn btn-primary">Kaydet ve Listeye Ekle</button>
                 </div>
-                <button type="submit" class="btn btn-primary" style="width:100%; margin-top:1rem;">Kaydet ve Seç</button>
             </form>
         </div>
     `;
