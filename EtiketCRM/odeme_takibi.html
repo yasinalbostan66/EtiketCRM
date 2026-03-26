@@ -61,8 +61,6 @@
             }
             
             /* Seçilen panele göre filtreleme */
-            body.print-firma .vade-panel, body.print-firma #sonIslemlerPanel { display: none !important; }
-            body.print-vade .firma-panel, body.print-vade #sonIslemlerPanel { display: none !important; }
         }
     </style>
 
@@ -295,23 +293,25 @@
             const rows = [];
             const trs = table.querySelectorAll('tbody tr');
             trs.forEach(tr => {
-                if (tr.style.display !== 'none') {
+                if (tr.style.display !== 'none' && tr.cells.length >= 4) {
                     const row = [];
-                    // Firma Adı, Borç, Alacak, Net Bakiye
-                    row.push(fixTrForPDF(tr.cells[0].textContent.trim()));
-                    row.push(tr.cells[1].textContent.trim());
-                    row.push(tr.cells[2].textContent.trim());
-                    row.push(tr.cells[3].textContent.trim().split('$')[1] ? '$' + tr.cells[3].textContent.trim().split('$')[1] : tr.cells[3].textContent.trim());
+                    // Firma Adı, Toplam Sipariş, Tahsilat, Net Bakiye
+                    row.push(fixTrForPDF(tr.cells[0].textContent.trim())); // Firma
+                    row.push(tr.cells[1].textContent.trim()); // Sipariş
+                    row.push(tr.cells[2].textContent.trim()); // Tahsilat
+                    row.push(tr.cells[3].textContent.trim().split('$')[0].trim() + '$'); // Bakiye (birinci satır)
                     rows.push(row);
                 }
             });
 
             doc.autoTable({
-                head: [[fixTrForPDF('Firma Adi'), 'Siparis Toplami ($)', 'Tahsilat ($)', 'Net Bakiye']],
+                head: [[fixTrForPDF('Firma Adi'), 'Siparis ($)', 'Tahsilat ($)', 'Bakiye ($)']],
                 body: rows,
                 startY: 30,
                 theme: 'striped',
-                headStyles: { fillColor: [79, 70, 229] }
+                headStyles: { fillColor: [59, 130, 246], fontSize: 10 },
+                styles: { fontSize: 9, cellPadding: 3 },
+                columnStyles: { 0: { cellWidth: 70 }, 1: { halign: 'right' }, 2: { halign: 'right' }, 3: { halign: 'right', fontStyle: 'bold' } }
             });
 
             doc.save(`Cari_Durum_${new Date().toISOString().slice(0,10)}.pdf`);
@@ -325,24 +325,30 @@
             doc.text(fixTrForPDF("Yakin Vade/Odeme Takvimi"), 14, 15);
             
             const table = document.getElementById('vadeTable');
+            if(!table) return showToast('Vade verisi bulunamadi!', 'error');
+
             const rows = [];
             const trs = table.querySelectorAll('tbody tr');
             trs.forEach(tr => {
-                const row = [];
-                row.push(fixTrForPDF(tr.cells[0].textContent.trim()));
-                row.push(fixTrForPDF(tr.cells[1].textContent.trim()));
-                row.push(tr.cells[2].textContent.trim());
-                row.push(fixTrForPDF(tr.cells[3].textContent.trim()));
-                row.push(tr.cells[4].textContent.trim().split('$')[1] ? '$' + tr.cells[4].textContent.trim().split('$')[1] : tr.cells[4].textContent.trim());
-                rows.push(row);
+                if(tr.cells.length >= 5) {
+                    const row = [];
+                    row.push(fixTrForPDF(tr.cells[0].textContent.trim())); // Firma
+                    row.push(fixTrForPDF(tr.cells[1].textContent.trim())); // Sipariş Adı
+                    row.push(tr.cells[2].textContent.trim()); // Vade Tarihi
+                    row.push(fixTrForPDF(tr.cells[3].textContent.trim())); // Kalan Gün
+                    row.push(tr.cells[4].textContent.trim().split('$')[0].trim() + '$'); // Tutar
+                    rows.push(row);
+                }
             });
 
             doc.autoTable({
-                head: [[fixTrForPDF('Firma'), fixTrForPDF('Detay'), fixTrForPDF('Vade'), fixTrForPDF('Durum'), 'Tutar']],
+                head: [[fixTrForPDF('Firma'), fixTrForPDF('Siparis'), 'Vade', fixTrForPDF('Durum'), 'Tutar ($)']],
                 body: rows,
                 startY: 25,
                 theme: 'grid',
-                headStyles: { fillColor: [245, 158, 11] }
+                headStyles: { fillColor: [245, 158, 11], fontSize: 10 },
+                styles: { fontSize: 9 },
+                columnStyles: { 4: { halign: 'right', fontStyle: 'bold' } }
             });
 
             doc.save(`Odeme_Takvimi_${new Date().toISOString().slice(0,10)}.pdf`);
@@ -481,7 +487,7 @@
 
                 let html = `
                     <div class="table-responsive">
-                        <table>
+                        <table id="vadeTable">
                             <thead>
                                 <tr>
                                     <th>Firma</th>
