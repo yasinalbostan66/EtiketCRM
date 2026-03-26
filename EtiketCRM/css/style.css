@@ -139,6 +139,10 @@ body.light-mode .top-header {
     border-bottom: 1px solid #e2e8f0;
 }
 
+body.light-mode .nav-item {
+    color: #334155; /* Daha koyu Slate - Okunabilirlik için */
+}
+
 body.light-mode .mobile-bottom-nav {
     background: rgba(255, 255, 255, 0.9);
     border: 1px solid #e2e8f0;
@@ -1017,19 +1021,21 @@ tbody tr:hover {
     }
 
     .modal-content {
-        height: 100dvh;
-        max-height: 100dvh;
+        height: calc(100dvh - 30px);
+        max-height: calc(100dvh - 30px);
         width: 100vw;
         max-width: 100vw;
-        border-radius: 0;
+        border-radius: 20px 20px 0 0;
         border: none;
+        box-shadow: 0 -10px 40px rgba(0,0,0,0.5);
     }
 
-    /* Modal footer her zaman altta ve tam genişlik */
+    /* Modal footer her zaman altta ve navigasyon bar üstünde */
     .modal-footer {
-        padding: 1rem;
+        padding: 1rem 1.25rem;
+        padding-bottom: calc(1.25rem + 85px); /* Alt navigasyon barı (64px + 20px margin) için ek boşluk */
         background: var(--surface-color);
-        box-shadow: 0 -10px 20px rgba(0,0,0,0.2);
+        box-shadow: 0 -10px 25px rgba(0,0,0,0.2);
     }
 
     /* Modal footer butonları tam genişlik */
@@ -1175,8 +1181,8 @@ tbody tr:hover {
 
 /* Baskı / PDF Çıktı Düzenlemeleri */
 @media print {
-    body { background: #fff !important; color: #000 !important; padding-bottom: 0 !important; }
-    .sidebar, .top-header, .module-links, h3, .mobile-bottom-nav, .no-print, .no-print *, .btn, .btn-icon, .panel-header button, th:last-child, td:last-child { 
+    body { background: #fff !important; color: #000 !important; padding: 0 !important; margin: 0 !important; }
+    .sidebar, .top-header, .module-links, .sidebar-overlay, .mobile-bottom-nav, .no-print, .no-print *, .btn, .btn-icon, .panel-header button, th:last-child, td:last-child { 
         display: none !important; 
     }
     .main-content { margin-left: 0 !important; padding: 0 !important; width: 100% !important; }
