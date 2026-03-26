@@ -153,14 +153,61 @@
         </form>
     </div>
 
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+    <!-- Firebase configuration -->
+    <script src="js/firebase-sync.js?v=3.1"></script>
+
     <script>
         const loginForm = document.getElementById('loginForm');
         const submitBtn = document.getElementById('loginSubmitBtn');
+        const errorDiv = document.getElementById('loginError');
+
+        // Kullanıcı önceden giriş yapmışsa ana sayfaya yönlendir
+        firebase.auth().onAuthStateChanged((user) => {
+            if (user && window.location.pathname.endsWith('login.html')) {
+                window.location.href = 'index.html';
+            }
+        });
 
         loginForm.addEventListener('submit', (e) => {
             e.preventDefault();
+            
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            
+            if(!email || !password) {
+                errorDiv.textContent = 'Lütfen e-posta ve şifrenizi girin!';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            errorDiv.style.display = 'none';
             submitBtn.textContent = 'Giriş Yapılıyor...';
-            window.location.href = 'index.html';
+            submitBtn.disabled = true;
+
+            // Firebase Authentication
+            firebase.auth().signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    // Başarılı giriş
+                    window.location.href = 'index.html';
+                })
+                .catch((error) => {
+                    console.error("Giriş hatası:", error);
+                    errorDiv.style.display = 'block';
+                    
+                    if(error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
+                        errorDiv.textContent = 'E-posta veya şifre hatalı!';
+                    } else if (error.code === 'auth/too-many-requests') {
+                        errorDiv.textContent = 'Çok fazla deneme yaptınız. Lütfen daha sonra tekrar deneyin.';
+                    } else {
+                        errorDiv.textContent = 'Giriş yapılırken bir hata oluştu: ' + error.message;
+                    }
+                    
+                    submitBtn.textContent = 'Oturum Aç';
+                    submitBtn.disabled = false;
+                });
         });
     </script>
 </body>
