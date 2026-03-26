@@ -148,7 +148,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             totalUSD = totalNative;
             if (selectedCurrency === 'EUR') totalUSD *= eurToUsd;
             
-            detailsText = `En: ${inputWidth.value}cm | Boy: ${height}mt | Birim: ${price} ${selectedCurrency}`;
+            detailsText = `En: ${parseFloat(inputWidth.value).toFixed(1)}cm | Boy: ${height.toFixed(1)}mt | Birim: ${price} ${selectedCurrency}`;
         } else {
             quantityVal = parseInt(inputRuloQuantity.value);
             const price = parseFloat(inputRuloPrice.value);
@@ -167,10 +167,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             detailsText = `Miktar: ${quantityVal} Rulo | Birim: ${price} ${selectedCurrency}`;
         }
 
+        const m2Label = document.querySelector('#resM2Row .text-muted');
+        if (m2Label) m2Label.textContent = type === 'm2' ? 'Toplam m²:' : 'Toplam Miktar:';
+
         resPaperName.textContent = name || 'Belirtilmedi';
-        resTotalM2.textContent = Math.round(quantityVal) + ' ' + unitVal;
-        resDetails.textContent = detailsText;
-        resTotalUSD.textContent = formatCurrency(totalNative, selectedCurrency); // Orijinal birimi göster
+        resTotalM2.textContent = Math.round(quantityVal).toLocaleString('tr-TR') + ' ' + unitVal;
+        resDetails.innerHTML = detailsText.split('|').map(p => `<span class="badge" style="background:var(--bg-color); color:var(--text-muted); font-weight:400; padding:2px 8px; margin:2px;">${p.trim()}</span>`).join(' ');
+        resTotalUSD.textContent = formatCurrency(totalNative, selectedCurrency);
 
         if (rate > 0) {
             resTotalTRY.textContent = formatTRY(totalNative * rate);
@@ -186,7 +189,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             unit: unitVal,
             unitPrice: (type === 'm2') ? parseFloat(inputM2Price.value) : parseFloat(inputRuloPrice.value),
             currency: selectedCurrency,
-            totalPriceUSD: totalUSD, // Bakiye hesapları için yine USD çevirimi arkada tutulur
+            totalPriceUSD: totalUSD,
             exchangeRate: rate,
             totalPriceTRY: rate > 0 ? (totalNative * rate) : 0,
             paymentMethod: inputPayment.value,
