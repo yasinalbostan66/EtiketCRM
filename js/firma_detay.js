@@ -125,7 +125,7 @@ function renderAktiviteler(firmaId) {
 
     const siparisler = (getSiparisler ? getSiparisler() : []).filter(s => s.firmaId === firmaId);
     const tahsilatlar = (getTahsilatlar ? getTahsilatlar() : []).filter(t => t.firmaId === firmaId);
-    const allVisits = JSON.parse(localStorage.getItem('etiket_crm_visits') || '[]');
+    const allVisits = JSON.parse(localStorage.getItem('etiket_crm_ziyaretler') || '[]');
     const ziyaretler = allVisits.filter(v => v.firmaId === firmaId);
 
     const allRows = [
