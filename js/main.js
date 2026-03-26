@@ -1,4 +1,15 @@
 // --- Global Logout Logic (Instant & Fail-safe) ---
+(function killOldServiceWorkers() {
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(regs => {
+            for(let reg of regs) {
+                reg.unregister();
+                console.log("Legacy SW uninstalled to prevent caching issues.");
+            }
+        });
+    }
+})();
+
 window.handleLogout = function(e) {
     if (e && e.preventDefault) e.preventDefault();
     console.log("Forced logout triggered");
@@ -6,6 +17,8 @@ window.handleLogout = function(e) {
     // Clear ALL data immediately
     localStorage.clear();
     sessionStorage.clear();
+    
+    if (typeof showToast === 'function') showToast("Sistemden çıkılıyor...", "warning");
     
     // Try cloud sync signout if available
     try {
