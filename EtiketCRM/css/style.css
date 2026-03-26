@@ -1177,3 +1177,124 @@ tbody tr:hover {
     th { background: #f1f5f9 !important; color: #000 !important; border-bottom: 2px solid #000 !important; padding: 10px !important; }
     td { border-bottom: 1px solid #e2e8f0 !important; color: #000 !important; padding: 10px !important; }
 }
+
+/* Notification System */
+.bell-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.notification-badge {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    width: 10px;
+    height: 10px;
+    background-color: var(--danger);
+    border: 2px solid var(--bg-color);
+    border-radius: 50%;
+    display: none; /* JS ile gösterilecek */
+    animation: pulseRed 2s infinite;
+    pointer-events: none;
+}
+
+@keyframes pulseRed {
+    0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
+.notification-dropdown {
+    position: absolute;
+    top: calc(100% + 15px);
+    right: 0;
+    width: 320px;
+    max-height: 480px;
+    background: var(--surface-color);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    box-shadow: var(--shadow-lg);
+    z-index: 2000;
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+    animation: dropdownFadeIn 0.25s ease-out;
+}
+
+@keyframes dropdownFadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.notification-header {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255,255,255,0.02);
+}
+
+.notification-header h4 {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.notification-body {
+    overflow-y: auto;
+    flex: 1;
+}
+
+.notification-item {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    gap: 12px;
+    transition: var(--transition);
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.notification-item:hover {
+    background: rgba(255,255,255,0.05);
+}
+
+.notification-item i {
+    font-size: 1.1rem;
+    padding-top: 3px;
+}
+
+.notification-item .content {
+    flex: 1;
+}
+
+.notification-item .title {
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: var(--text-main);
+}
+
+.notification-item .desc {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 2px;
+    line-height: 1.4;
+}
+
+.notification-item .time {
+    font-size: 0.75rem;
+    color: var(--primary);
+    margin-top: 4px;
+    font-weight: 500;
+}
+
+.notification-empty {
+    padding: 2.5rem 1.5rem;
+    text-align: center;
+    color: var(--text-muted);
+}
+
