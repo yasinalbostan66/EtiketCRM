@@ -66,6 +66,8 @@ document.addEventListener('DOMContentLoaded', () => {
              if (parts[1]) {
                   document.getElementById('visitSaat').value = parts[1].substring(0, 5); // HH:MM
              }
+             // O güne ait rota planını göster
+             updateDailyRoute(parts[0]);
         },
         eventClick: function(info) {
              viewVisit(info.event.id);
@@ -120,6 +122,7 @@ document.addEventListener('DOMContentLoaded', () => {
             let eventColor = 'var(--primary)'; // Planlandı
             if (v.status === 'Tamamlandı') eventColor = 'var(--success)';
             if (v.status === 'İptal Edildi') eventColor = 'var(--danger)';
+            if (v.status === 'Demo') eventColor = '#a78bfa'; // Purple for demo
 
             return {
                 id: v.id,
@@ -238,6 +241,57 @@ document.addEventListener('DOMContentLoaded', () => {
         const deleteBtn = document.getElementById('deleteVisitBtn');
         if (deleteBtn) deleteBtn.style.display = 'none';
     });
+
+    // --- Günlük Rota Planlayıcı Mantığı ---
+    function updateDailyRoute(dateStr) {
+        const visits = getVisits().filter(v => v.date === dateStr);
+        const routePanel = document.getElementById('routePanel');
+        const routeList = document.getElementById('routeList');
+        const btnOpenMapsRoute = document.getElementById('btnOpenMapsRoute');
+        const firmalar = typeof getFirmalar === 'function' ? getFirmalar() : [];
+
+        if (visits.length === 0) {
+            routePanel.style.display = 'none';
+            return;
+        }
+
+        routePanel.style.display = 'block';
+        document.getElementById('routeTitle').innerHTML = `<i class="fa-solid fa-route"></i> ${new Date(dateStr).toLocaleDateString('tr-TR')} - Ziyaret Rotası`;
+
+        let listHtml = `<div style="display:flex; flex-direction:column; gap:10px;">`;
+        let addresses = [];
+
+        visits.sort((a,b) => (a.time || '99:99').localeCompare(b.time || '99:99')).forEach((v, idx) => {
+            const f = firmalar.find(item => item.id === v.firmaId);
+            const adr = f ? f.adres : '';
+            if (adr && adr !== '-') addresses.push(adr);
+
+            listHtml += `
+                <div style="display:flex; align-items:center; gap:12px; padding:10px; background:var(--surface-hover); border-radius:8px; border:1px solid var(--border-color);">
+                    <div style="width:24px; height:24px; border-radius:50%; background:var(--primary); color:#fff; display:flex; align-items:center; justify-content:center; font-size:0.75rem; font-weight:700;">${idx+1}</div>
+                    <div style="flex:1;">
+                        <div style="font-weight:600; font-size:0.9rem;">${f ? f.ad : 'Bilinmeyen Firma'}</div>
+                        <div style="font-size:0.75rem; color:var(--text-muted);"><i class="fa-solid fa-clock"></i> ${v.time || 'Belirtilmedi'} | <i class="fa-solid fa-location-dot"></i> ${adr || 'Adres Girilmemiş'}</div>
+                    </div>
+                </div>
+            `;
+        });
+        listHtml += `</div>`;
+        routeList.innerHTML = listHtml;
+
+        if (addresses.length > 0) {
+            btnOpenMapsRoute.style.display = 'block';
+            btnOpenMapsRoute.onclick = () => {
+                const url = `https://www.google.com/maps/dir/${addresses.map(a => encodeURIComponent(a)).join('/')}`;
+                window.open(url, '_blank');
+            };
+        } else {
+            btnOpenMapsRoute.style.display = 'none';
+        }
+    }
+
+    // İlk yüklemede bugünün rotasını göster
+    updateDailyRoute(new Date().toISOString().split('T')[0]);
 
     // Bulut Senkronizasyonu Tetikleyicisi
     window.addEventListener('storage', () => {

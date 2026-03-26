@@ -199,6 +199,15 @@
                                 <span><i class="fa-solid fa-location-dot"></i> Adres: <span id="detayAdres"></span></span>
                             </div>
                         </div>
+                        </div>
+                    </div>
+                    <!-- Google Maps Preview (NEW) -->
+                    <div id="map-preview" style="display:none; margin-top:1.5rem; width:100%; border-radius:12px; overflow:hidden; border:1px solid var(--border-color); background:var(--bg-color);">
+                        <iframe id="map-iframe" width="100%" height="250" style="border:0;" loading="lazy" allowfullscreen src=""></iframe>
+                        <div style="padding:8px 15px; border-top:1px solid var(--border-color); background:var(--surface-hover); display:flex; justify-content:space-between; align-items:center;">
+                             <span style="font-size:0.8rem; color:var(--text-muted); font-weight:600;"><i class="fa-solid fa-map-location-dot"></i> Konum Görünümü (Otomatik)</span>
+                             <button class="btn" style="padding:4px 8px; font-size:0.75rem;" id="btnFullMap"><i class="fa-solid fa-up-right-from-square"></i> Tam Ekran Aç</button>
+                        </div>
                     </div>
                     <div class="action-buttons" style="align-items: center;">
                         <button class="btn btn-primary" onclick="openTahsilatModal()" style="height: fit-content;">
