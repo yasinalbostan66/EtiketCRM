@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.filterCategory = function(cat) {
         currentCategory = cat;
         // Buton aktiflik sınıflarını güncelle
-        ['Tümü', 'Kağıt', 'Mürekkep', 'Sarf Malzeme'].forEach(c => {
+        ['Tümü', 'Kağıt', 'Mürekkep', 'Sarf Malzeme', 'Klişe'].forEach(c => {
             const elId = `tab_${c.replace(/ /g, '_')}`;
             const btn = document.getElementById(elId);
             if (btn) {
@@ -69,7 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (turu && adi && !isNaN(fiyat)) {
                             const newItem = {
                                 id: 'mat_' + Date.now().toString(36) + Math.random().toString(36).substr(2),
-                                turu: ['Kağıt', 'Mürekkep', 'Sarf Malzeme'].includes(turu) ? turu : 'Sarf Malzeme',
+                                turu: ['Kağıt', 'Mürekkep', 'Sarf Malzeme', 'Klişe'].includes(turu) ? turu : 'Sarf Malzeme',
                                 adi,
                                 fiyat,
                                 doviz: ['USD', 'EUR', 'TRY'].includes(doviz) ? doviz : 'USD',
