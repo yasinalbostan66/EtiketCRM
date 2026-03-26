@@ -248,6 +248,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const routePanel = document.getElementById('routePanel');
         const routeList = document.getElementById('routeList');
         const btnOpenMapsRoute = document.getElementById('btnOpenMapsRoute');
+        const btnShareRoute = document.getElementById('btnShareRoute');
         const firmalar = typeof getFirmalar === 'function' ? getFirmalar() : [];
 
         if (visits.length === 0) {
@@ -285,8 +286,35 @@ document.addEventListener('DOMContentLoaded', () => {
                 const url = `https://www.google.com/maps/dir/${addresses.map(a => encodeURIComponent(a)).join('/')}`;
                 window.open(url, '_blank');
             };
+
+            // Paylaşma Butonu (NEW)
+            btnShareRoute.style.display = 'block';
+            btnShareRoute.onclick = async () => {
+                let shareText = `📅 *${new Date(dateStr).toLocaleDateString('tr-TR')} Ziyaret Planı*\n\n`;
+                visits.sort((a,b) => (a.time || '99:99').localeCompare(b.time || '99:99')).forEach((v, idx) => {
+                    const f = firmalar.find(item => item.id === v.firmaId);
+                    shareText += `${idx+1}. *${f ? f.ad : 'Bilinmeyen'}* (${v.time || 'Saat Belirtilmedi'})\n`;
+                    if (f && f.adres) shareText += `📍 Adres: ${f.adres}\n`;
+                    shareText += `---\n`;
+                });
+
+                if (navigator.share) {
+                    try {
+                        await navigator.share({
+                            title: 'Günlük Ziyaret Planı',
+                            text: shareText
+                        });
+                    } catch (err) { console.error('Paylaşım İptal:', err); }
+                } else {
+                    // Fallback to clipboard
+                    navigator.clipboard.writeText(shareText);
+                    showToast('Plan kopyalandı! WhatsApp veya Mail ile yapıştırabilirsiniz.', 'success');
+                }
+            };
+
         } else {
             btnOpenMapsRoute.style.display = 'none';
+            btnShareRoute.style.display = 'none';
         }
     }
 

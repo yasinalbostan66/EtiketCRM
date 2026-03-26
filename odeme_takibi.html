@@ -160,6 +160,9 @@
                             <button class="btn btn-outline no-print" style="padding:4px 10px; font-size:0.82rem; white-space:nowrap;" onclick="exportTableToPDF()">
                                 <i class="fa-solid fa-file-pdf"></i> PDF
                             </button>
+                            <button class="btn btn-primary no-print" style="padding:4px 10px; font-size:0.82rem; white-space:nowrap;" onclick="shareCariDurum()">
+                                <i class="fa-solid fa-share-nodes"></i> Paylaş
+                            </button>
                         </div>
                     </div>
                     <div class="table-responsive">
@@ -193,6 +196,9 @@
                             <span style="font-size: 0.85rem; color: var(--text-muted);">(Vadeli Siparişler)</span>
                             <button class="btn btn-outline" style="padding:4px 10px; font-size:0.82rem;" onclick="exportVadeToPDF()">
                                 <i class="fa-solid fa-file-pdf"></i> PDF
+                            </button>
+                            <button class="btn btn-primary" style="padding:4px 10px; font-size:0.82rem;" onclick="shareVadeTakvimi()">
+                                <i class="fa-solid fa-share-nodes"></i> Paylaş
                             </button>
                         </div>
                     </div>
@@ -353,6 +359,89 @@
 
             doc.save(`Odeme_Takvimi_${new Date().toISOString().slice(0,10)}.pdf`);
             showToast('Takvim PDF Hazırlandı!', 'success');
+        };
+
+        // Paylaşma Fonksiyonları (Cari Durum ve Vade Takvimi)
+        window.shareCariDurum = async function() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            doc.setFontSize(16);
+            doc.text(fixTrForPDF("Cari Borc/Alacak Durumu"), 14, 15);
+            
+            const table = document.getElementById('paymentTable');
+            const rows = [];
+            const trs = table.querySelectorAll('tbody tr');
+            trs.forEach(tr => {
+                if (tr.style.display !== 'none' && tr.cells.length >= 4) {
+                    const row = [];
+                    row.push(fixTrForPDF(tr.cells[0].textContent.trim())); 
+                    row.push(tr.cells[1].textContent.trim()); 
+                    row.push(tr.cells[2].textContent.trim()); 
+                    row.push(tr.cells[3].textContent.trim().split('$')[0].trim() + '$'); 
+                    rows.push(row);
+                }
+            });
+
+            doc.autoTable({
+                head: [[fixTrForPDF('Firma Adi'), 'Siparis ($)', 'Tahsilat ($)', 'Bakiye ($)']],
+                body: rows,
+                startY: 25,
+                theme: 'striped',
+                headStyles: { fillColor: [59, 130, 246] }
+            });
+
+            try {
+                const pdfBlob = doc.output('blob');
+                const file = new File([pdfBlob], `Cari_Durum_${new Date().toISOString().slice(0,10)}.pdf`, { type: 'application/pdf' });
+                if (navigator.share && navigator.canShare({ files: [file] })) {
+                    await navigator.share({ title: 'Cari Durum Raporu', files: [file] });
+                } else {
+                    doc.save(`Cari_Durum_${new Date().toISOString().slice(0,10)}.pdf`);
+                    showToast('Paylaşım desteklenmiyor, PDF indirildi.', 'warning');
+                }
+            } catch (err) { console.error('Share error:', err); }
+        };
+
+        window.shareVadeTakvimi = async function() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            doc.setFontSize(16);
+            doc.text(fixTrForPDF("Yakin Vade/Odeme Takvimi"), 14, 15);
+            
+            const table = document.getElementById('vadeTable');
+            if(!table) return showToast('Vade verisi bulunamadı!', 'error');
+
+            const rows = [];
+            const trs = table.querySelectorAll('tbody tr');
+            trs.forEach(tr => {
+                if(tr.cells.length >= 5) {
+                    const row = [];
+                    row.push(fixTrForPDF(tr.cells[0].textContent.trim()));
+                    row.push(fixTrForPDF(tr.cells[1].textContent.trim()));
+                    row.push(tr.cells[2].textContent.trim());
+                    row.push(fixTrForPDF(tr.cells[3].textContent.trim()));
+                    row.push(tr.cells[4].textContent.trim().split('$')[0].trim() + '$');
+                    rows.push(row);
+                }
+            });
+
+            doc.autoTable({
+                head: [[fixTrForPDF('Firma'), fixTrForPDF('Siparis'), 'Vade', fixTrForPDF('Durum'), 'Tutar ($)']],
+                body: rows,
+                startY: 25,
+                theme: 'grid',
+                headStyles: { fillColor: [245, 158, 11] }
+            });
+
+            try {
+                const pdfBlob = doc.output('blob');
+                const file = new File([pdfBlob], `Odeme_Takvimi_${new Date().toISOString().slice(0,10)}.pdf`, { type: 'application/pdf' });
+                if (navigator.share && navigator.canShare({ files: [file] })) {
+                    await navigator.share({ title: 'Ödeme Takvimi Raporu', files: [file] });
+                } else {
+                    doc.save(`Odeme_Takvimi_${new Date().toISOString().slice(0,10)}.pdf`);
+                }
+            } catch (err) { console.error('Share error:', err); }
         };
 
         document.addEventListener('DOMContentLoaded', () => {
