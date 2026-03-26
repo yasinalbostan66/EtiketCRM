@@ -774,44 +774,53 @@ function updateNotifications() {
 }
 
 function calculateAllNotifications() {
-    const notifications = [];
     const today = new Date();
     today.setHours(0,0,0,0);
+    const notifications = [];
 
-    // 1. Düşük Stok Kontrolü
-    const malzemeler = getMalzemeFiyatlari();
-    malzemeler.forEach(m => {
-        const stok = parseFloat(m.stok || 0);
-        if (stok <= 10) {
-            notifications.push({
-                type: 'STOCK',
-                title: 'Düşük Stok Uyarsı!',
-                desc: `${m.adi} stoğu azalıyor (${stok} ${m.birim || ''}).`,
-                timeText: 'Stok Yönetimine Git',
-                icon: 'fa-solid fa-boxes-stacked',
-                color: '#f59e0b',
-                link: 'stok_takibi.html'
-            });
-        }
-    });
-
-    // 2. Vadesi Gelen/Geçen Ödemeler
     const siparisler = getSiparisler();
     const tahsilatlar = getTahsilatlar();
     const firmalar = getFirmalar();
 
-    firmalar.forEach(f => {
-        const fSip = siparisler.filter(s => s.firmaId === f.id);
-        const fTah = tahsilatlar.filter(t => t.firmaId === f.id);
-        const sSum = fSip.reduce((a,c) => a+(c.totalPriceUSD||0), 0);
-        const tSum = fTah.reduce((a,c) => a+(c.totalAmountUSD||0), 0);
+    // Performans için Sipariş ve Tahsilatları firmaya göre grupla (O(n))
+    const sipMap = {};
+    siparisler.forEach(s => {
+        if(!sipMap[s.firmaId]) sipMap[s.firmaId] = [];
+        sipMap[s.firmaId].push(s);
+    });
+    const tahMap = {};
+    tahsilatlar.forEach(t => {
+        if(!tahMap[t.firmaId]) tahMap[t.firmaId] = [];
+        tahMap[t.firmaId].push(t);
+    });
 
-        if (sSum - tSum > 1) { // 1 dolardan fazla borç varsa
+    // 1. Düşük Stok (Değişmedi, zaten hızlı)
+    const malzemeler = getMalzemeFiyatlari();
+    malzemeler.filter(m => m.stok > 0 && m.stok <= 10).forEach(m => {
+        notifications.push({
+            type: 'STOCK',
+            title: 'Stok Azaldı!',
+            desc: `${m.adi} stoğu sadece ${m.stok} ${m.birim || ''} kaldı.`,
+            timeText: 'Hemen Sipariş Ver',
+            icon: 'fa-solid fa-box-open',
+            color: '#ef4444',
+            link: 'stok_takibi.html'
+        });
+    });
+
+    // 2. Ödemeler (Optimize edildi)
+    firmalar.forEach(f => {
+        const fSip = sipMap[f.id] || [];
+        const fTah = tahMap[f.id] || [];
+        const sSum = fSip.reduce((a,c) => a+(parseFloat(c.totalPriceUSD)||0), 0);
+        const tSum = fTah.reduce((a,c) => a+(parseFloat(c.totalAmountUSD)||0), 0);
+
+        if (sSum - tSum > 1) { 
             fSip.forEach(s => {
                 const dueDt = window.getDueDateRaw(s.paymentMethod, s.date);
                 if (dueDt) {
                     const diff = Math.ceil((dueDt - today) / (1000 * 3600 * 24));
-                    if (diff <= 5) { // 5 gün ve altı
+                    if (diff <= 5) {
                         notifications.push({
                             type: 'PAYMENT',
                             title: diff < 0 ? 'Gecikmiş Ödeme!' : 'Ödeme Vadesi Yaklaştı',
@@ -830,12 +839,12 @@ function calculateAllNotifications() {
     // 3. Yaklaşan Ziyaretler
     const ziyaretler = JSON.parse(localStorage.getItem('etiket_crm_ziyaretler') || '[]');
     ziyaretler.forEach(z => {
-        if (z.status === 'Planlandı') {
+        if (z.status === 'Planlandı' && z.date) {
             const zDate = new Date(z.date);
             zDate.setHours(0,0,0,0);
             const diff = Math.ceil((zDate - today) / (1000 * 3600 * 24));
             
-            if (diff >= 0 && diff <= 1) { // Bugün veya Yarın
+            if (diff >= 0 && diff <= 1) {
                 const f = firmalar.find(fr => fr.id === z.firmaId);
                 notifications.push({
                     type: 'VISIT',
