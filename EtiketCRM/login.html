@@ -148,6 +148,7 @@
             </div>
             
             <button type="submit" class="btn-login" id="loginSubmitBtn">Oturum Aç</button>
+            <button type="button" class="btn-login" id="registerBtn" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); margin-top:0.75rem;">Yeni Hesap Oluştur</button>
             <button type="button" class="btn-login" style="background:transparent; border:1px solid rgba(255,255,255,0.15); color:#94a3b8; margin-top:0.75rem; box-shadow:none;" onclick="window.location.href='index.html'">Şifresiz Devam Et (Test Modu)</button>
             <div id="loginError">E-posta veya şifre hatalı!</div>
         </form>
@@ -162,6 +163,7 @@
     <script>
         const loginForm = document.getElementById('loginForm');
         const submitBtn = document.getElementById('loginSubmitBtn');
+        const registerBtn = document.getElementById('registerBtn');
         const errorDiv = document.getElementById('loginError');
 
         // Kullanıcı önceden giriş yapmışsa ana sayfaya yönlendir
@@ -171,6 +173,42 @@
             }
         });
 
+        // ÜYE OL İşlemi
+        registerBtn.addEventListener('click', () => {
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            
+            if(!email || !password) {
+                errorDiv.textContent = 'Kayıt olmak için lütfen bir e-posta ve şifre belirleyin!';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            errorDiv.style.display = 'none';
+            registerBtn.textContent = 'Kayıt Ediliyor...';
+            registerBtn.disabled = true;
+
+            firebase.auth().createUserWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    alert("Hesabınız ( " + email + " ) başarıyla oluşturuldu! Şimdi bu bilgilerle giriş yapabilirsiniz.");
+                    window.location.href = 'index.html';
+                })
+                .catch((error) => {
+                    console.error("Kayıt hatası:", error);
+                    errorDiv.style.display = 'block';
+                    if(error.code === 'auth/email-already-in-use') {
+                        errorDiv.textContent = 'Bu e-posta adresi zaten kullanımda! Lütfen sadece Oturum Aç butonunu kullanın.';
+                    } else if (error.code === 'auth/weak-password') {
+                        errorDiv.textContent = 'Şifre çok zayıf. Lütfen en az 6 karakter girin.';
+                    } else {
+                        errorDiv.textContent = 'Kayıt hatası: ' + error.message;
+                    }
+                    registerBtn.textContent = 'Yeni Hesap Oluştur';
+                    registerBtn.disabled = false;
+                });
+        });
+
+        // GİRİŞ YAP İşlemi
         loginForm.addEventListener('submit', (e) => {
             e.preventDefault();
             
@@ -198,7 +236,7 @@
                     errorDiv.style.display = 'block';
                     
                     if(error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
-                        errorDiv.textContent = 'E-posta veya şifre hatalı!';
+                        errorDiv.textContent = 'E-posta veya şifre hatalı! Dilerseniz "Yeni Hesap Oluştur" butonuna basarak bu detaylarla ilk kez kayıt olabilirsiniz.';
                     } else if (error.code === 'auth/too-many-requests') {
                         errorDiv.textContent = 'Çok fazla deneme yaptınız. Lütfen daha sonra tekrar deneyin.';
                     } else {
