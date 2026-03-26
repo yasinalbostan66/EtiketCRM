@@ -116,26 +116,28 @@ body {
 .nav-item.active i { color: #fff; }
 
 body.light-mode .sidebar {
-    background: #1e293b; /* Koyu Slate - Premium görünüm için */
-    box-shadow: 4px 0 25px rgba(0,0,0,0.1);
+    background: #ffffff; /* Ferah beyaz arka plan */
+    box-shadow: 4px 0 20px rgba(0,0,0,0.03);
+    border-right: 1px solid #f1f5f9;
 }
 
 body.light-mode .logo {
-    color: #ffffff;
+    color: #1e293b; /* Koyu slate - Logonun okunması için */
 }
 
 body.light-mode .nav-item {
-    color: rgba(255,255,255,0.7);
+    color: #475569; /* Slate 600 - Normal menü yazıları */
 }
 
 body.light-mode .nav-item:hover {
-    background: rgba(255,255,255,0.05);
-    color: #ffffff;
+    background: #f8fafc;
+    color: var(--primary);
 }
 
 body.light-mode .nav-item.active {
     background: var(--primary-gradient);
     color: #ffffff;
+    box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.2);
 }
 
 body.light-mode .top-header {
