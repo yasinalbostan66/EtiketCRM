@@ -28,28 +28,46 @@ document.addEventListener('DOMContentLoaded', async () => {
     const calculateBtn = document.getElementById('calculateBtn');
     const saveOrderBtn = document.getElementById('saveOrderBtn');
     
-    // Malzeme Fiyatları Otomatik Doldurma
-    const paperList = document.createElement('datalist');
-    paperList.id = 'paperList';
-    document.body.appendChild(paperList);
-    paperNameInput.setAttribute('list', 'paperList');
+    // Malzeme Fiyatları Otomatik Doldurma (Merkezden)
+    function loadPaperOptions(selectedName = null) {
+        const fiyatlar = getMalzemeFiyatlari().filter(f => f.turu === 'Kağıt');
+        paperNameInput.innerHTML = '<option value="" disabled selected>Lütfen Veritabanından Seçiniz...</option>';
+        fiyatlar.forEach(f => {
+            const opt = document.createElement('option');
+            opt.value = f.adi;
+            opt.textContent = `${f.adi} (${f.fiyat.toFixed(3)} ${f.doviz}/${f.birim})`;
+            opt.dataset.fiyat = f.fiyat;
+            opt.dataset.doviz = f.doviz;
+            paperNameInput.appendChild(opt);
+        });
+        if (selectedName) {
+            paperNameInput.value = selectedName;
+        }
+    }
+    
+    // İlk yükleme
+    loadPaperOptions();
 
-    const fiyatlar = getMalzemeFiyatlari().filter(f => f.turu === 'Kağıt');
-    fiyatlar.forEach(f => {
-        const opt = document.createElement('option');
-        opt.value = f.adi;
-        paperList.appendChild(opt);
+    // Dışarıdan (modal'dan) malzeme eklendiğinde listeyi güncelle
+    window.addEventListener('malzemeEklendi', (e) => {
+        if(e.detail && e.detail.turu === 'Kağıt') {
+            loadPaperOptions(e.detail.adi);
+            paperNameInput.dispatchEvent(new Event('change'));
+        }
     });
 
     paperNameInput.addEventListener('change', () => {
-        const selectedFiyat = fiyatlar.find(f => f.adi === paperNameInput.value);
-        if (selectedFiyat) {
+        const selectedOpt = paperNameInput.options[paperNameInput.selectedIndex];
+        if (selectedOpt && selectedOpt.value) {
+            const f = parseFloat(selectedOpt.dataset.fiyat);
+            const d = selectedOpt.dataset.doviz;
+            
             if (calcTypeSelect.value === 'm2') {
-                inputM2Price.value = selectedFiyat.fiyat;
-                inputM2Currency.value = selectedFiyat.doviz;
+                inputM2Price.value = f;
+                inputM2Currency.value = d;
             } else {
-                inputRuloPrice.value = selectedFiyat.fiyat;
-                inputRuloCurrency.value = selectedFiyat.doviz;
+                inputRuloPrice.value = f;
+                inputRuloCurrency.value = d;
             }
             if (typeof updateRateInput === 'function') updateRateInput();
         }

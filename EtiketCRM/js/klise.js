@@ -30,6 +30,45 @@ document.addEventListener('DOMContentLoaded', async () => {
         firmaSec.value = preSelectedFirma;
     }
 
+    const inputMaterial = document.getElementById('plateMaterial');
+    
+    // Malzeme Fiyatlarını Yükle (Merkezden)
+    function loadKliseOptions(selectedName = null) {
+        if (!inputMaterial) return;
+        const kliseFiyatlar = getMalzemeFiyatlari().filter(f => f.turu === 'Klişe');
+        inputMaterial.innerHTML = '<option value="" disabled selected>Lütfen Veritabanından Seçiniz...</option>';
+        kliseFiyatlar.forEach(f => {
+            const opt = document.createElement('option');
+            opt.value = f.adi;
+            opt.textContent = `${f.adi} (${f.fiyat.toFixed(4)} ${f.doviz}/${f.birim})`;
+            opt.dataset.fiyat = f.fiyat;
+            opt.dataset.doviz = f.doviz;
+            inputMaterial.appendChild(opt);
+        });
+        if (selectedName) {
+            inputMaterial.value = selectedName;
+        }
+    }
+
+    loadKliseOptions();
+
+    window.addEventListener('malzemeEklendi', (e) => {
+        if(e.detail && e.detail.turu === 'Klişe') {
+            loadKliseOptions(e.detail.adi);
+            if(inputMaterial) inputMaterial.dispatchEvent(new Event('change'));
+        }
+    });
+
+    if(inputMaterial) {
+        inputMaterial.addEventListener('change', () => {
+            const selectedOpt = inputMaterial.options[inputMaterial.selectedIndex];
+            if (selectedOpt && selectedOpt.value) {
+                inputPrice.value = selectedOpt.dataset.fiyat;
+                inputCurrency.value = selectedOpt.dataset.doviz;
+            }
+        });
+    }
+
     let currentCalculation = null;
 
     calculateBtn.addEventListener('click', () => {

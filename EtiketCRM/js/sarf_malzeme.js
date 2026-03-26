@@ -53,40 +53,50 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    // Malzeme Fiyatlarını Yükle
-    const sarfFiyatlar = getMalzemeFiyatlari().filter(f => f.turu === 'Sarf Malzeme');
-    sarfFiyatlar.forEach(f => {
-        const opt = document.createElement('option');
-        opt.value = f.adi;
-        opt.textContent = f.adi;
-        const digerOpt = materialTypeSelect.querySelector('option[value="Diğer"]');
-        if (digerOpt) {
-            materialTypeSelect.insertBefore(opt, digerOpt);
-        } else {
+    // Malzeme Fiyatlarını Yükle (Merkezden)
+    function loadSarfOptions(selectedName = null) {
+        const sarfFiyatlar = getMalzemeFiyatlari().filter(f => f.turu === 'Sarf Malzeme');
+        materialTypeSelect.innerHTML = '<option value="" disabled selected>Lütfen Veritabanından Seçiniz...</option>';
+        sarfFiyatlar.forEach(f => {
+            const opt = document.createElement('option');
+            opt.value = f.adi;
+            opt.textContent = `${f.adi} (${f.fiyat.toFixed(3)} ${f.doviz}/${f.birim})`;
+            opt.dataset.fiyat = f.fiyat;
+            opt.dataset.doviz = f.doviz;
+            opt.dataset.birim = f.birim;
             materialTypeSelect.appendChild(opt);
+        });
+        if (selectedName) {
+            materialTypeSelect.value = selectedName;
+        }
+    }
+
+    loadSarfOptions();
+
+    window.addEventListener('malzemeEklendi', (e) => {
+        if(e.detail && e.detail.turu === 'Sarf Malzeme') {
+            loadSarfOptions(e.detail.adi);
+            materialTypeSelect.dispatchEvent(new Event('change'));
         }
     });
 
     materialTypeSelect.addEventListener('change', () => {
-        const selectedFiyat = sarfFiyatlar.find(f => f.adi === materialTypeSelect.value);
-        if (selectedFiyat) {
-            inputPrice.value = selectedFiyat.fiyat;
-            inputCurrency.value = selectedFiyat.doviz;
+        const selectedOpt = materialTypeSelect.options[materialTypeSelect.selectedIndex];
+        if (selectedOpt && selectedOpt.value) {
+            inputPrice.value = selectedOpt.dataset.fiyat;
+            inputCurrency.value = selectedOpt.dataset.doviz;
+            const brm = selectedOpt.dataset.birim;
+            // Birim alanını aynı fiyattaki birime ayarla (esneklik isteniyorsa seçilebilir de kalabilir)
+            Array.from(inputUnit.options).forEach(o => {
+                if(o.value.toLowerCase() === brm.toLowerCase()) inputUnit.value = o.value;
+            });
             if (typeof updateRateInput === 'function') updateRateInput();
-        }
-
-        if (materialTypeSelect.value === 'Diğer') {
-            customMaterialGroup.style.display = 'block';
-        } else {
-            customMaterialGroup.style.display = 'none';
         }
     });
 
     calculateBtn.addEventListener('click', () => {
         let type = materialTypeSelect.value;
-        if (type === 'Diğer') {
-            type = customMaterialName.value.trim() || 'Özel Malzeme';
-        }
+
 
         const quantity = parseFloat(inputQuantity.value);
         const unit = inputUnit.value;
