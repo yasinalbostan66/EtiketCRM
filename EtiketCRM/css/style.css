@@ -116,22 +116,26 @@ body {
 .nav-item.active i { color: #fff; }
 
 body.light-mode .sidebar {
-    background: #ffffff;
-    box-shadow: 4px 0 15px rgba(0,0,0,0.02);
+    background: #1e293b; /* Koyu Slate - Premium görünüm için */
+    box-shadow: 4px 0 25px rgba(0,0,0,0.1);
 }
 
 body.light-mode .logo {
-    color: var(--text-main);
+    color: #ffffff;
+}
+
+body.light-mode .nav-item {
+    color: rgba(255,255,255,0.7);
 }
 
 body.light-mode .nav-item:hover {
-    background: #f1f5f9;
-    color: var(--primary);
+    background: rgba(255,255,255,0.05);
+    color: #ffffff;
 }
 
 body.light-mode .nav-item.active {
     background: var(--primary-gradient);
-    color: #fff;
+    color: #ffffff;
 }
 
 body.light-mode .top-header {
