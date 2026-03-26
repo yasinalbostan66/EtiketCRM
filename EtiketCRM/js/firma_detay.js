@@ -138,6 +138,54 @@ document.addEventListener('DOMContentLoaded', () => {
     // Cari Ekstreyi render et
     renderFirmaEkstresi(firmaId);
     renderAktiviteler(firmaId);
+
+    // --- Firma Düzenleme Mantığı (NEW) ---
+    const editFirmaForm = document.getElementById('editFirmaForm');
+    
+    window.openEditFirmaModal = function() {
+        // Formu mevcut bilgilerle doldur
+        document.getElementById('editFirmaAd').value = firma.ad;
+        document.getElementById('editFirmaEmail').value = firma.email || '';
+        document.getElementById('editFirmaYetkili').value = firma.yetkili || '';
+        document.getElementById('editFirmaTelefon').value = firma.telefon || '';
+        document.getElementById('editVergiDairesi').value = firma.vergiDairesi || '';
+        document.getElementById('editVergiNo').value = firma.vergiNo || '';
+        document.getElementById('editFirmaSektor').value = firma.sektor || '';
+        document.getElementById('editFirmaAdres').value = firma.adres || '';
+
+        document.getElementById('editFirmaModal').style.display = 'flex';
+    };
+
+    if (editFirmaForm) {
+        editFirmaForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const updatedFirma = {
+                ...firma,
+                ad: document.getElementById('editFirmaAd').value.trim(),
+                email: document.getElementById('editFirmaEmail').value.trim(),
+                yetkili: document.getElementById('editFirmaYetkili').value.trim(),
+                telefon: document.getElementById('editFirmaTelefon').value.trim(),
+                vergiDairesi: document.getElementById('editVergiDairesi').value.trim(),
+                vergiNo: document.getElementById('editVergiNo').value.trim(),
+                sektor: document.getElementById('editFirmaSektor').value.trim(),
+                adres: document.getElementById('editFirmaAdres').value.trim()
+            };
+
+            // Main.js'teki updateFirma fonksiyonunu kullan
+            if (typeof updateFirma === 'function') {
+                updateFirma(updatedFirma);
+                showToast('Firma bilgileri güncellendi.', 'success');
+                
+                // Sayfadaki bilgileri anlık güncelle (re-load simülasyonu)
+                setTimeout(() => window.location.reload(), 1000);
+            } else {
+                showToast('Hata: updateFirma fonksiyonu bulunamadı.', 'error');
+            }
+
+            document.getElementById('editFirmaModal').style.display = 'none';
+        });
+    }
 });
 
 function renderAktiviteler(firmaId) {
