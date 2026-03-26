@@ -13,32 +13,8 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const auth = firebase.auth();
 
-// Global Logout Function - Robust & Forced
-window.handleLogout = async function(e) {
-    if (e && e.preventDefault) e.preventDefault();
-    console.log("Logout function initiated");
-    
-    if (confirm('Oturumu kapatmak istediğinize emin misiniz?')) {
-        try {
-            // 1. Clear session and local storage immediately
-            localStorage.clear();
-            sessionStorage.clear();
-            
-            // 2. Auth Sign out
-            if (window.firebase && firebase.auth) {
-                await firebase.auth().signOut().catch(e => console.warn("FireSignOut Warning:", e));
-            }
-        } catch(err) {
-            console.error("SignOut Error:", err);
-        } finally {
-            // 3. Force hard redirect to login
-            window.location.href = 'login.html';
-        }
-    }
-    return false;
-};
-
-// 0. Auth Guard
+// Global Logout Function - Moved to main.js for reliability
+// --- Auth Guard ---
 auth.onAuthStateChanged(user => {
     if (!user && !window.location.pathname.endsWith('login.html')) {
         // window.location.href = 'login.html'; // Giriş yapma zorunluluğu geçici olarak kaldırıldı

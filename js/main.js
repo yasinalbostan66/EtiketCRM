@@ -1,3 +1,29 @@
+// --- Global Logout Logic (Instant & Fail-safe) ---
+window.handleLogout = function(e) {
+    if (e && e.preventDefault) e.preventDefault();
+    console.log("Forced logout triggered");
+    
+    // Clear ALL data immediately
+    localStorage.clear();
+    sessionStorage.clear();
+    
+    // Try cloud sync signout if available
+    try {
+        if (window.firebase && firebase.auth()) {
+            firebase.auth().signOut().finally(() => {
+                window.location.href = 'login.html';
+            });
+            // Fallback for slow signout
+            setTimeout(() => { window.location.href = 'login.html'; }, 800);
+        } else {
+            window.location.href = 'login.html';
+        }
+    } catch(err) {
+        window.location.href = 'login.html';
+    }
+    return false;
+};
+
 // --- Global Veri Yönetimi ---
 const FIRMALAR_KEY = 'etiket_crm_firmalar';
 const SIPARISLER_KEY = 'etiket_crm_siparisler';
