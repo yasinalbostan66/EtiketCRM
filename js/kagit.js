@@ -168,7 +168,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         resPaperName.textContent = name || 'Belirtilmedi';
-        resTotalM2.textContent = quantityVal.toFixed(2) + ' ' + unitVal;
+        resTotalM2.textContent = Math.round(quantityVal) + ' ' + unitVal;
         resDetails.textContent = detailsText;
         resTotalUSD.textContent = formatCurrency(totalNative, selectedCurrency); // Orijinal birimi göster
 
@@ -182,7 +182,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         currentCalculation = {
             type: 'Kağıt / Ham Madde',
             name: name || 'Kağıt',
-            quantity: quantityVal.toFixed(2),
+            quantity: Math.round(quantityVal),
             unit: unitVal,
             unitPrice: (type === 'm2') ? parseFloat(inputM2Price.value) : parseFloat(inputRuloPrice.value),
             currency: selectedCurrency,
