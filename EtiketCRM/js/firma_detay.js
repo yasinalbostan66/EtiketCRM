@@ -204,7 +204,11 @@ function renderFirmaEkstresi(firmaId) {
     let totalTahsilat = tahsilatlar.reduce((acc, curr) => acc + curr.totalAmountUSD, 0);
     let netBakiye = totalSiparis - totalTahsilat;
     
-    bakiyeEl.textContent = formatCurrency(netBakiye);
+    const rate = parseFloat(window.lastRates?.USD || 32.50);
+    bakiyeEl.innerHTML = `
+        <div style="font-size: 1.5rem; font-weight: 700;">${formatCurrency(netBakiye)}</div>
+        <div style="font-size: 0.9rem; font-weight: 500; color: var(--text-muted); margin-top: 4px;">${formatTRY(netBakiye * rate)}</div>
+    `;
     bakiyeEl.style.color = netBakiye > 0 ? 'var(--danger)' : (netBakiye < 0 ? 'var(--success)' : 'var(--text-muted)');
     
     const durumEl = document.getElementById('detayDurum');

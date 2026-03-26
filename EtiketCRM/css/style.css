@@ -1009,17 +1009,27 @@ tbody tr:hover {
         padding-bottom: 90px;
     }
 
-    /* 576px altında modal tam ekran alttan açılır */
+    /* 576px altında modal tam ekran (Full Screen) */
     .modal-overlay {
         padding: 0;
-        align-items: flex-end;
-        overflow: hidden !important; /* iOS elastik scroll çakışması engellensin */
+        align-items: center; /* Veya flex-start */
+        overflow: hidden !important;
     }
 
     .modal-content {
-        height: 100%;
-        max-height: calc(100dvh - 130px);
-        border-radius: 24px 24px 0 0;
+        height: 100dvh;
+        max-height: 100dvh;
+        width: 100vw;
+        max-width: 100vw;
+        border-radius: 0;
+        border: none;
+    }
+
+    /* Modal footer her zaman altta ve tam genişlik */
+    .modal-footer {
+        padding: 1rem;
+        background: var(--surface-color);
+        box-shadow: 0 -10px 20px rgba(0,0,0,0.2);
     }
 
     /* Modal footer butonları tam genişlik */
@@ -1133,9 +1143,15 @@ tbody tr:hover {
         position: static !important;
     }
 
-    /* Mobilde sonuncu paneli (Sonuç Özeti ve Kaydet butonu) en tepeye alalım */
+    /* Mobilde sonuncu paneli (Sonuç Özeti ve Kaydet butonu) daha belirgin yapalım */
     .calc-grid .panel:last-child {
         order: -1;
+        border: 2px solid var(--primary);
+        background: rgba(var(--primary-rgb), 0.05);
+    }
+    
+    .calc-grid .panel {
+        margin-bottom: 1rem;
     }
 }
 

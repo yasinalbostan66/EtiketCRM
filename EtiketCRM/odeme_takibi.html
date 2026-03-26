@@ -21,24 +21,48 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @media print {
-            @page { size: A4; margin: 10mm; }
+            @page { size: A4 portrait; margin: 10mm; }
             /* Genel ekstralar gizlenir */
             .sidebar, .top-header, .mobile-bottom-nav, .sidebar-overlay, .no-print,
-            .modal-overlay, .stats-grid, #sonIslemlerContainer { display: none !important; }
-            .main-content { margin-left: 0 !important; width: 100% !important; }
-            .content-wrapper { padding: 0 !important; }
-            body { background: #fff !important; color: #000 !important; padding-bottom: 0 !important; font-size: 0.82rem !important; }
-            .panel { box-shadow: none !important; border: 1px solid #ccc !important; background: #fff !important; page-break-inside: avoid; }
-            .panel-header { display: flex !important; }
-            .panel-title { color: #000 !important; }
-            table { width: 100% !important; border-collapse: collapse !important; }
-            th, td { border: 1px solid #ccc !important; padding: 6px 8px !important; color: #000 !important; background: #fff !important; font-size: 0.78rem !important; }
-            th { background: #f1f5f9 !important; font-weight: 700 !important; }
-            /* Mobilde gizli sütunlar PDF'te görünsün */
+            .modal-overlay, #manualSyncBtn, .btn-icon, .notification-badge, .bell-container { display: none !important; }
+            
+            .main-content { margin-left: 0 !important; width: 100% !important; padding: 0 !important; }
+            .content-wrapper { padding: 0 !important; width: 100% !important; }
+            body { background: #fff !important; color: #000 !important; padding-bottom: 0 !important; font-size: 0.85rem !important; }
+            
+            .panel { 
+                box-shadow: none !important; 
+                border: 1px solid #eee !important; 
+                background: #fff !important; 
+                page-break-inside: avoid; 
+                margin-bottom: 1.5rem !important; 
+                padding: 1rem !important;
+            }
+            .panel-header { display: flex !important; margin-bottom: 1rem !important; }
+            .panel-title { color: #000 !important; font-size: 1.1rem !important; }
+            
+            table { width: 100% !important; border-collapse: collapse !important; table-layout: fixed; }
+            th, td { border: 1px solid #ddd !important; padding: 8px !important; color: #000 !important; background: #fff !important; font-size: 0.8rem !important; word-wrap: break-word; }
+            th { background: #f8fafc !important; font-weight: 700 !important; color: #1e293b !important; }
+            
+            /* Mobilde gizlenenleri PDF'te göster */
             .hide-mobile { display: table-cell !important; }
-            /* Yalnız o paneli bas */
-            body.print-firma .vade-panel { display: none !important; }
-            body.print-vade .firma-panel { display: none !important; }
+            
+            /* PDF'te başlık ekle (Opsiyonel ama şık durur) */
+            body::before {
+                content: "SATIŞ KİŞİSEL KULLANIM - CARİ EKSTRE / ÖDEME RAPORU";
+                display: block;
+                text-align: center;
+                font-weight: 800;
+                font-size: 1.2rem;
+                margin-bottom: 20px;
+                border-bottom: 2px solid #000;
+                padding-bottom: 10px;
+            }
+            
+            /* Seçilen panele göre filtreleme */
+            body.print-firma .vade-panel, body.print-firma #sonIslemlerPanel { display: none !important; }
+            body.print-vade .firma-panel, body.print-vade #sonIslemlerPanel { display: none !important; }
         }
     </style>
 
@@ -287,11 +311,17 @@
                         statusBadge = '<span class="badge badge-orange">Ödeme Bekliyor</span>';
                     }
 
+                    const rate = parseFloat(window.lastRates?.USD || 32.50);
+                    const netBakiyeTRY = netBakiye * rate;
+
                     tr.innerHTML = `
                         <td style="font-weight:600;">${firma.ad}</td>
                         <td class="hide-mobile">${formatCurrency(siparisToplami)}</td>
                         <td class="hide-mobile" style="color:var(--success);">${formatCurrency(tahsilatToplami)}</td>
-                        <td style="font-weight:700; color:${netBakiye > 0 ? 'var(--danger)' : 'var(--success)'};">${formatCurrency(netBakiye)}</td>
+                        <td style="font-weight:700;">
+                            <div style="color:${netBakiye > 0 ? 'var(--danger)' : 'var(--success)'};">${formatCurrency(netBakiye)}</div>
+                            <div style="font-size:0.75rem; color:var(--text-muted); font-weight:400; margin-top:2px;">${formatTRY(netBakiyeTRY)}</div>
+                        </td>
                         <td class="hide-mobile" style="color: var(--text-muted); font-size: 0.85rem;">${sonTahsilatDate}</td>
                         <td class="hide-mobile">${statusBadge}</td>
                         <td>
@@ -303,9 +333,10 @@
                     tableBody.appendChild(tr);
                 });
 
-                document.getElementById('totalDebt').textContent = formatCurrency(totalOrderVal);
-                document.getElementById('totalPaid').textContent = formatCurrency(totalPaidVal);
-                document.getElementById('netBalance').textContent = formatCurrency(totalOrderVal - totalPaidVal);
+                const rate = parseFloat(window.lastRates?.USD || 32.50);
+                document.getElementById('totalDebt').innerHTML = `${formatCurrency(totalOrderVal)}<div style="font-size:0.8rem; font-weight:400; color:var(--text-muted);">${formatTRY(totalOrderVal * rate)}</div>`;
+                document.getElementById('totalPaid').innerHTML = `${formatCurrency(totalPaidVal)}<div style="font-size:0.8rem; font-weight:400; color:var(--text-muted);">${formatTRY(totalPaidVal * rate)}</div>`;
+                document.getElementById('netBalance').innerHTML = `${formatCurrency(totalOrderVal - totalPaidVal)}<div style="font-size:0.8rem; font-weight:400; color:var(--text-muted);">${formatTRY((totalOrderVal - totalPaidVal) * rate)}</div>`;
 
                 // Toplam satırını tabloya ekle (tfoot)
                 const tfoot = document.getElementById('paymentTableFoot');
@@ -401,13 +432,18 @@
                         statusText = item.diffDays + ' gün kaldı';
                     }
 
+                    const rate = parseFloat(window.lastRates?.USD || 32.50);
+                    
                     html += `
                         <tr style="cursor:pointer;" onclick="showOrderDetails('${item.siparis.id}')">
                             <td style="font-weight:600;">${item.firmaAd}</td>
                             <td class="hide-mobile" style="font-size:0.85rem; color:var(--text-muted);">${item.siparis.name || 'Siparişi Gör'}</td>
                             <td style="font-weight:600;">${item.dueStr}</td>
                             <td><span class="badge" style="${statusStyle}">${statusText}</span></td>
-                            <td style="color:var(--danger); font-weight:700;">${formatCurrency(item.siparis.totalPriceUSD)}</td>
+                            <td style="font-weight:700;">
+                                <div style="color:var(--danger);">${formatCurrency(item.siparis.totalPriceUSD)}</div>
+                                <div style="font-size:0.75rem; color:var(--text-muted); font-weight:400; margin-top:2px;">${formatTRY(item.siparis.totalPriceUSD * rate)}</div>
+                            </td>
                         </tr>
                     `;
                 });
