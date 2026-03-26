@@ -17,7 +17,7 @@ const auth = firebase.auth();
 // --- Auth Guard ---
 auth.onAuthStateChanged(user => {
     if (!user && !window.location.pathname.endsWith('login.html')) {
-        // window.location.href = 'login.html'; // Giriş yapma zorunluluğu geçici olarak kaldırıldı
+        window.location.replace('login.html'); 
     }
 });
 
