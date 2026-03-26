@@ -125,6 +125,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const eurToUsd = 1.08; // Fallback
 
         let totalUSD = 0;
+        let totalNative = 0;
         let quantityVal = 0;
         let unitVal = '';
         let detailsText = '';
@@ -143,7 +144,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             quantityVal = width * height;
             unitVal = 'm²';
-            totalUSD = quantityVal * price;
+            totalNative = quantityVal * price;
+            totalUSD = totalNative;
             if (selectedCurrency === 'EUR') totalUSD *= eurToUsd;
             
             detailsText = `En: ${inputWidth.value}cm | Boy: ${height}mt | Birim: ${price} ${selectedCurrency}`;
@@ -158,7 +160,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
 
             unitVal = 'Rulo';
-            totalUSD = quantityVal * price;
+            totalNative = quantityVal * price;
+            totalUSD = totalNative;
             if (selectedCurrency === 'EUR') totalUSD *= eurToUsd;
             
             detailsText = `Miktar: ${quantityVal} Rulo | Birim: ${price} ${selectedCurrency}`;
@@ -167,10 +170,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         resPaperName.textContent = name || 'Belirtilmedi';
         resTotalM2.textContent = quantityVal.toFixed(2) + ' ' + unitVal;
         resDetails.textContent = detailsText;
-        resTotalUSD.textContent = formatCurrency(totalUSD);
+        resTotalUSD.textContent = formatCurrency(totalNative, selectedCurrency); // Orijinal birimi göster
 
         if (rate > 0) {
-            resTotalTRY.textContent = formatTRY(totalUSD * rate);
+            resTotalTRY.textContent = formatTRY(totalNative * rate);
             tlRow.style.display = 'flex';
         } else {
             tlRow.style.display = 'none';
@@ -183,11 +186,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             unit: unitVal,
             unitPrice: (type === 'm2') ? parseFloat(inputM2Price.value) : parseFloat(inputRuloPrice.value),
             currency: selectedCurrency,
-            totalPriceUSD: totalUSD,
+            totalPriceUSD: totalUSD, // Bakiye hesapları için yine USD çevirimi arkada tutulur
             exchangeRate: rate,
-            totalPriceTRY: rate > 0 ? (totalUSD * rate) : 0,
+            totalPriceTRY: rate > 0 ? (totalNative * rate) : 0,
             paymentMethod: inputPayment.value,
-            details: detailsText + (selectedCurrency === 'EUR' ? ' (USD\'ye çevrildi)' : '')
+            details: detailsText
         };
 
         saveOrderBtn.disabled = false;

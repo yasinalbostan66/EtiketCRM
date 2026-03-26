@@ -115,7 +115,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('resSellTotal').textContent = `${totalSell.toFixed(2)} ${currency}`;
         document.getElementById('resProfit').textContent = `${profit.toFixed(2)} ${currency}`;
 
-        resTotalUSD.textContent = formatCurrency(totalCostUSD);
+        resTotalUSD.textContent = formatCurrency(totalSell, currency);
 
         currentCalculation = {
             type: 'Klişe',
