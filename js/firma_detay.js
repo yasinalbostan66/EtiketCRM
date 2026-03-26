@@ -31,6 +31,16 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('detayFirmaAd').style.gap = '12px';
     document.getElementById('detayYetkili').textContent = firma.yetkili;
     document.getElementById('detayTelefon').textContent = firma.telefon;
+    
+    // WhatsApp ve Tel Link Yapılandırması (NEW)
+    const phoneClean = (firma.telefon || '').replace(/\D/g, ''); // Sadece rakamlar
+    if (phoneClean) {
+        document.getElementById('detayTelefonLink').href = `tel:${phoneClean}`;
+        const waLink = document.getElementById('detayWhatsApp');
+        waLink.href = `https://wa.me/${phoneClean.startsWith('0') ? '9' + phoneClean : phoneClean}`; 
+        waLink.style.display = 'inline-block';
+    }
+
     document.getElementById('detayEmail').textContent = firma.email || '-';
     document.getElementById('detayAdres').textContent = firma.adres || '-';
     
@@ -461,4 +471,61 @@ window.exportFirmaEkstraToPDF = function() {
 
     doc.save(`${fixTrForPDF(firmaAd).replace(/\s+/g, '_')}_Ekstre.pdf`);
     showToast('Ekstre PDF Hazırlandı!', 'success');
+};
+
+// WhatsApp/Mail/Diğer Platformlarda Paylaşım (NEW)
+window.shareFirmaEkstra = async function() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    const firmaAd = document.getElementById('detayFirmaAd').textContent.trim();
+    
+    // PDF içeriği (exportFirmaEkstraToPDF ile aynı mantık)
+    doc.setFontSize(16);
+    doc.text(fixTrForPDF(firmaAd + " - Cari Ekstre"), 14, 15);
+    doc.setFontSize(10);
+    doc.text(`Tarih: ${new Date().toLocaleDateString('tr-TR')}`, 14, 22);
+
+    const table = document.querySelector('#siparisTableContainer table');
+    if(!table) return showToast('Paylaşılacak veri bulunamadı!', 'error');
+
+    const rows = [];
+    const trs = table.querySelectorAll('tbody tr');
+    trs.forEach(tr => {
+        const row = [];
+        row.push(tr.cells[0].textContent.trim()); // Tarih
+        row.push(fixTrForPDF(tr.cells[1].textContent.trim())); // İşlem
+        row.push(fixTrForPDF(tr.cells[2].textContent.trim())); // Detay
+        row.push(fixTrForPDF(tr.cells[3].textContent.trim())); // Miktar/Not
+        row.push(tr.cells[4].textContent.trim().split('(')[0].trim()); // USD Tutar
+        rows.push(row);
+    });
+
+    doc.autoTable({
+        head: [[fixTrForPDF('Tarih'), fixTrForPDF('Islem'), fixTrForPDF('Detay'), fixTrForPDF('Miktar/Not'), 'Tutar ($)']],
+        body: rows,
+        startY: 30,
+        theme: 'striped',
+        headStyles: { fillColor: [59, 130, 246] }
+    });
+
+    // Share API kullanımı
+    try {
+        const pdfOutput = doc.output('blob');
+        const file = new File([pdfOutput], `${fixTrForPDF(firmaAd).replace(/\s+/g, '_')}_Ekstre.pdf`, { type: 'application/pdf' });
+        
+        if (navigator.share && navigator.canShare({ files: [file] })) {
+            await navigator.share({
+                title: `${firmaAd} Cari Ekstre`,
+                text: `${firmaAd} firmasına ait güncel cari hareketler dökümü.`,
+                files: [file]
+            });
+        } else {
+            // Share API yoksa klasik indir
+            doc.save(`${fixTrForPDF(firmaAd).replace(/\s+/g, '_')}_Ekstre.pdf`);
+            showToast('Paylaşım bu cihazda desteklenmiyor, PDF indirildi.', 'warning');
+        }
+    } catch (err) {
+        console.error('Paylaşım hatası:', err);
+        showToast('Paylaşım sırasında bir sorun oluştu.', 'error');
+    }
 };
