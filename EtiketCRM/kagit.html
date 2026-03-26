@@ -119,11 +119,11 @@
                         
                         <div class="form-group">
                             <label for="paperName">Kağıt Cinsi / Adı</label>
-                            <div style="display: flex; gap: 0.5rem;">
-                                <select id="paperName" class="form-control" required style="flex: 1;">
+                            <div style="display: flex; gap: 0.5rem; align-items: center;">
+                                <select id="paperName" class="form-control" required style="flex: 1; min-width: 0;">
                                     <option value="" disabled selected>Lütfen Veritabanından Seçiniz...</option>
                                 </select>
-                                <button type="button" class="btn btn-primary" title="Yeni Kağıt Ekle" onclick="openYeniMalzemeModal('Kağıt')" style="padding: 0 15px;">
+                                <button type="button" class="btn btn-primary" title="Yeni Kağıt Ekle" onclick="openYeniMalzemeModal('Kağıt')" style="padding: 0 15px; flex-shrink: 0; white-space: nowrap; height: 42px;">
                                     <i class="fa-solid fa-plus"></i> Ekle
                                 </button>
                             </div>
