@@ -115,8 +115,21 @@ body {
 
 .nav-item.active i { color: #fff; }
 
+body.light-mode {
+    background-color: #ffffff;
+    color: #1e293b;
+}
+
+body.light-mode .main-content {
+    background-color: #ffffff;
+}
+
+body.light-mode .content-wrapper {
+    background-color: #ffffff;
+}
+
 body.light-mode .sidebar {
-    background: #ffffff; /* En ferah beyaz arka plan */
+    background: #ffffff;
     box-shadow: 4px 0 25px rgba(0,0,0,0.03);
     border-right: 1px solid #f1f5f9;
 }
