@@ -48,7 +48,7 @@
                 </a>
                 <a href="stok_takibi.html" class="nav-item active">
                     <i class="fa-solid fa-file-export"></i>
-                    Stok & İçe Aktar / PDF
+                    Stok ve Rapor Paylaşımı
                 </a>
 
                 
@@ -59,7 +59,7 @@
         <main class="main-content">
             <header class="top-header">
                 <div class="page-title d-flex gap-2 align-center">
-                    <i class="fa-solid fa-file-export" style="color: var(--primary);"></i> Veri Aktarımı & Stok
+                    <i class="fa-solid fa-file-export" style="color: var(--primary);"></i> Rapor Paylaşımı & Stok
                 </div>
                 <div class="header-actions">
                     <div id="userAvatarStr" style="width: 36px; height: 36px; border-radius: 50%; background: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: 600; color: #fff;">
@@ -73,11 +73,11 @@
                     <div class="panel-header">
                         <h2 class="panel-title"><i class="fa-solid fa-filter"></i> Filtrele & Ara</h2>
                         <div class="header-actions" style="display: flex; gap: 0.5rem;">
-                            <button class="btn btn-outline" onclick="document.getElementById('csvInput').click()" title="CSV'den Yükle">
-                                <i class="fa-solid fa-file-import"></i> <span class="hide-mobile">İçe Aktar (CSV)</span>
+                            <button class="btn btn-outline" onclick="document.getElementById('csvInput').click()" title="CSV İçe Aktar">
+                                <i class="fa-solid fa-file-import"></i> <span class="hide-mobile">İçe Aktar</span>
                             </button>
-                            <button class="btn btn-outline" onclick="exportToPDF()" title="PDF Olarak Al">
-                                <i class="fa-solid fa-file-pdf"></i> <span class="hide-mobile">PDF Al</span>
+                            <button class="btn btn-primary" onclick="shareStokReport()" title="Paylaş">
+                                <i class="fa-solid fa-share-nodes"></i> <span class="hide-mobile">Paylaş</span>
                             </button>
                             <input type="file" id="csvInput" accept=".csv" style="display: none;">
                         </div>
@@ -163,8 +163,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
 
     <!-- Core JS -->
-    <script src="js/firebase-sync.js?v=3.1"></script>
-    <script src="js/main.js?v=3.1"></script>
+    <script src="js/firebase-sync.js?v=3.5"></script>
+    <script src="js/main.js?v=3.5"></script>
     <script src="js/stok_takibi.js"></script>
 </body>
 </html>

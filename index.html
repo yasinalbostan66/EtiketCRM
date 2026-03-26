@@ -18,7 +18,7 @@
     </script>
     <title>Genel Bakış | SATIŞ KİŞİSEL KULLANIM</title>
     <!-- CSS -->
-    <link rel="stylesheet" href="css/style.css?v=3.4">
+    <link rel="stylesheet" href="css/style.css?v=3.5">
     <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -67,7 +67,7 @@
                 </a>
                 <a href="stok_takibi.html" class="nav-item">
                     <i class="fa-solid fa-file-export"></i>
-                    Stok & İçe Aktar / PDF
+                    Stok ve Rapor Paylaşımı
                 </a>
 
 
@@ -78,6 +78,13 @@
                     <i class="fa-solid fa-gear"></i>
                     Ayarlar
                 </a>
+                
+                <div style="margin-top: auto; border-top: 1px solid var(--border-color); padding-top: 0.5rem; margin-bottom: 0.5rem;">
+                    <a href="#" onclick="handleLogout()" class="nav-item" id="sidebarLogoutBtn" style="color: var(--danger);">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                        Çıkış Yap
+                    </a>
+                </div>
             </nav>
         </aside>
 
@@ -101,7 +108,7 @@
                     <button class="btn-icon">
                         <i class="fa-regular fa-bell"></i>
                     </button>
-                    <div id="userAvatarStr" style="width: 36px; height: 36px; border-radius: 50%; background: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: 600; color: #fff;">
+                    <div id="userAvatarStr" onclick="handleLogout()" style="width: 36px; height: 36px; border-radius: 50%; background: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: 600; color: #fff; cursor: pointer;" title="Çıkış Yap">
                         YA
                     </div>
                 </div>
@@ -204,8 +211,8 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
     <!-- Firebase Sync Logic -->
-    <script src="js/firebase-sync.js?v=3.1"></script>
-    <script src="js/main.js?v=3.1"></script>
+    <script src="js/firebase-sync.js?v=3.5"></script>
+    <script src="js/main.js?v=3.5"></script>
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
             // Döviz Kurlarını Çek ve Yaz

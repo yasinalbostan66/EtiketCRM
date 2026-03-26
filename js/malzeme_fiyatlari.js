@@ -94,28 +94,65 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // CSV Dışa Aktar
-    window.exportToCSV = function() {
+    // Share Material Stock (PDF with Name and Stock only)
+    window.shareMalzemeStok = async function() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
         const fiyatlar = getMalzemeFiyatlari();
-        if (fiyatlar.length === 0) {
-            showToast('Dışa aktarılacak kayıt bulunmuyor.', 'error');
-            return;
-        }
+        const searchTerm = searchInput.value.toLowerCase();
+        
+        const filtered = fiyatlar.filter(f => 
+            (currentCategory === 'Tümü' || f.turu === currentCategory) &&
+            (f.adi.toLowerCase().includes(searchTerm) || f.turu.toLowerCase().includes(searchTerm))
+        );
 
-        let csvContent = "\ufeffGrup,Malzeme Adı,Birim Fiyat,Döviz,Stok,Birim\n"; // BOM for excel Turkish chars
-        fiyatlar.forEach(f => {
-            csvContent += `${f.turu},${f.adi},${f.fiyat},${f.doviz},${f.stok || 0},${f.birim || 'kg'}\n`;
+        if (filtered.length === 0) return showToast('Paylaşılacak veri yok!', 'error');
+
+        doc.setFontSize(16);
+        doc.text(fixTrForPDF("Guncel Stok Durumu"), 14, 15);
+        doc.setFontSize(10);
+        doc.text(`Tarih: ${new Date().toLocaleDateString('tr-TR')}`, 14, 22);
+
+        const rows = filtered.map(f => [
+            fixTrForPDF(f.turu),
+            fixTrForPDF(f.adi),
+            `${f.stok || 0} ${f.birim || 'kg'}`
+        ]);
+
+        doc.autoTable({
+            head: [['Grup', fixTrForPDF('Malzeme Adi'), 'Stok Miktari']],
+            body: rows,
+            startY: 25,
+            theme: 'striped',
+            headStyles: { fillColor: [16, 185, 129] }
         });
 
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.setAttribute("href", url);
-        link.setAttribute("download", `Malzeme_Fiyatlari_${new Date().toLocaleDateString('tr-TR')}.csv`);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        showToast('CSV Dosyası indirildi.', 'success');
+        try {
+            const pdfBlob = doc.output('blob');
+            const file = new File([pdfBlob], `Stok_Durumu_${new Date().toISOString().slice(0,10)}.pdf`, { type: 'application/pdf' });
+            if (navigator.share && navigator.canShare({ files: [file] })) {
+                await navigator.share({ title: 'Güncel Stok Durumu', files: [file] });
+            } else {
+                doc.save(`Stok_Durumu.pdf`);
+            }
+        } catch (err) { console.error('Share error:', err); }
+    };
+
+    window.printStokOnly = function() {
+        const sidebar = document.querySelector('.sidebar');
+        const topHeader = document.querySelector('.top-header');
+        const formPanel = document.querySelector('.panel.no-print');
+        const tabList = document.querySelector('.no-print[style*="tab"]');
+        const bottomNav = document.querySelector('.mobile-bottom-nav');
+
+        const toHide = [sidebar, topHeader, formPanel, tabList, bottomNav];
+        toHide.forEach(el => { if(el) el.style.setProperty('display', 'none', 'important'); });
+        
+        window.print();
+        
+        setTimeout(() => {
+            toHide.forEach(el => { if(el) el.style.removeProperty('display'); });
+        }, 500);
     };
 
     // Render Table

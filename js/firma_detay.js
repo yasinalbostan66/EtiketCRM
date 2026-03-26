@@ -41,7 +41,20 @@ document.addEventListener('DOMContentLoaded', () => {
         waLink.style.display = 'inline-block';
     }
 
-    document.getElementById('detayEmail').textContent = firma.email || '-';
+    const email = (firma.email || '').trim();
+    const emailEl = document.getElementById('detayEmail');
+    const emailLink = document.getElementById('detayEmailLink');
+    if (emailEl) emailEl.textContent = email || '-';
+    if (emailLink) {
+        if (email && email !== '-') {
+            emailLink.href = `mailto:${email}`;
+            emailLink.style.cursor = 'pointer';
+            emailLink.title = `E-Posta Gönder: ${email}`;
+        } else {
+            emailLink.removeAttribute('href');
+            emailLink.style.cursor = 'default';
+        }
+    }
     document.getElementById('detayAdres').textContent = firma.adres || '-';
     
     // Google Maps Preview (NEW)
@@ -461,16 +474,103 @@ window.exportFirmaEkstraToPDF = function() {
         rows.push(row);
     });
 
+    // Net Bakiye Satırı Ekle
+    const totalSiparis = getFirmaSiparisleri(firmaId).reduce((acc, curr) => acc + curr.totalPriceUSD, 0);
+    const totalTahsilat = getFirmaTahsilatlari(firmaId).reduce((acc, curr) => acc + curr.totalAmountUSD, 0);
+    const netBakiye = totalSiparis - totalTahsilat;
+    
+    rows.push([
+        '', 
+        '', 
+        '', 
+        fixTrForPDF('NET BAKİYE:'), 
+        formatCurrency(netBakiye)
+    ]);
+
     doc.autoTable({
         head: [[fixTrForPDF('Tarih'), fixTrForPDF('Islem'), fixTrForPDF('Detay'), fixTrForPDF('Miktar/Not'), 'Tutar ($)']],
         body: rows,
         startY: 30,
         theme: 'striped',
-        headStyles: { fillColor: [59, 130, 246] }
+        headStyles: { fillColor: [59, 130, 246] },
+        didParseCell: function(data) {
+            if (data.row.index === rows.length - 1) {
+                data.cell.styles.fontStyle = 'bold';
+                if (netBakiye > 0) data.cell.styles.textColor = [239, 68, 68];
+                else if (netBakiye < 0) data.cell.styles.textColor = [16, 185, 129];
+            }
+        }
     });
 
     doc.save(`${fixTrForPDF(firmaAd).replace(/\s+/g, '_')}_Ekstre.pdf`);
     showToast('Ekstre PDF Hazırlandı!', 'success');
+};
+
+window.shareActivities = async function() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    const firmaAd = document.getElementById('detayFirmaAd').textContent.trim();
+    
+    doc.setFontSize(16);
+    doc.text(fixTrForPDF(firmaAd + " - Aktivite Kronolojisi"), 14, 15);
+    doc.setFontSize(10);
+    doc.text(`Tarih: ${new Date().toLocaleDateString('tr-TR')}`, 14, 22);
+
+    const container = document.getElementById('aktivitelerContainer');
+    const table = container.querySelector('table');
+    if(!table) return showToast('Aktivite verisi bulunamadı!', 'error');
+
+    const rows = [];
+    const trs = table.querySelectorAll('tbody tr');
+    trs.forEach(tr => {
+        const cells = tr.querySelectorAll('td');
+        if (cells.length >= 4) {
+            rows.push([
+                cells[0].textContent.trim(),
+                fixTrForPDF(cells[1].textContent.trim()),
+                fixTrForPDF(cells[2].textContent.trim()),
+                cells[3].textContent.trim()
+            ]);
+        }
+    });
+
+    doc.autoTable({
+        head: [['Tarih', fixTrForPDF('Tur'), fixTrForPDF('Detay'), 'Tutar ($)']],
+        body: rows,
+        startY: 28,
+        theme: 'grid',
+        headStyles: { fillColor: [15, 23, 42] },
+        columnStyles: { 3: { halign: 'right' } }
+    });
+
+    try {
+        const pdfBlob = doc.output('blob');
+        const file = new File([pdfBlob], `${fixTrForPDF(firmaAd).replace(/\s+/g, '_')}_Aktiviteler.pdf`, { type: 'application/pdf' });
+        if (navigator.share && navigator.canShare({ files: [file] })) {
+            await navigator.share({ title: 'Aktivite Kronolojisi', files: [file] });
+        } else {
+            doc.save(`${firmaAd}_Aktiviteler.pdf`);
+        }
+    } catch (err) { console.error('Share error:', err); }
+};
+
+window.printOrdersOnly = function() {
+    const sidebar = document.querySelector('.sidebar');
+    const topHeader = document.querySelector('.top-header');
+    const moduleLinks = document.getElementById('moduleLinks');
+    const detailHeader = document.querySelector('.detail-header');
+    const mapPreview = document.getElementById('map-preview');
+    const aktivitelerPanel = document.getElementById('aktivitelerPanel');
+    const bottomNav = document.querySelector('.mobile-bottom-nav');
+
+    const toHide = [sidebar, topHeader, moduleLinks, detailHeader, mapPreview, aktivitelerPanel, bottomNav];
+    toHide.forEach(el => { if(el) el.style.setProperty('display', 'none', 'important'); });
+
+    window.print();
+    
+    setTimeout(() => {
+        toHide.forEach(el => { if(el) el.style.removeProperty('display'); });
+    }, 500);
 };
 
 // WhatsApp/Mail/Diğer Platformlarda Paylaşım (NEW)
@@ -500,12 +600,32 @@ window.shareFirmaEkstra = async function() {
         rows.push(row);
     });
 
+    // Net Bakiye Satırı Ekle
+    const totalSiparis = getFirmaSiparisleri(firmaId).reduce((acc, curr) => acc + curr.totalPriceUSD, 0);
+    const totalTahsilat = getFirmaTahsilatlari(firmaId).reduce((acc, curr) => acc + curr.totalAmountUSD, 0);
+    const netBakiye = totalSiparis - totalTahsilat;
+    
+    rows.push([
+        '', 
+        '', 
+        '', 
+        fixTrForPDF('NET BAKİYE:'), 
+        formatCurrency(netBakiye)
+    ]);
+
     doc.autoTable({
         head: [[fixTrForPDF('Tarih'), fixTrForPDF('Islem'), fixTrForPDF('Detay'), fixTrForPDF('Miktar/Not'), 'Tutar ($)']],
         body: rows,
         startY: 30,
         theme: 'striped',
-        headStyles: { fillColor: [59, 130, 246] }
+        headStyles: { fillColor: [59, 130, 246] },
+        didParseCell: function(data) {
+            if (data.row.index === rows.length - 1) {
+                data.cell.styles.fontStyle = 'bold';
+                if (netBakiye > 0) data.cell.styles.textColor = [239, 68, 68];
+                else if (netBakiye < 0) data.cell.styles.textColor = [16, 185, 129];
+            }
+        }
     });
 
     // Share API kullanımı
@@ -516,7 +636,7 @@ window.shareFirmaEkstra = async function() {
         if (navigator.share && navigator.canShare({ files: [file] })) {
             await navigator.share({
                 title: `${firmaAd} Cari Ekstre`,
-                text: `${firmaAd} firmasına ait güncel cari hareketler dökümü.`,
+                text: `${firmaAd} firmasına ait güncel cari bakiye: ${formatCurrency(netBakiye)}`,
                 files: [file]
             });
         } else {

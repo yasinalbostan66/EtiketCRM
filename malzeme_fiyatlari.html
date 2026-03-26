@@ -18,7 +18,7 @@
     </script>
     <title>Malzeme Fiyatları | SATIŞ KİŞİSEL KULLANIM</title>
     <!-- CSS -->
-    <link rel="stylesheet" href="css/style.css?v=3.4">
+    <link rel="stylesheet" href="css/style.css?v=3.5">
     <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -305,16 +305,13 @@
                 <div class="panel">
                     <div class="panel-header" style="flex-wrap: wrap; gap: 1rem;">
                         <h2 class="panel-title"><i class="fa-solid fa-list"></i> Kayıtlı Malzeme Fiyatları</h2>
-                        <div class="d-flex gap-2 no-print" style="flex-wrap: wrap; margin-left: auto;">
-                             <input type="text" id="searchInput" class="form-control" placeholder="Ara..." style="max-width:200px; padding: 5px 10px; font-size:0.9rem;">
-                             <button type="button" class="btn btn-outline" onclick="document.getElementById('csvInput').click()" style="font-size: 0.85rem; padding: 6px 12px;">
+                        <div class="d-flex gap-2 no-print" style="flex-wrap: wrap; width: 100%; margin-top: 10px;">
+                             <input type="text" id="searchInput" class="form-control" placeholder="Malzeme Ara..." style="max-width:300px; padding: 8px 15px; font-size:0.95rem;">
+                             <button type="button" class="btn btn-outline" onclick="document.getElementById('csvInput').click()" style="font-size: 0.9rem; padding: 8px 15px;">
                                  <i class="fa-solid fa-file-import"></i> İçe Aktar
                              </button>
-                             <button type="button" class="btn btn-outline" onclick="exportToCSV()" style="font-size: 0.85rem; padding: 6px 12px;">
-                                 <i class="fa-solid fa-file-export"></i> Dışa Aktar
-                             </button>
-                             <button type="button" class="btn btn-primary" onclick="window.print()" style="font-size: 0.85rem; padding: 6px 12px;">
-                                 <i class="fa-solid fa-file-pdf"></i> PDF / Yazdır
+                             <button type="button" class="btn btn-primary" onclick="shareMalzemeStok()" style="font-size: 0.9rem; padding: 8px 20px;">
+                                 <i class="fa-solid fa-share-nodes"></i> Paylaş
                              </button>
                              <input type="file" id="csvInput" accept=".csv" style="display: none;">
                         </div>
@@ -344,8 +341,15 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
     <!-- Firebase Sync Logic -->
-    <script src="js/firebase-sync.js?v=3.1"></script>
-    <script src="js/main.js?v=3.1"></script>
+    <script src="js/firebase-sync.js?v=3.5"></script>
+    <script src="js/main.js?v=3.5"></script>
     <script src="js/malzeme_fiyatlari.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+             if (typeof fetchExchangeRates === 'function') {
+                 await fetchExchangeRates();
+             }
+        });
+    </script>
 </body>
 </html>
