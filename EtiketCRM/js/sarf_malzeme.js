@@ -110,16 +110,17 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
 
-        let totalUSD = quantity * price;
+        let totalNative = quantity * price;
+        let totalUSD = totalNative;
         if (selectedCurrency === 'EUR') totalUSD *= eurToUsd;
 
         resType.textContent = type;
         resQuantity.textContent = `${quantity} ${unit}`;
         resPrice.textContent = `${price} ${selectedCurrency}`;
-        resTotalUSD.textContent = formatCurrency(totalUSD);
+        resTotalUSD.textContent = formatCurrency(totalNative, selectedCurrency);
 
         if (rate > 0) {
-            resTotalTRY.textContent = formatTRY(totalUSD * rate);
+            resTotalTRY.textContent = formatTRY(totalNative * rate);
             tlRow.style.display = 'flex';
         } else {
             tlRow.style.display = 'none';
@@ -134,9 +135,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             currency: selectedCurrency,
             totalPriceUSD: totalUSD,
             exchangeRate: rate,
-            totalPriceTRY: rate > 0 ? (totalUSD * rate) : 0,
+            totalPriceTRY: rate > 0 ? (totalNative * rate) : 0,
             paymentMethod: inputPayment.value,
-            details: `${type} | Miktar: ${quantity}${unit} | Birim: ${price} ${selectedCurrency}${selectedCurrency === 'EUR' ? ' (USD\'ye çevrildi)' : ''}`
+            details: `${type} | Miktar: ${quantity}${unit} | Birim: ${price} ${selectedCurrency}`
         };
 
         saveOrderBtn.disabled = false;
