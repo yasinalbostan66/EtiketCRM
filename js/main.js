@@ -577,3 +577,87 @@ function restoreBackup(data) {
         showToast('Geçerli veri bulunamadı!', 'error');
     }
 }
+
+window.openYeniMalzemeModal = function(turu) {
+    let modal = document.getElementById('yeniMalzemeModal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'yeniMalzemeModal';
+        modal.className = 'modal-overlay';
+        modal.style.zIndex = '999999';
+        document.body.appendChild(modal);
+    }
+    
+    modal.innerHTML = `
+        <div class="modal-content panel" style="max-width: 450px;">
+            <div class="panel-header">
+                <h2 class="panel-title"><i class="fa-solid fa-plus-circle"></i> Yeni ${turu} Ekle</h2>
+                <button class="btn-icon" onclick="document.getElementById('yeniMalzemeModal').style.display='none'">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <form id="yeniMalzemeFormModal">
+                <div class="form-group">
+                    <label>Malzeme Adı *</label>
+                    <input type="text" id="ymAdi" class="form-control" placeholder="Örn: X Marka Kuşe" required>
+                </div>
+                <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
+                    <div class="form-group">
+                        <label>Birim Fiyat *</label>
+                        <input type="number" id="ymFiyat" class="form-control" step="0.0001" placeholder="0.00" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Para Birimi</label>
+                        <select id="ymDoviz" class="form-control" required>
+                            <option value="USD">$ USD</option>
+                            <option value="EUR">€ EUR</option>
+                            <option value="TRY">₺ TRY</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Birim</label>
+                    <select id="ymBirim" class="form-control">
+                        <option value="kg">kg</option>
+                        <option value="m²">m²</option>
+                        <option value="cm²">cm²</option>
+                        <option value="adet">adet</option>
+                        <option value="Litre">Litre</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width:100%; margin-top:1rem;">Kaydet ve Seç</button>
+            </form>
+        </div>
+    `;
+    modal.style.display = 'flex';
+    
+    document.getElementById('yeniMalzemeFormModal').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const fiyatlar = getMalzemeFiyatlari();
+        const newAdi = document.getElementById('ymAdi').value.trim();
+        
+        // Aynı isimde var mı kontrolü
+        if(fiyatlar.some(f => f.turu === turu && f.adi.toLowerCase() === newAdi.toLowerCase())) {
+            showToast('Bu malzeme zaten veritabanında mevcut!', 'error');
+            return;
+        }
+
+        const obj = {
+            id: 'mal_' + Date.now().toString(36),
+            turu: turu,
+            adi: newAdi,
+            fiyat: parseFloat(document.getElementById('ymFiyat').value),
+            doviz: document.getElementById('ymDoviz').value,
+            birim: document.getElementById('ymBirim').value,
+            stok: 0
+        };
+        
+        fiyatlar.push(obj);
+        saveMalzemeFiyatlari(fiyatlar);
+        document.getElementById('yeniMalzemeModal').style.display = 'none';
+        showToast('Yeni malzeme fiyatı veritabanına başarıyla eklendi!', 'success');
+        
+        // Sayfalara malzemeyi otomatik seçtirmek için event fırlat
+        window.dispatchEvent(new CustomEvent('malzemeEklendi', { detail: obj }));
+    });
+};

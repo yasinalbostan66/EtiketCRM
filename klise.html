@@ -131,12 +131,25 @@
                         </div>
                         
                         <div class="form-group mt-3">
-                            <label for="platePrice">Maliyet Birim Fiyatı (cm² Bazında)</label>
+                            <label for="plateMaterial">Klişe Malzemesi</label>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <select id="plateMaterial" class="form-control" required style="flex: 1;">
+                                    <option value="" disabled selected>Lütfen Veritabanından Seçiniz...</option>
+                                </select>
+                                <button type="button" class="btn btn-primary" title="Yeni Klişe Ekle" onclick="openYeniMalzemeModal('Klişe')" style="padding: 0 15px;">
+                                    <i class="fa-solid fa-plus"></i> Ekle
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="form-group mt-3">
+                            <label for="platePrice"><i class="fa-solid fa-lock" style="font-size:0.75rem;"></i> Maliyet Birim Fiyatı (Otomatik)</label>
                             <div class="input-group" style="display: flex; gap: 0.5rem;">
-                                <input type="number" id="platePrice" class="form-control" placeholder="Örn: 0.02" step="0.0001" min="0.0001" required style="flex: 1;">
-                                <select id="priceCurrency" class="form-control" style="width: 80px;">
+                                <input type="number" id="platePrice" class="form-control" placeholder="0.00" step="0.0001" min="0" required style="flex: 1; background:var(--surface-hover); cursor:not-allowed;" readonly>
+                                <select id="priceCurrency" class="form-control" style="width: 80px; background:var(--surface-hover); cursor:not-allowed;" disabled>
                                     <option value="USD">$ USD</option>
                                     <option value="EUR">€ EUR</option>
+                                    <option value="TRY">₺ TRY</option>
                                 </select>
                             </div>
                         </div>

@@ -17,24 +17,37 @@ document.addEventListener('DOMContentLoaded', async () => {
     const calculateBtn = document.getElementById('calculateBtn');
     const saveOrderBtn = document.getElementById('saveOrderBtn');
     
-    // Malzeme Fiyatları Otomatik Doldurma
-    const inkList = document.createElement('datalist');
-    inkList.id = 'inkList';
-    document.body.appendChild(inkList);
-    inputColor.setAttribute('list', 'inkList');
+    // Malzeme Fiyatları Otomatik Doldurma (Merkezden)
+    function loadInkOptions(selectedName = null) {
+        const fiyatlar = getMalzemeFiyatlari().filter(f => f.turu === 'Mürekkep');
+        inputColor.innerHTML = '<option value="" disabled selected>Lütfen Veritabanından Seçiniz...</option>';
+        fiyatlar.forEach(f => {
+            const opt = document.createElement('option');
+            opt.value = f.adi;
+            opt.textContent = `${f.adi} (${f.fiyat.toFixed(3)} ${f.doviz}/${f.birim})`;
+            opt.dataset.fiyat = f.fiyat;
+            opt.dataset.doviz = f.doviz;
+            inputColor.appendChild(opt);
+        });
+        if (selectedName) {
+            inputColor.value = selectedName;
+        }
+    }
+    
+    loadInkOptions();
 
-    const fiyatlar = getMalzemeFiyatlari().filter(f => f.turu === 'Mürekkep');
-    fiyatlar.forEach(f => {
-        const opt = document.createElement('option');
-        opt.value = f.adi;
-        inkList.appendChild(opt);
+    window.addEventListener('malzemeEklendi', (e) => {
+        if(e.detail && e.detail.turu === 'Mürekkep') {
+            loadInkOptions(e.detail.adi);
+            inputColor.dispatchEvent(new Event('change'));
+        }
     });
 
     inputColor.addEventListener('change', () => {
-        const selectedFiyat = fiyatlar.find(f => f.adi === inputColor.value);
-        if (selectedFiyat) {
-            inputPrice.value = selectedFiyat.fiyat;
-            inputCurrency.value = selectedFiyat.doviz;
+        const selectedOpt = inputColor.options[inputColor.selectedIndex];
+        if (selectedOpt && selectedOpt.value) {
+            inputPrice.value = selectedOpt.dataset.fiyat;
+            inputCurrency.value = selectedOpt.dataset.doviz;
             if (typeof updateRateInput === 'function') updateRateInput();
         }
     });

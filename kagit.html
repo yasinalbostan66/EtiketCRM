@@ -119,7 +119,14 @@
                         
                         <div class="form-group">
                             <label for="paperName">Kağıt Cinsi / Adı</label>
-                            <input type="text" id="paperName" class="form-control" placeholder="Örn: Kuşe, Termal, PP Opak" required>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <select id="paperName" class="form-control" required style="flex: 1;">
+                                    <option value="" disabled selected>Lütfen Veritabanından Seçiniz...</option>
+                                </select>
+                                <button type="button" class="btn btn-primary" title="Yeni Kağıt Ekle" onclick="openYeniMalzemeModal('Kağıt')" style="padding: 0 15px;">
+                                    <i class="fa-solid fa-plus"></i> Ekle
+                                </button>
+                            </div>
                         </div>
 
                         <div class="form-group">
@@ -143,12 +150,13 @@
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label for="m2Price">m² Fiyatı</label>
+                                <label for="m2Price"><i class="fa-solid fa-lock" style="font-size:0.75rem;"></i> m² Fiyatı (Otomatik)</label>
                                 <div class="input-group" style="display: flex; gap: 0.5rem;">
-                                    <input type="number" id="m2Price" class="form-control" placeholder="Örn: 0.45" step="0.001" min="0" style="flex: 1;">
-                                    <select id="m2Currency" class="form-control" style="width: 80px;">
+                                    <input type="number" id="m2Price" class="form-control" placeholder="0.00" step="0.001" min="0" style="flex: 1; background:var(--surface-hover); cursor:not-allowed;" readonly>
+                                    <select id="m2Currency" class="form-control" style="width: 80px; background:var(--surface-hover); cursor:not-allowed;" disabled>
                                         <option value="USD">$ USD</option>
                                         <option value="EUR">€ EUR</option>
+                                        <option value="TRY">₺ TRY</option>
                                     </select>
                                 </div>
                             </div>
@@ -162,12 +170,13 @@
                                     <input type="number" id="ruloQuantity" class="form-control" placeholder="Örn: 5" step="1" min="1">
                                 </div>
                                 <div class="form-group">
-                                    <label for="ruloPrice">Birim Rulo Fiyatı</label>
+                                    <label for="ruloPrice"><i class="fa-solid fa-lock" style="font-size:0.75rem;"></i> Birim Rulo Fiyatı (Otomatik)</label>
                                     <div class="input-group" style="display: flex; gap: 0.5rem;">
-                                        <input type="number" id="ruloPrice" class="form-control" placeholder="Örn: 15" step="0.01" min="0" style="flex: 1;">
-                                        <select id="ruloCurrency" class="form-control" style="width: 80px;">
+                                        <input type="number" id="ruloPrice" class="form-control" placeholder="0.00" step="0.01" min="0" style="flex: 1; background:var(--surface-hover); cursor:not-allowed;" readonly>
+                                        <select id="ruloCurrency" class="form-control" style="width: 80px; background:var(--surface-hover); cursor:not-allowed;" disabled>
                                             <option value="USD">$ USD</option>
                                             <option value="EUR">€ EUR</option>
+                                            <option value="TRY">₺ TRY</option>
                                         </select>
                                     </div>
                                 </div>

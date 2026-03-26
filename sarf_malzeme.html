@@ -118,20 +118,15 @@
                         </div>
                         
                         <div class="form-group">
-                            <label for="materialType">Malzeme Türü</label>
-                            <select id="materialType" class="form-control" required>
-                                <option value="" disabled selected>Seçiniz...</option>
-                                <option value="Klişe">Klişe</option>
-                                <option value="Bıçak">Bıçak</option>
-                                <option value="Ribon">Ribon</option>
-                                <option value="Selefon">Selefon</option>
-                                <option value="Diğer">Diğer</option>
-                            </select>
-                        </div>
-                        
-                        <div class="form-group" id="customMaterialGroup" style="display: none;">
-                            <label for="customMaterialName">Özel Malzeme Adı</label>
-                            <input type="text" id="customMaterialName" class="form-control" placeholder="Örn: Yaldız Folyo">
+                            <label for="materialType">Sarf Malzemesi Türü / Adı</label>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <select id="materialType" class="form-control" required style="flex: 1;">
+                                    <option value="" disabled selected>Lütfen Veritabanından Seçiniz...</option>
+                                </select>
+                                <button type="button" class="btn btn-primary" title="Yeni Sarf Ekke" onclick="openYeniMalzemeModal('Sarf Malzeme')" style="padding: 0 15px;">
+                                    <i class="fa-solid fa-plus"></i> Ekle
+                                </button>
+                            </div>
                         </div>
 
                         <div class="form-grid">
@@ -152,12 +147,13 @@
                         </div>
                         
                         <div class="form-group">
-                            <label for="materialPrice">Birim Fiyat</label>
+                            <label for="materialPrice"><i class="fa-solid fa-lock" style="font-size:0.75rem;"></i> Birim Fiyat (Otomatik)</label>
                             <div class="input-group" style="display: flex; gap: 0.5rem;">
-                                <input type="number" id="materialPrice" class="form-control" placeholder="Örn: 50" step="0.01" min="0" required style="flex: 1;">
-                                <select id="priceCurrency" class="form-control" style="width: 80px;">
+                                <input type="number" id="materialPrice" class="form-control" placeholder="0.00" step="0.01" min="0" required style="flex: 1; background:var(--surface-hover); cursor:not-allowed;" readonly>
+                                <select id="priceCurrency" class="form-control" style="width: 80px; background:var(--surface-hover); cursor:not-allowed;" disabled>
                                     <option value="USD">$ USD</option>
                                     <option value="EUR">€ EUR</option>
+                                    <option value="TRY">₺ TRY</option>
                                 </select>
                             </div>
                         </div>
