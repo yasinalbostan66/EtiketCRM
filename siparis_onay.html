@@ -241,10 +241,10 @@
 
         @media print {
             body { margin: 0; padding: 0; background: white; }
-            @page { size: A4; margin: 8mm; }
+            @page { size: A4; margin: 5mm; }
             .invoice-box {
                 border-radius: 0; border: none; box-shadow: none;
-                padding: 0; width: 100%; min-height: auto; margin: 0;
+                padding: 10mm; width: 100%; min-height: auto; margin: 0;
                 font-size: 0.78rem;
             }
             .toolbar { display: none !important; }
@@ -260,9 +260,8 @@
         @media (max-width: 800px) {
             body { padding: 10px; background: #f1f5f9; overflow-x: auto; -webkit-overflow-scrolling: touch; }
             .invoice-box { 
-                width: 210mm !important; /* A4 genişliğini koru */
+                width: 210mm !important; 
                 transform-origin: top left;
-                /* İsteğe bağlı: Ekrana sığdırmak için küçük bir ölçekleme yapılabilir ama 'aynı görünsün' dendiği için genişlik sabit tutuldu */
             }
             .toolbar { 
                 position: fixed; top: 10px; right: 10px; flex-wrap: wrap; justify-content: flex-end; width: calc(100% - 20px);
@@ -274,7 +273,14 @@
             padding: 50px;
             color: #64748b;
         }
+        @media screen {
+            #contentArea { margin: 20px auto; }
+        }
     </style>
+
+    <!-- Hızlı PDF için Kütüphaneler -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 
@@ -288,7 +294,8 @@
             </select>
         </label>
         <button class="btn btn-outline" onclick="window.close()"><i class="fa-solid fa-xmark"></i> Kapat</button>
-        <button class="btn" onclick="window.print()"><i class="fa-solid fa-print"></i> Yazdır / PDF</button>
+        <button class="btn" style="background:var(--success);" onclick="exportOnayPDF()"><i class="fa-solid fa-bolt"></i> Hızlı PDF (Mobil)</button>
+        <button class="btn" onclick="window.print()"><i class="fa-solid fa-print"></i> Yazdır</button>
     </div>
 
     <div class="invoice-box" id="contentArea" style="display: none;">
@@ -525,6 +532,28 @@
             if (kdvAmount) kdvAmount.textContent = formatCurrency(kdvUSD);
             if (grandTotal) grandTotal.textContent = formatCurrency(totalWithKDV);
             if (kdvRow) kdvRow.style.display = kdvRate === 0 ? 'none' : 'flex';
+        }
+        // PDF Dışa Aktar (Mobil için Hızlı)
+        window.exportOnayPDF = function() {
+            const btn = event.currentTarget;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Hazırlanıyor...';
+            btn.disabled = true;
+
+            const element = document.getElementById('contentArea');
+            html2canvas(element, { scale: 2, useCORS: true }).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                const imgProps = pdf.getImageProperties(imgData);
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+                
+                pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+                pdf.save(`Siparis_Onay_${new Date().toISOString().slice(0,10)}.pdf`);
+                
+                btn.innerHTML = '<i class="fa-solid fa-bolt"></i> Hızlı PDF (Mobil)';
+                btn.disabled = false;
+            });
         }
     </script>
 </body>
