@@ -13,24 +13,27 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const auth = firebase.auth();
 
-// Global Logout Function - Hardened & Moved to Top
-window.handleLogout = function(e) {
+// Global Logout Function - Robust & Forced
+window.handleLogout = async function(e) {
     if (e && e.preventDefault) e.preventDefault();
-    console.log("Logout function triggered");
+    console.log("Logout function initiated");
     
     if (confirm('Oturumu kapatmak istediğinize emin misiniz?')) {
         try {
-            firebase.auth().signOut().catch(e => console.error("Firebase SignOut Error:", e));
+            // 1. Clear session and local storage immediately
+            localStorage.clear();
+            sessionStorage.clear();
+            
+            // 2. Auth Sign out
+            if (window.firebase && firebase.auth) {
+                await firebase.auth().signOut().catch(e => console.warn("FireSignOut Warning:", e));
+            }
         } catch(err) {
-            console.error("Auth SignOut Error:", err);
+            console.error("SignOut Error:", err);
+        } finally {
+            // 3. Force hard redirect to login
+            window.location.href = 'login.html';
         }
-        
-        // Clear all session related data
-        localStorage.clear();
-        sessionStorage.clear();
-        
-        // Force redirect
-        window.location.replace('login.html');
     }
     return false;
 };
