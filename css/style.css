@@ -191,38 +191,51 @@ body.blue-mode {
 
 /* Sidebar & Header Refinements */
 .sidebar {
-    background: #f8fafc !important; /* Açık Zemin */
-    padding: 0 !important; /* Logo alanı tam kaplaması için */
+    background: #ffffff !important; /* Saf Beyaz – Elite Professional */
+    padding: 1.5rem 1rem !important; /* Spacing geri geldi */
+    border-right: 1px solid #e2e8f0 !important;
 }
 
 .sidebar-header {
-    background: #1e293b; /* Başlık alanı KOYU */
-    padding: 2rem 1.5rem !important;
-    margin-bottom: 1rem !important;
+    background: transparent !important;
+    padding: 0 0.75rem !important;
+    margin-bottom: 2.5rem !important;
 }
 
-.sidebar-header .logo, 
+.sidebar-header .logo {
+    color: var(--primary) !important; /* Profesyonel Mavi Logo */
+    font-size: 1.35rem !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.5px !important;
+    text-shadow: none !important;
+}
+
 .sidebar-header .logo i {
-    color: #ffffff !important; /* Logodaki yazı BEYAZ */
+    color: var(--primary) !important;
+    background: var(--primary-light);
+    width: 42px; height: 42px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 12px;
 }
 
 .sidebar .nav-item {
-    color: #334155 !important; /* Menü yazıları KOYU */
-    margin: 0 0.75rem;
+    color: #475569 !important; /* Slate 600 - High-end Text */
+    font-weight: 500 !important;
 }
 
 .sidebar .nav-item i {
-    color: #64748b !important;
+    color: #94a3b8 !important; /* Slate 400 icons */
 }
 
 .nav-item.active {
-    background: var(--primary) !important;
-    color: #fff !important;
-    font-weight: 700 !important;
+    background: var(--primary-light) !important;
+    color: var(--primary) !important;
+    font-weight: 600 !important;
+    border: none !important;
 }
 
 .nav-item.active i {
-    color: #fff !important;
+    color: var(--primary) !important;
 }
 
 body.light-mode .nav-item.active {
