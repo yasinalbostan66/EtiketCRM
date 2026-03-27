@@ -432,20 +432,20 @@ document.addEventListener('DOMContentLoaded', () => {
         
         bottomNav.innerHTML = `
             <a href="index.html" class="bottom-nav-item ${cleanedPath === 'index.html' ? 'active' : ''}">
-                <i class="fa-solid fa-chart-line"></i>
+                <i class="fa-solid fa-house"></i>
                 <span>Özet</span>
-            </a>
-            <a href="analiz.html" class="bottom-nav-item ${cleanedPath === 'analiz.html' ? 'active' : ''}">
-                <i class="fa-solid fa-chart-pie"></i>
-                <span>Analiz</span>
             </a>
             <a href="firmalar.html" class="bottom-nav-item ${cleanedPath.includes('firmalar') || cleanedPath.includes('firma_detay') ? 'active' : ''}">
                 <i class="fa-solid fa-users"></i>
                 <span>Firmalar</span>
             </a>
-            <a href="takvim.html" class="bottom-nav-item ${cleanedPath.includes('takvim') ? 'active' : ''}">
-                <i class="fa-solid fa-calendar-days"></i>
-                <span>Takvim</span>
+            <a href="odeme_takibi.html" class="bottom-nav-item ${cleanedPath === 'odeme_takibi.html' ? 'active' : ''}">
+                <i class="fa-solid fa-money-bill-trend-up"></i>
+                <span>Cari</span>
+            </a>
+            <a href="analiz.html" class="bottom-nav-item ${cleanedPath === 'analiz.html' ? 'active' : ''}">
+                <i class="fa-solid fa-chart-pie"></i>
+                <span>Analiz</span>
             </a>
             <button class="bottom-nav-item" id="bottomMenuGridBtn">
                 <i class="fa-solid fa-bars"></i>
@@ -456,8 +456,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
         document.getElementById('bottomMenuGridBtn').addEventListener('click', (e) => {
              e.preventDefault();
-             document.body.classList.toggle('sidebar-open');
+             e.stopPropagation();
+             toggleMobileSidebar();
         });
+    }
+
+    function toggleMobileSidebar() {
+        const sidebar = document.querySelector('.sidebar');
+        const isOpening = !document.body.classList.contains('sidebar-open');
+        
+        document.body.classList.toggle('sidebar-open');
+        
+        // Mobile Overlay injection
+        let overlay = document.querySelector('.sidebar-overlay');
+        if (isOpening) {
+            if (!overlay) {
+                overlay = document.createElement('div');
+                overlay.className = 'sidebar-overlay';
+                document.body.appendChild(overlay);
+                overlay.addEventListener('click', () => {
+                    document.body.classList.remove('sidebar-open');
+                });
+            }
+            overlay.style.display = 'block';
+        } else if (overlay) {
+            overlay.style.display = 'none';
+        }
     }
 
 
