@@ -191,29 +191,38 @@ body.blue-mode {
 
 /* Sidebar & Header Refinements */
 .sidebar {
-    background: #1e293b !important; /* Bir tık daha açık Slate */
+    background: #f8fafc !important; /* Açık Zemin */
+    padding: 0 !important; /* Logo alanı tam kaplaması için */
 }
 
-.sidebar .logo, 
-.sidebar .nav-item, 
+.sidebar-header {
+    background: #1e293b; /* Başlık alanı KOYU */
+    padding: 2rem 1.5rem !important;
+    margin-bottom: 1rem !important;
+}
+
+.sidebar-header .logo, 
+.sidebar-header .logo i {
+    color: #ffffff !important; /* Logodaki yazı BEYAZ */
+}
+
+.sidebar .nav-item {
+    color: #334155 !important; /* Menü yazıları KOYU */
+    margin: 0 0.75rem;
+}
+
 .sidebar .nav-item i {
-    color: #ffffff !important; /* Tüm yazılar ve ikonlar BEYAZ */
-}
-
-body.light-mode .sidebar {
-    background: #1e293b !important; 
-    border-right: 1px solid rgba(255,255,255,0.1) !important;
-}
-
-body.blue-mode .sidebar {
-    background: #1e293b !important; 
-    border-right: 1px solid rgba(255,255,255,0.1) !important;
+    color: #64748b !important;
 }
 
 .nav-item.active {
     background: var(--primary) !important;
     color: #fff !important;
     font-weight: 700 !important;
+}
+
+.nav-item.active i {
+    color: #fff !important;
 }
 
 body.light-mode .nav-item.active {
