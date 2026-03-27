@@ -194,60 +194,62 @@ body.blue-mode {
 
 /* Sidebar & Header Refinements */
 .sidebar {
-    background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%) !important; 
-    padding: 1.5rem 1rem !important;
-    border-right: 1px solid #e2e8f0 !important;
+    background: #0f172a !important; /* Koyu, Prestijli Zemin */
+    padding: 1.5rem 1.1rem !important;
+    border-right: 1px solid rgba(255,255,255,0.05) !important;
 }
 
 .sidebar-header {
     background: transparent !important;
     padding: 0 0.75rem !important;
-    margin-bottom: 2.5rem !important;
+    margin-bottom: 2.2rem !important;
 }
 
 .sidebar-header .logo {
-    color: #1e3a8a !important; /* Daha derin, canlı lacivert */
-    font-size: 1.35rem !important;
+    color: #ffffff !important; /* Logodaki yazı BEYAZ */
+    font-size: 1.3rem !important;
     font-weight: 800 !important;
+    letter-spacing: -0.2px;
 }
 
 .sidebar-header .logo i {
-    color: #2563eb !important;
-    background: #eff6ff;
-    width: 42px; height: 42px;
+    color: #ffffff !important;
+    background: var(--primary);
+    width: 44px; height: 44px;
     display: flex; align-items: center; justify-content: center;
     border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
 }
 
 .sidebar .nav-item {
-    color: #334155 !important;
-    font-weight: 600 !important;
-    margin-bottom: 0.5rem;
+    color: #ffffff !important; /* Menü yazıları BEYAZ */
+    font-weight: 700 !important; /* KALIN YAZI */
+    margin-bottom: 0.6rem;
+    font-size: 0.92rem;
+    opacity: 0.85;
     transition: all 0.2s ease;
 }
 
 /* --- CANLI İKON RENKLERİ --- */
-.sidebar .nav-item[href="index.html"] i { color: #3b82f6 !important; } /* Mavi */
-.sidebar .nav-item[href="analiz.html"] i { color: #8b5cf6 !important; } /* Mor */
-.sidebar .nav-item[href="firmalar.html"] i { color: #10b981 !important; } /* Yeşil */
-.sidebar .nav-item[href="ziyaretler.html"] i { color: #f59e0b !important; } /* Turuncu */
-.sidebar .nav-item[href="takvim.html"] i { color: #ef4444 !important; } /* Kırmızı */
-.sidebar .nav-item[href="odeme_takibi.html"] i { color: #06b6d4 !important; } /* Turkuaz */
-.sidebar .nav-item[href="malzeme_fiyatlari.html"] i { color: #ec4899 !important; } /* Pembe */
-.sidebar .nav-item[href="stok_takibi.html"] i { color: #f97316 !important; } /* Turuncu-Koyu */
-.sidebar .nav-item[href="ayarlar.html"] i { color: #64748b !important; } /* Gri */
+.sidebar .nav-item[href="index.html"] i { color: #3b82f6 !important; text-shadow: 0 0 10px rgba(59, 130, 246, 0.4); } 
+.sidebar .nav-item[href="analiz.html"] i { color: #a78bfa !important; text-shadow: 0 0 10px rgba(167, 139, 250, 0.4); } 
+.sidebar .nav-item[href="firmalar.html"] i { color: #34d399 !important; text-shadow: 0 0 10px rgba(52, 211, 153, 0.4); } 
+.sidebar .nav-item[href="ziyaretler.html"] i { color: #fbbf24 !important; text-shadow: 0 0 10px rgba(251, 191, 36, 0.4); } 
+.sidebar .nav-item[href="takvim.html"] i { color: #fb7185 !important; text-shadow: 0 0 10px rgba(251, 113, 133, 0.4); } 
+.sidebar .nav-item[href="odeme_takibi.html"] i { color: #22d3ee !important; text-shadow: 0 0 10px rgba(34, 211, 238, 0.4); } 
+.sidebar .nav-item[href="malzeme_fiyatlari.html"] i { color: #f472b6 !important; text-shadow: 0 0 10px rgba(244, 114, 182, 0.4); } 
+.sidebar .nav-item[href="stok_takibi.html"] i { color: #fb923c !important; text-shadow: 0 0 10px rgba(251, 146, 60, 0.4); } 
 
 .nav-item.active {
-    background: #ffffff !important;
-    color: #2563eb !important;
-    font-weight: 700 !important;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.05) !important;
-    transform: translateX(4px);
+    background: rgba(255,255,255,0.08) !important;
+    color: #ffffff !important;
+    opacity: 1;
+    transform: translateX(5px);
 }
 
-.nav-item.active i {
-    transform: scale(1.1);
+.nav-item:hover {
+    opacity: 1;
+    background: rgba(255,255,255,0.05);
 }
 
 body.light-mode .nav-item.active {
@@ -631,6 +633,12 @@ tbody tr:hover {
 .badge-green { background: rgba(16, 185, 129, 0.1); color: var(--success); }
 .badge-orange { background: rgba(245, 158, 11, 0.1); color: var(--warning); }
 .badge-purple { background: rgba(167, 139, 250, 0.15); color: #a78bfa; }
+
+.stat-icon.blue { background: #3b82f6; color: white; box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3); }
+.stat-icon.green { background: #10b981; color: white; box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); }
+.stat-icon.orange { background: #f59e0b; color: white; box-shadow: 0 10px 20px rgba(245, 158, 11, 0.3); }
+.stat-icon.purple { background: #8b5cf6; color: white; box-shadow: 0 10px 20px rgba(139, 92, 246, 0.3); }
+.stat-icon.red { background: #ef4444; color: white; box-shadow: 0 10px 20px rgba(239, 68, 68, 0.3); }
 
 /* Utility */
 .text-right { text-align: right; }
