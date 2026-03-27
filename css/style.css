@@ -194,8 +194,8 @@ body.blue-mode {
 
 /* Sidebar & Header Refinements */
 .sidebar {
-    background: #ffffff !important; /* Saf Beyaz – Elite Professional */
-    padding: 1.5rem 1rem !important; /* Spacing geri geldi */
+    background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%) !important; 
+    padding: 1.5rem 1rem !important;
     border-right: 1px solid #e2e8f0 !important;
 }
 
@@ -206,39 +206,48 @@ body.blue-mode {
 }
 
 .sidebar-header .logo {
-    color: var(--primary) !important; /* Profesyonel Mavi Logo */
+    color: #1e3a8a !important; /* Daha derin, canlı lacivert */
     font-size: 1.35rem !important;
     font-weight: 800 !important;
-    letter-spacing: -0.5px !important;
-    text-shadow: none !important;
 }
 
 .sidebar-header .logo i {
-    color: var(--primary) !important;
-    background: var(--primary-light);
+    color: #2563eb !important;
+    background: #eff6ff;
     width: 42px; height: 42px;
     display: flex; align-items: center; justify-content: center;
     border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
 }
 
 .sidebar .nav-item {
-    color: #475569 !important; /* Slate 600 - High-end Text */
-    font-weight: 500 !important;
+    color: #334155 !important;
+    font-weight: 600 !important;
+    margin-bottom: 0.5rem;
+    transition: all 0.2s ease;
 }
 
-.sidebar .nav-item i {
-    color: #94a3b8 !important; /* Slate 400 icons */
-}
+/* --- CANLI İKON RENKLERİ --- */
+.sidebar .nav-item[href="index.html"] i { color: #3b82f6 !important; } /* Mavi */
+.sidebar .nav-item[href="analiz.html"] i { color: #8b5cf6 !important; } /* Mor */
+.sidebar .nav-item[href="firmalar.html"] i { color: #10b981 !important; } /* Yeşil */
+.sidebar .nav-item[href="ziyaretler.html"] i { color: #f59e0b !important; } /* Turuncu */
+.sidebar .nav-item[href="takvim.html"] i { color: #ef4444 !important; } /* Kırmızı */
+.sidebar .nav-item[href="odeme_takibi.html"] i { color: #06b6d4 !important; } /* Turkuaz */
+.sidebar .nav-item[href="malzeme_fiyatlari.html"] i { color: #ec4899 !important; } /* Pembe */
+.sidebar .nav-item[href="stok_takibi.html"] i { color: #f97316 !important; } /* Turuncu-Koyu */
+.sidebar .nav-item[href="ayarlar.html"] i { color: #64748b !important; } /* Gri */
 
 .nav-item.active {
-    background: var(--primary-light) !important;
-    color: var(--primary) !important;
+    background: #ffffff !important;
+    color: #2563eb !important;
     font-weight: 700 !important;
-    border: none !important;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05) !important;
+    transform: translateX(4px);
 }
 
 .nav-item.active i {
-    color: var(--primary) !important;
+    transform: scale(1.1);
 }
 
 body.light-mode .nav-item.active {
