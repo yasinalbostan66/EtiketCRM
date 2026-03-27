@@ -194,15 +194,20 @@ body.blue-mode {
 
 /* Sidebar & Header Refinements */
 .sidebar {
-    background: #0f172a !important; /* Koyu, Prestijli Zemin */
+    background: #1e293b !important; /* Ne Çok Koyu Ne Çok Açık - Tam Kıvamında Slate */
     padding: 1.5rem 1.1rem !important;
     border-right: 1px solid rgba(255,255,255,0.05) !important;
 }
 
-.sidebar-header {
-    background: transparent !important;
-    padding: 0 0.75rem !important;
-    margin-bottom: 2.2rem !important;
+body.light-mode .sidebar {
+    background: #ffffff !important; /* Aydınlık modda beyaz kalsın */
+    border-right: 1px solid #e2e8f0 !important;
+}
+
+#mobileMenuBtn {
+    color: var(--text-main) !important;
+    font-size: 1.25rem;
+    z-index: 10001;
 }
 
 .sidebar-header .logo {
