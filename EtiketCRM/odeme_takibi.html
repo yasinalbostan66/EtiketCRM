@@ -118,6 +118,12 @@
                 </a>
                 
 
+                            <div style="margin-top: auto; border-top: 1px solid var(--border-color); padding-top: 0.5rem; margin-bottom: 0.5rem;">
+                    <a href="#" onclick="handleLogout()" class="nav-item" id="sidebarLogoutBtn" style="color: var(--danger);">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                        Çıkış Yap
+                    </a>
+                </div>
             </nav>
         </aside>
 
@@ -129,7 +135,7 @@
                     <button class="btn btn-primary" onclick="window.openGlobalTahsilatModal()" style="margin-right: 1rem;">
                         <i class="fa-solid fa-hand-holding-dollar"></i> Tahsilat Ekle
                     </button>
-                    <div style="width: 36px; height: 36px; border-radius: 50%; background: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: 600;">YA</div>
+                    <div id="userAvatarStr" onclick="handleLogout()" style="width: 36px; height: 36px; border-radius: 50%; background: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: 600; color: #fff; cursor: pointer;" title="Çıkış Yap">YA</div>
                 </div>
             </header>
 
