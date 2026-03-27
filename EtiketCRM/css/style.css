@@ -1289,23 +1289,27 @@ body.light-mode .bottom-nav-item.active::after {
 
 /* --- Hesaplama Modülleri Grid --- */
 .calc-grid {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: 1.2fr 1fr; /* PC için yan yana */
     gap: 1.5rem;
+    align-items: flex-start;
 }
 
 .calc-grid .panel:last-child {
     border-top: 3px solid var(--primary);
+    position: sticky;
+    top: 100px;
 }
 
 @media (max-width: 992px) {
     .calc-grid {
-        grid-template-columns: 1fr !important; /* This will be overridden by the flex properties above for mobile */
+        grid-template-columns: 1fr !important; /* Mobil için tek sütun */
         gap: 1.5rem;
     }
     
-    /* Mobilde sonuncu paneli (Sonuç Özeti ve Kaydet butonu) daha belirgin yapalım */
     .calc-grid .panel:last-child {
+        position: static !important;
+        order: 1; /* Kesinlikle en altta olması için */
         border: 2px solid var(--primary);
         background: rgba(var(--primary-rgb), 0.05);
     }
