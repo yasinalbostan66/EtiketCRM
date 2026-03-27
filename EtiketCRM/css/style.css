@@ -160,19 +160,19 @@ body.light-mode .nav-item:hover {
 }
 
 body.light-mode {
-    --bg-color: #f8fafc; 
-    --surface-color: #ffffff;
+    --bg-color: #e2e8f0; /* Koyu Gri/Slate Zemin */
+    --surface-color: #f8fafc; /* Daha Açık Panel Rengi */
     --surface-hover: #f1f5f9; 
     --border-color: #cbd5e1; 
     
-    --text-main: #0f172a; 
+    --text-main: #020617; /* Maksimum Okunabilirlik için Derin Siyah/Lacivert */
     --text-muted: #475569; 
     
     --primary: #2563eb; 
     --primary-hover: #1d4ed8;
     --primary-light: rgba(37, 99, 235, 0.08);
 
-    --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.04);
+    --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
 body.blue-mode {
@@ -1077,7 +1077,8 @@ tbody tr:hover {
 
 /* --- Unified Navigation Bar Styling --- */
 .top-header {
-    height: var(--header-height);
+    height: calc(var(--header-height) + env(safe-area-inset-top));
+    padding-top: env(safe-area-inset-top);
     background-color: var(--surface-color) !important;
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
@@ -1085,7 +1086,8 @@ tbody tr:hover {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 1.5rem;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
     position: sticky;
     top: 0;
     z-index: 900;
