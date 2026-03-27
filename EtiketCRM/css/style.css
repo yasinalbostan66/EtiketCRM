@@ -1538,3 +1538,17 @@ body.light-mode .grid-menu-header .close-btn {
     background: #f1f5f9;
     color: #475569;
 }
+
+/* --- Mobile-Only Shortcut Classes --- */
+.show-mobile-only {
+    display: none !important;
+}
+
+@media (max-width: 992px) {
+    .show-mobile-only {
+        display: flex !important;
+    }
+    .sidebar-nav {
+        padding-bottom: 120px !important; /* Alt menünün üstünde kalmasın, boşluk kalsın */
+    }
+}
