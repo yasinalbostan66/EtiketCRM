@@ -422,6 +422,71 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // --- Merkezi Yan Menü (Sidebar) Enjeksiyonu ---
+    function injectSidebar() {
+        const sidebar = document.querySelector('.sidebar');
+        if (!sidebar) return;
+
+        const currentPath = window.location.pathname.split('/').pop() || 'index.html';
+        const cleanedPath = currentPath.split('?')[0] || 'index.html';
+
+        sidebar.innerHTML = `
+            <div class="sidebar-header">
+                <a href="index.html" class="logo">
+                    <i class="fa-solid fa-layer-group"></i>
+                    SATIŞ KULLANIMI
+                </a>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a href="index.html" class="nav-item ${cleanedPath === 'index.html' ? 'active' : ''}">
+                    <i class="fa-solid fa-chart-line"></i>
+                    Genel Bakış
+                </a>
+                <a href="analiz.html" class="nav-item ${cleanedPath === 'analiz.html' ? 'active' : ''}">
+                    <i class="fa-solid fa-chart-pie"></i>
+                    Analiz & Raporlar
+                </a>
+                <a href="firmalar.html" class="nav-item ${cleanedPath.includes('firmalar') || cleanedPath.includes('firma_detay') ? 'active' : ''}">
+                    <i class="fa-solid fa-users"></i>
+                    Müşteriler / Firmalar
+                </a>
+                <a href="ziyaretler.html" class="nav-item ${cleanedPath === 'ziyaretler.html' ? 'active' : ''}">
+                    <i class="fa-solid fa-clipboard-list"></i>
+                    Ziyaret Kayıtları
+                </a>
+                <a href="takvim.html" class="nav-item ${cleanedPath === 'takvim.html' ? 'active' : ''}">
+                    <i class="fa-solid fa-calendar-days"></i>
+                    Ziyaret Takvimi
+                </a>
+                <a href="odeme_takibi.html" class="nav-item ${cleanedPath === 'odeme_takibi.html' ? 'active' : ''}">
+                    <i class="fa-solid fa-money-bill-transfer"></i>
+                    Ödeme Takibi & Cari
+                </a>
+                <a href="malzeme_fiyatlari.html" class="nav-item ${cleanedPath === 'malzeme_fiyatlari.html' ? 'active' : ''}">
+                    <i class="fa-solid fa-tags"></i>
+                    Malzeme Fiyatları
+                </a>
+                <a href="stok_takibi.html" class="nav-item ${cleanedPath === 'stok_takibi.html' ? 'active' : ''}">
+                    <i class="fa-solid fa-box-archive"></i>
+                    Stok ve Raporlar
+                </a>
+                <div style="margin-top: 1rem; border-top: 1px solid var(--border-color); padding-top: 1rem;">
+                    <a href="ayarlar.html" class="nav-item ${cleanedPath === 'ayarlar.html' ? 'active' : ''}">
+                        <i class="fa-solid fa-gear"></i>
+                        Ayarlar
+                    </a>
+                    <a href="#" onclick="handleLogout()" class="nav-item" id="sidebarLogoutBtn" style="color: var(--danger); margin-top: 0.5rem;">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                        Güvenli Çıkış
+                    </a>
+                </div>
+            </nav>
+        `;
+    }
+
+    injectSidebar();
+
     // --- Profesyonel Mobil Alt Navigasyon (Bottom Nav) ---
     if (window.innerWidth <= 600 && !document.querySelector('.mobile-bottom-nav')) {
         const bottomNav = document.createElement('div');
