@@ -191,30 +191,29 @@ body.blue-mode {
 
 /* Sidebar & Header Refinements */
 .sidebar {
-    background: #0f172a !important; /* Her zaman koyu */
+    background: #1e293b !important; /* Bir tık daha açık Slate */
+}
+
+.sidebar .logo, 
+.sidebar .nav-item, 
+.sidebar .nav-item i {
+    color: #ffffff !important; /* Tüm yazılar ve ikonlar BEYAZ */
 }
 
 body.light-mode .sidebar {
-    background: #0f172a !important; 
-    border-right: 1px solid rgba(255,255,255,0.05) !important;
-}
-
-body.light-mode .sidebar .nav-item {
-    color: #94a3b8;
-}
-
-body.light-mode .sidebar .logo {
-    color: #fff;
+    background: #1e293b !important; 
+    border-right: 1px solid rgba(255,255,255,0.1) !important;
 }
 
 body.blue-mode .sidebar {
-    background: #0f172a !important; 
-    border-right: 1px solid rgba(255,255,255,0.05) !important;
+    background: #1e293b !important; 
+    border-right: 1px solid rgba(255,255,255,0.1) !important;
 }
 
 .nav-item.active {
     background: var(--primary) !important;
     color: #fff !important;
+    font-weight: 700 !important;
 }
 
 body.light-mode .nav-item.active {
