@@ -447,87 +447,28 @@ document.addEventListener('DOMContentLoaded', () => {
                 <i class="fa-solid fa-chart-pie"></i>
                 <span>Analiz</span>
             </a>
-            <button class="bottom-nav-item" onclick="window.toggleMobileGridMenu()" id="bottomMenuGridBtn">
-                <i class="fa-solid fa-grid-2"></i>
-                <i class="fa-solid fa-caret-up" style="font-size: 0.6rem; position: absolute; top: 8px; right: 25%;"></i>
+            <button class="bottom-nav-item" id="bottomMenuGridBtn">
+                <i class="fa-solid fa-bars"></i>
                 <span>Menü</span>
             </button>
         `;
         document.body.appendChild(bottomNav);
 
-    }
-
-    // --- Modern Grid Menu Injection (Replaces Sidebar on Mobile) ---
-    window.toggleMobileGridMenu = function() {
-        let menuId = 'mobileGridOverlay';
-        let existing = document.getElementById(menuId);
-        
-        if (existing) {
-            existing.classList.toggle('active');
-            return;
-        }
-
-        const menuOverlay = document.createElement('div');
-        menuOverlay.id = menuId;
-        menuOverlay.className = 'mobile-grid-overlay';
-        
-        menuOverlay.innerHTML = `
-            <div class="grid-menu-content">
-                <div class="grid-menu-header">
-                    <h3>Hızlı Menü</h3>
-                    <button class="close-btn" onclick="document.getElementById('${menuId}').classList.remove('active')">
-                        <i class="fa-solid fa-xmark"></i>
-                    </button>
-                </div>
-                <div class="grid-items">
-                    <a href="ziyaretler.html" class="grid-item">
-                        <div class="icon-box" style="background: rgba(79, 70, 229, 0.1); color: #4f46e5;">
-                            <i class="fa-solid fa-clipboard-list"></i>
-                        </div>
-                        <span>Ziyaretler</span>
-                    </a>
-                    <a href="takvim.html" class="grid-item">
-                        <div class="icon-box" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">
-                            <i class="fa-solid fa-calendar-days"></i>
-                        </div>
-                        <span>Takvim</span>
-                    </a>
-                    <a href="malzeme_fiyatlari.html" class="grid-item">
-                        <div class="icon-box" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">
-                            <i class="fa-solid fa-tags"></i>
-                        </div>
-                        <span>Fiyatlar</span>
-                    </a>
-                    <a href="stok_takibi.html" class="grid-item">
-                        <div class="icon-box" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6;">
-                            <i class="fa-solid fa-file-export"></i>
-                        </div>
-                        <span>Stok / Rapor</span>
-                    </a>
-                    <a href="ayarlar.html" class="grid-item">
-                        <div class="icon-box" style="background: rgba(100, 116, 139, 0.1); color: #64748b;">
-                            <i class="fa-solid fa-gear"></i>
-                        </div>
-                        <span>Ayarlar</span>
-                    </a>
-                    <div class="grid-item" onclick="handleLogout()">
-                        <div class="icon-box" style="background: rgba(239, 68, 68, 0.1); color: #ef4444;">
-                            <i class="fa-solid fa-right-from-bracket"></i>
-                        </div>
-                        <span style="color: #ef4444; font-weight:700;">ÇIKIŞ YAP</span>
-                    </div>
-                </div>
-            </div>
-        `;
-        
-        document.body.appendChild(menuOverlay);
-        setTimeout(() => menuOverlay.classList.add('active'), 10);
+        document.getElementById('bottomMenuGridBtn').addEventListener('click', (e) => {
+             e.preventDefault();
+             e.stopPropagation();
+             toggleMobileSidebar();
+        });
     }
 
     function toggleMobileSidebar() {
         const isOpening = !document.body.classList.contains('sidebar-open');
         document.body.classList.toggle('sidebar-open');
         
+        // Hide Grid menu if it existed
+        let gridMenu = document.getElementById('mobileGridOverlay');
+        if (gridMenu) gridMenu.classList.remove('active');
+
         let overlay = document.querySelector('.sidebar-overlay');
         if (isOpening) {
             if (!overlay) {
