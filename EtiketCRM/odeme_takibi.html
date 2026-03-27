@@ -132,10 +132,15 @@
         <!-- Main Content -->
         <main class="main-content">
             <header class="top-header">
-                <div class="page-title">Ödeme Takibi ve Cari Durum</div>
+                <div class="d-flex align-center gap-2">
+                    <button class="btn-icon hide-desktop" id="mobileMenuBtn">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <div class="page-title">Cari Durum</div>
+                </div>
                 <div class="header-actions">
-                    <button class="btn btn-primary" onclick="window.openGlobalTahsilatModal()" style="margin-right: 1rem;">
-                        <i class="fa-solid fa-hand-holding-dollar"></i> Tahsilat Ekle
+                    <button class="btn btn-primary" onclick="window.openGlobalTahsilatModal()" style="padding: 10px 12px;">
+                        <i class="fa-solid fa-hand-holding-dollar"></i> <span class="hide-mobile">Tahsilat Ekle</span>
                     </button>
                     <div id="userAvatarStr" onclick="handleLogout()" style="width: 36px; height: 36px; border-radius: 50%; background: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: 600; color: #fff; cursor: pointer;" title="Çıkış Yap">YA</div>
                 </div>
