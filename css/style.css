@@ -373,14 +373,16 @@ body.blue-mode .nav-item.active {
     width: 54px; height: 54px;
     border-radius: 14px;
     background: var(--primary-light);
-    color: var(--primary);
+    color: var(--text-main);
     display: flex; align-items: center; justify-content: center;
     font-size: 1.5rem;
+    border: 1px solid var(--border-color);
 }
 
-.stat-icon.blue { background-color: rgba(59, 130, 246, 0.1); color: #3b82f6; }
-.stat-icon.green { background-color: rgba(16, 185, 129, 0.1); color: #10b981; }
-.stat-icon.orange { background-color: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+.stat-icon.blue, .stat-icon.green, .stat-icon.orange { 
+    background: var(--primary-light); 
+    color: var(--text-main); 
+}
 
 .stat-info {
     flex: 1;
@@ -1073,7 +1075,22 @@ tbody tr:hover {
     }
 }
 
-/* --- Professional Mobile Bottom Nav --- */
+/* --- Unified Navigation Bar Styling --- */
+.top-header {
+    height: var(--header-height);
+    background-color: var(--surface-color) !important;
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1.5rem;
+    position: sticky;
+    top: 0;
+    z-index: 900;
+}
+
 .mobile-bottom-nav {
     display: none;
     position: fixed !important;
@@ -1083,23 +1100,26 @@ tbody tr:hover {
     width: 100% !important;
     height: calc(65px + env(safe-area-inset-bottom)) !important;
     padding-bottom: env(safe-area-inset-bottom);
-    background: #111827 !important;
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    background: var(--surface-color) !important;
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border-top: 1px solid var(--border-color);
     justify-content: space-around;
     align-items: center;
     z-index: 100000 !important;
-    box-shadow: 0 -4px 30px rgba(0,0,0,0.5) !important;
-    transform: translateZ(0) !important;
-    -webkit-transform: translateZ(0) !important;
-    will-change: transform;
+    box-shadow: 0 -4px 30px rgba(0,0,0,0.15) !important;
 }
 
-body.light-mode .mobile-bottom-nav {
-    background: #ffffff;
-    border-top: 1px solid #e2e8f0;
-    box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
+body.light-mode .mobile-bottom-nav,
+body.blue-mode .mobile-bottom-nav {
+    background: var(--surface-color) !important;
+    border-top: 1px solid var(--border-color);
+}
+
+body.light-mode .top-header,
+body.blue-mode .top-header {
+    background: var(--surface-color) !important;
+    border-bottom: 1px solid var(--border-color);
 }
 
 @media (max-width: 600px) {
