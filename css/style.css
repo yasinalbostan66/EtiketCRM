@@ -28,20 +28,20 @@
 }
 
 body.light-mode {
-    /* --- Pure Professional (Light) --- */
-    --bg-color: #f1f5f9; 
-    --surface-color: #ffffff;
+    /* --- Elite Professional (Light) --- */
+    --bg-color: #f1f5f9; /* Derinlik hissi için hafif gri-mavi zemin */
+    --surface-color: #ffffff; /* Saf beyaz kartlar */
     --surface-hover: #f8fafc; 
     --border-color: #e2e8f0; 
     
-    --text-main: #0f172a; 
-    --text-muted: #64748b; 
+    --text-main: #020617; /* Maksimum netlik için derin siyah */
+    --text-muted: #475569; 
     
-    --primary: #2563eb; 
+    --primary: #2563eb; /* Canlı Profesyonel Mavi */
     --primary-hover: #1d4ed8;
     --primary-light: rgba(37, 99, 235, 0.08);
 
-    --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.06);
+    --shadow-md: 0 10px 40px -4px rgba(0, 0, 0, 0.08); /* Yumuşak derinlik */
 }
 
 body.blue-mode {
@@ -233,7 +233,7 @@ body.blue-mode {
 .nav-item.active {
     background: var(--primary-light) !important;
     color: var(--primary) !important;
-    font-weight: 600 !important;
+    font-weight: 700 !important;
     border: none !important;
 }
 
@@ -242,8 +242,8 @@ body.blue-mode {
 }
 
 body.light-mode .nav-item.active {
-    background: var(--primary) !important;
-    color: #fff !important;
+    background: var(--primary-light) !important;
+    color: var(--primary) !important;
     border: none !important;
 }
 
