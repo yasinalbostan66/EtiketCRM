@@ -443,7 +443,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <i class="fa-solid fa-chart-line"></i>
                     Genel Bakış
                 </a>
-                <a href="analiz.html" class="nav-item ${cleanedPath === 'analiz.html' ? 'active' : ''}">
+                <a href="analiz.html" class="nav-item ${cleanedPath.includes('analiz') ? 'active' : ''}">
                     <i class="fa-solid fa-chart-pie"></i>
                     Analiz & Raporlar
                 </a>

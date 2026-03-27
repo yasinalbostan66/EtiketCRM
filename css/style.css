@@ -1,18 +1,18 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap');
 
 :root {
-    --bg-color: #0b0f19; /* Daha derin, modern gece mavisi */
-    --surface-color: rgba(17, 24, 39, 0.85); /* Premium glassmorphism */
-    --surface-hover: rgba(31, 41, 55, 0.95); 
-    --border-color: rgba(255, 255, 255, 0.05);
+    --bg-color: #0b0f19; 
+    --surface-color: rgba(17, 24, 39, 0.9);
+    --surface-hover: rgba(31, 41, 55, 0.98); 
+    --border-color: rgba(255, 255, 255, 0.08);
     
-    --primary: #4f46e5; /* Indigo - Daha kurumsal ve seçkin */
-    --primary-gradient: linear-gradient(135deg, #4f46e5, #3b82f6);
-    --primary-hover: #4338ca; 
-    --primary-light: rgba(79, 70, 229, 0.15);
+    --primary: #3b82f6; /* Modern Blue */
+    --primary-gradient: linear-gradient(135deg, #3b82f6, #2563eb);
+    --primary-hover: #2563eb; 
+    --primary-light: rgba(59, 130, 246, 0.15);
     
-    --text-main: #f3f4f6; 
-    --text-muted: #9ca3af; 
+    --text-main: #f8fafc; 
+    --text-muted: #94a3b8; 
     
     --success: #10b981;
     --danger: #ef4444;
@@ -23,27 +23,37 @@
     --card-radius: 16px;
     --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     
-    --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
-    --shadow-md: 0 4px 12px -1px rgba(0, 0, 0, 0.15);
-    --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+    --shadow-md: 0 4px 12px -1px rgba(0, 0, 0, 0.2);
 }
 
 body.light-mode {
-    --bg-color: #f8fafc; 
+    --bg-color: #f1f5f9; 
     --surface-color: #ffffff;
-    --surface-hover: #f1f5f9; 
-    --border-color: #e2e8f0; 
+    --surface-hover: #f8fafc; 
+    --border-color: #cbd5e1; 
     
-    --text-main: #1e293b; 
-    --text-muted: #64748b; 
+    --text-main: #0f172a; 
+    --text-muted: #475569; 
     
-    --primary: #4f46e5; 
-    --primary-hover: #4338ca;
-    --primary-light: rgba(79, 70, 229, 0.08);
+    --primary: #2563eb; 
+    --primary-hover: #1d4ed8;
+    --primary-light: rgba(37, 99, 235, 0.1);
 
-    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-    --shadow-md: 0 8px 24px rgba(149, 157, 165, 0.1);
-    --shadow-lg: 0 12px 30px rgba(0, 0, 0, 0.08);
+    --shadow-md: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+body.blue-mode {
+    --bg-color: #f0f7ff; 
+    --surface-color: #ffffff; 
+    --surface-hover: #eef6ff;
+    --border-color: #bae6fd;
+    
+    --primary: #0284c7; 
+    --primary-hover: #0369a1;
+    --primary-light: rgba(2, 132, 199, 0.1);
+    
+    --text-main: #0c4a6e;
+    --text-muted: #075985;
 }
 
 * {
@@ -149,93 +159,65 @@ body.light-mode .nav-item:hover {
     color: #4f46e5;
 }
 
-body.light-mode .nav-item.active {
-    background: var(--primary-gradient);
-    color: #ffffff !important;
-}
+body.light-mode {
+    --bg-color: #f8fafc; 
+    --surface-color: #ffffff;
+    --surface-hover: #f1f5f9; 
+    --border-color: #cbd5e1; 
+    
+    --text-main: #0f172a; 
+    --text-muted: #475569; 
+    
+    --primary: #2563eb; 
+    --primary-hover: #1d4ed8;
+    --primary-light: rgba(37, 99, 235, 0.08);
 
-body.light-mode .sidebar-overlay {
-    background: rgba(0, 0, 0, 0.2);
-}
-
-/* Consolidation point (moved to line 1105+) */
-
-body.light-mode .top-header {
-    background-color: rgba(255, 255, 255, 0.85);
-    border-bottom: 1px solid #e2e8f0;
-}
-
-body.light-mode .nav-item {
-    color: #334155; /* Daha koyu Slate - Okunabilirlik için */
-}
-
-/* Consolidation point */
-
-body.light-mode .header-rates {
-    background: #f1f5f9 !important;
-    border: 1px solid #e2e8f0 !important;
-}
-body.light-mode .header-rates div {
-    color: #1e293b !important;
-}
-
-body.light-mode .stat-card {
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-}
-body.light-mode .stat-card:hover {
-    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
-    border-color: #cbd5e1;
-    transform: translateY(-4px);
-    background: #ffffff; /* Override its gradient behavior */
-}
-
-body.light-mode th {
-    background: #f8fafc;
-    color: #475569;
-}
-
-body.light-mode tbody tr:hover {
-    background-color: #f8fafc;
-}
-
-body.light-mode .form-control {
-    background-color: #ffffff;
-    border: 1px solid #cbd5e1;
-    color: #0f172a;
-}
-body.light-mode .form-control:focus {
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
-}
-
-body.light-mode #siparisTableContainer tr {
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
-}
-body.light-mode #siparisTableContainer td {
-    border-bottom: 1px solid #f1f5f9 !important;
-}
-
-body.light-mode .btn-icon {
-    border-color: #e2e8f0;
-    color: #475569;
-}
-body.light-mode .btn-icon:hover {
-    background: #f8fafc;
-    color: #0f172a;
+    --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.04);
 }
 
 body.blue-mode {
-    --bg-color: #020617; 
-    --surface-color: rgba(30, 41, 59, 0.85); 
-    --surface-hover: rgba(51, 65, 85, 0.9);
-    --border-color: rgba(56, 189, 248, 0.15);
+    --bg-color: #e0f2fe; 
+    --surface-color: #ffffff; 
+    --surface-hover: #f0f9ff;
+    --border-color: #bae6fd;
     
-    --primary: #0ea5e9; 
-    --primary-hover: #0284c7;
-    --primary-light: rgba(14, 165, 233, 0.15);
+    --primary: #0284c7; 
+    --primary-hover: #0369a1;
+    --primary-light: rgba(2, 132, 199, 0.1);
+    
+    --text-main: #0c4a6e;
+    --text-muted: #0369a1;
+}
+
+/* Sidebar & Header Refinements */
+.sidebar {
+    background: #0f172a !important;
+}
+
+body.light-mode .sidebar {
+    background: #ffffff !important;
+    border-right: 1px solid #e2e8f0 !important;
+}
+
+body.blue-mode .sidebar {
+    background: #f0f9ff !important;
+    border-right: 1px solid #bae6fd !important;
+}
+
+.nav-item.active {
+    background: var(--primary) !important;
+    color: #fff !important;
+}
+
+body.light-mode .nav-item.active {
+    background: #eff6ff !important;
+    color: #2563eb !important;
+    border: 1px solid #dbeafe !important;
+}
+
+body.blue-mode .nav-item.active {
+    background: #bae6fd !important;
+    color: #0c4a6e !important;
 }
 
 
