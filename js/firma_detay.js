@@ -1,6 +1,8 @@
+let firmaId = null;
+
 document.addEventListener('DOMContentLoaded', () => {
     const urlParams = new URLSearchParams(window.location.search);
-    const firmaId = urlParams.get('id');
+    firmaId = urlParams.get('id');
     
     const contentArea = document.getElementById('contentArea');
     const errorArea = document.getElementById('errorArea');
