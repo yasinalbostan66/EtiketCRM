@@ -689,7 +689,10 @@
                         <tr style="background:rgba(239,68,68,0.07); font-weight:700;">
                             <td style="font-weight:800; text-transform: uppercase;" class="hide-mobile" colspan="4">TOPLAM VADE TUTARI</td>
                             <td style="font-weight:800; text-transform: uppercase;" class="show-mobile-only" colspan="3">TOPLAM VADE</td>
-                            <td class="text-right" style="color:var(--danger); font-weight:800;">${formatCurrency(vadeTotal)}</td>
+                            <td class="text-right" style="color:var(--danger); font-weight:800;">
+                                <div>${formatCurrency(vadeTotal)}</div>
+                                <div style="font-size:0.75rem; color:var(--text-muted); font-weight:400; margin-top:2px;">${formatTRY(vadeTotal * (parseFloat(window.lastRates?.USD || 32.50)))}</div>
+                            </td>
                         </tr>
                     </tfoot>
                 </table></div>`;

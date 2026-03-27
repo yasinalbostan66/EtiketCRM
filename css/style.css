@@ -196,6 +196,7 @@ body.blue-mode {
 .sidebar {
     background: #1e293b !important; /* Ne Çok Koyu Ne Çok Açık - Tam Kıvamında Slate */
     padding: 1.5rem 1.1rem !important;
+    padding-top: calc(1.5rem + env(safe-area-inset-top)) !important; /* Çentikli Telefon Desteği */
     border-right: 1px solid rgba(255,255,255,0.05) !important;
 }
 
