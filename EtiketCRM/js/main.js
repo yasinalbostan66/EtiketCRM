@@ -523,7 +523,7 @@ document.addEventListener('DOMContentLoaded', () => {
     injectSidebar();
 
     // --- Profesyonel Mobil Alt Navigasyon (Bottom Nav) ---
-    if (window.innerWidth <= 600 && !document.querySelector('.mobile-bottom-nav')) {
+    if (window.innerWidth <= 992 && !document.querySelector('.mobile-bottom-nav')) {
         const bottomNav = document.createElement('div');
         bottomNav.className = 'mobile-bottom-nav';
         
@@ -539,17 +539,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 <i class="fa-solid fa-users"></i>
                 <span>Firmalar</span>
             </a>
+            <a href="siparis.html" class="bottom-nav-item ${cleanedPath === 'siparis.html' ? 'active' : ''}">
+                <i class="fa-solid fa-cart-plus"></i>
+                <span>Sipariş</span>
+            </a>
             <a href="analiz.html" class="bottom-nav-item ${cleanedPath === 'analiz.html' ? 'active' : ''}">
                 <i class="fa-solid fa-chart-pie"></i>
                 <span>Analiz</span>
-            </a>
-            <a href="siparis.html" class="bottom-nav-item ${cleanedPath === 'siparis.html' ? 'active' : ''}">
-                <i class="fa-solid fa-cart-plus"></i>
-                <span>Sipariş Oluştur</span>
-            </a>
-            <a href="siparis.html#siparisListesi" class="bottom-nav-item ${cleanedPath.includes('siparis.html') && cleanedPath.includes('#siparisListesi') ? 'active' : ''}">
-                <i class="fa-solid fa-list-check"></i>
-                <span>Alınan Siparişler</span>
             </a>
             <button class="bottom-nav-item" id="bottomMenuGridBtn">
                 <i class="fa-solid fa-bars"></i>

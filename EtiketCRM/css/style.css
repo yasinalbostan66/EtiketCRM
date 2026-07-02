@@ -1083,7 +1083,7 @@ tbody tr:hover {
 
     .table-responsive table {
         width: 100% !important;
-        min-width: 680px !important; /* Mobilde sütunların sıkışmasını ve hizalamanın bozulmasını önler */
+        min-width: 500px !important; /* Tablolar kaydırılabilir, sütunlar görünür kalır */
     }
 
     table th, table td {
@@ -1143,14 +1143,10 @@ tbody tr:hover {
         padding: 8px;
     }
 
+    /* Mobilde tüm içerik görünür olsun */
     .hide-mobile {
-    display: none !important;
-}
-@media (max-width: 992px) {
-    .hide-mobile {
-        display: inline !important;
+        display: revert !important;
     }
-}
     
     .form-control {
         padding: 10px 12px;
@@ -1254,7 +1250,7 @@ body.blue-mode .top-header {
     border-bottom: 1px solid var(--border-color);
 }
 
-@media (max-width: 600px) {
+@media (max-width: 992px) {
     .mobile-bottom-nav {
         display: flex;
     }
