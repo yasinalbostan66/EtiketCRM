@@ -243,7 +243,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- Günlük Rota Planlayıcı Mantığı ---
-    function updateDailyRoute(dateStr) {
+    let routeMapInstance = null;
+
+    async function updateDailyRoute(dateStr) {
         const visits = getVisits().filter(v => v.date === dateStr);
         const routePanel = document.getElementById('routePanel');
         const routeList = document.getElementById('routeList');
@@ -261,11 +263,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let listHtml = `<div style="display:flex; flex-direction:column; gap:10px;">`;
         let addresses = [];
+        let sortedVisits = visits.sort((a,b) => (a.time || '99:99').localeCompare(b.time || '99:99'));
 
-        visits.sort((a,b) => (a.time || '99:99').localeCompare(b.time || '99:99')).forEach((v, idx) => {
+        sortedVisits.forEach((v, idx) => {
             const f = firmalar.find(item => item.id === v.firmaId);
             const adr = f ? f.adres : '';
-            if (adr && adr !== '-') addresses.push(adr);
+            if (adr && adr !== '-') addresses.push({ name: f.ad, address: adr, time: v.time || 'Belirtilmedi' });
 
             listHtml += `
                 <div style="display:flex; align-items:center; gap:12px; padding:10px; background:var(--surface-hover); border-radius:8px; border:1px solid var(--border-color);">
@@ -280,18 +283,73 @@ document.addEventListener('DOMContentLoaded', () => {
         listHtml += `</div>`;
         routeList.innerHTML = listHtml;
 
+        // Haritayı İlklendir
+        setTimeout(async () => {
+            try {
+                if (!routeMapInstance) {
+                    routeMapInstance = L.map('routeMap').setView([39.9334, 32.8597], 6);
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        attribution: '&copy; OpenStreetMap'
+                    }).addTo(routeMapInstance);
+                } else {
+                    // Mevcut katmanları/markerları temizle
+                    routeMapInstance.eachLayer((layer) => {
+                        if (layer instanceof L.Marker || layer instanceof L.Polyline) {
+                            routeMapInstance.removeLayer(layer);
+                        }
+                    });
+                }
+
+                // Harita boyutu sorununu önlemek için invalidateSize çağır
+                routeMapInstance.invalidateSize();
+
+                if (addresses.length > 0) {
+                    let points = [];
+                    for (let i = 0; i < addresses.length; i++) {
+                        const addrInfo = addresses[i];
+                        try {
+                            const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(addrInfo.address)}`);
+                            const data = await res.json();
+                            if (data && data.length > 0) {
+                                const lat = parseFloat(data[0].lat);
+                                const lon = parseFloat(data[0].lon);
+                                const latlng = [lat, lon];
+                                points.push(latlng);
+
+                                const marker = L.marker(latlng).addTo(routeMapInstance);
+                                marker.bindPopup(`<b>${i+1}. ${addrInfo.name}</b><br><small>Saat: ${addrInfo.time}</small><br>${addrInfo.address}`);
+                            }
+                        } catch (e) {
+                            console.error("Geocoding hatası:", e);
+                        }
+                    }
+
+                    if (points.length > 0) {
+                        if (points.length === 1) {
+                            routeMapInstance.setView(points[0], 13);
+                        } else {
+                            const bounds = L.latLngBounds(points);
+                            routeMapInstance.fitBounds(bounds, { padding: [30, 30] });
+                            L.polyline(points, { color: '#0ea5e9', weight: 4, dashArray: '5, 8' }).addTo(routeMapInstance);
+                        }
+                    }
+                }
+            } catch (err) {
+                console.error("Leaflet harita yükleme hatası:", err);
+            }
+        }, 300);
+
         if (addresses.length > 0) {
             btnOpenMapsRoute.style.display = 'block';
             btnOpenMapsRoute.onclick = () => {
-                const url = `https://www.google.com/maps/dir/${addresses.map(a => encodeURIComponent(a)).join('/')}`;
+                const url = `https://www.google.com/maps/dir/${addresses.map(a => encodeURIComponent(a.address)).join('/')}`;
                 window.open(url, '_blank');
             };
 
-            // Paylaşma Butonu (NEW)
             btnShareRoute.style.display = 'block';
             btnShareRoute.onclick = async () => {
                 let shareText = `📅 *${new Date(dateStr).toLocaleDateString('tr-TR')} Ziyaret Planı*\n\n`;
-                visits.sort((a,b) => (a.time || '99:99').localeCompare(b.time || '99:99')).forEach((v, idx) => {
+                sortedVisits.forEach((v, idx) => {
                     const f = firmalar.find(item => item.id === v.firmaId);
                     shareText += `${idx+1}. *${f ? f.ad : 'Bilinmeyen'}* (${v.time || 'Saat Belirtilmedi'})\n`;
                     if (f && f.adres) shareText += `📍 Adres: ${f.adres}\n`;
@@ -306,12 +364,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         });
                     } catch (err) { console.error('Paylaşım İptal:', err); }
                 } else {
-                    // Fallback to clipboard
                     navigator.clipboard.writeText(shareText);
                     showToast('Plan kopyalandı! WhatsApp veya Mail ile yapıştırabilirsiniz.', 'success');
                 }
             };
-
         } else {
             btnOpenMapsRoute.style.display = 'none';
             btnShareRoute.style.display = 'none';

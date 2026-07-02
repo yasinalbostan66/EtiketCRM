@@ -402,32 +402,53 @@
         document.addEventListener('DOMContentLoaded', () => {
             const urlParams = new URLSearchParams(window.location.search);
             const orderId = urlParams.get('id');
+            const firmaId = urlParams.get('firmaId');
 
             const contentArea = document.getElementById('contentArea');
             const errorArea = document.getElementById('errorArea');
 
-            if (!orderId) {
+            if (!orderId && !firmaId) {
                 contentArea.style.display = 'none';
                 errorArea.style.display = 'block';
                 return;
             }
 
             const siparisler = getSiparisler();
-            const order = siparisler.find(o => o.id === orderId);
-
-            if (!order) {
-                contentArea.style.display = 'none';
-                errorArea.style.display = 'block';
-                return;
-            }
-
             const firmalar = getFirmalar();
-            const firma = firmalar.find(f => f.id === order.firmaId);
+
+            let targetOrders = [];
+            let firma = null;
+            let paymentMethodStr = 'Kurum içi';
+            let orderDate = new Date();
+
+            if (orderId) {
+                const order = siparisler.find(o => o.id === orderId);
+                if (!order) {
+                    contentArea.style.display = 'none';
+                    errorArea.style.display = 'block';
+                    return;
+                }
+                targetOrders = [order];
+                firma = firmalar.find(f => f.id === order.firmaId);
+                paymentMethodStr = order.paymentMethod || 'Kurum içi';
+                orderDate = new Date(order.date);
+            } else if (firmaId) {
+                // Find all orders of this firm
+                targetOrders = siparisler.filter(o => o.firmaId === firmaId);
+                if (targetOrders.length === 0) {
+                    contentArea.style.display = 'none';
+                    errorArea.style.display = 'block';
+                    return;
+                }
+                firma = firmalar.find(f => f.id === firmaId);
+                paymentMethodStr = targetOrders[0].paymentMethod || 'Kurum içi';
+                orderDate = new Date(targetOrders[0].date); // use the date of the first order
+            }
 
             contentArea.style.display = 'block';
             document.title = `${firma ? firma.ad : 'Sipariş'} - Onay Formu`;
 
-            document.getElementById('docDate').textContent = "Tarih: " + new Date(order.date).toLocaleDateString('tr-TR');
+            document.getElementById('docDate').textContent = "Tarih: " + orderDate.toLocaleDateString('tr-TR');
 
             const customVendor = localStorage.getItem('etiket_crm_companyName');
             if (customVendor && customVendor.trim().length > 0) {
@@ -456,64 +477,70 @@
                 customerDiv.innerHTML = '<strong>Bilinmeyen Firma</strong>';
             }
 
-            document.getElementById('payMethod').innerHTML = `${order.paymentMethod || 'Kurum içi'}`;
-            const dueStr = window.getDueDateStr ? window.getDueDateStr(order.paymentMethod, order.date) : null;
+            document.getElementById('payMethod').innerHTML = `${paymentMethodStr}`;
+            const dueStr = window.getDueDateStr ? window.getDueDateStr(paymentMethodStr, orderDate.toISOString()) : null;
             if (dueStr) {
                 document.getElementById('payMethod').innerHTML += `<br><span style="font-size: 0.8em; color: #ef4444; font-weight: 600;">Vade Tarihi: ${dueStr}</span>`;
             }
-            document.getElementById('subTotal').textContent = formatCurrency(order.totalPriceUSD);
-            window._orderUSD = order.totalPriceUSD; // KDV hesabı için sakla
-            window._orderTRY = order.totalPriceTRY || 0;
+
+            let subTotalUSD = 0;
+            let subTotalTRY = 0;
+            const tbody = document.getElementById('tableBody');
+            let tbodyHTML = '';
+
+            targetOrders.forEach((order, idx) => {
+                subTotalUSD += parseFloat(order.totalPriceUSD || 0);
+                subTotalTRY += parseFloat(order.totalPriceTRY || 0);
+
+                let unitPriceStr = '-';
+                if (order.unitPrice) {
+                    unitPriceStr = formatCurrency(order.unitPrice);
+                } else if (order.pricePerKg) {
+                    unitPriceStr = formatCurrency(order.pricePerKg) + ' /kg';
+                } else if (order.pricePerSqm) {
+                    unitPriceStr = formatCurrency(order.pricePerSqm) + ' /m²';
+                }
+
+                let enBoyHtml = '-';
+                if (order.en && order.boy) {
+                    enBoyHtml = `<div class="dim-cell"><span>En: ${order.en} cm</span> <span>Boy: ${order.boy} cm</span></div>`;
+                } else if (order.details) {
+                    const enMatch  = order.details.match(/En[:\s]+([\d.,]+)\s*(cm|mm|m)?/i);
+                    const boyMatch = order.details.match(/Boy[:\s]+([\d.,]+)\s*(cm|mm|m)?/i);
+                    const enVal  = enMatch  ? enMatch[1]  + (enMatch[2]  ? ' '+enMatch[2]  : '') : null;
+                    const boyVal = boyMatch ? boyMatch[1] + (boyMatch[2] ? ' '+boyMatch[2] : '') : null;
+                    if (enVal || boyVal) {
+                        enBoyHtml = `<div class="dim-cell">${enVal ? `<span>En: ${enVal}</span>` : ''}${boyVal ? ` <span>Boy: ${boyVal}</span>` : ''}</div>`;
+                    } else if (order.details) {
+                        const parts = order.details.split('|').filter(p => p.trim());
+                        enBoyHtml = `<div class="dim-cell">${parts.map(p => `<span>${p.trim()}</span>`).join(' ')}</div>`;
+                    }
+                }
+
+                tbodyHTML += `
+                    <tr>
+                        <td>${idx + 1}</td>
+                        <td><strong style="color: #1e3a8a;">${order.name || 'Hammadde Sevk Kalemi'}</strong> <span style="font-size:0.75rem; color:#64748b;">(${order.type})</span></td>
+                        <td style="text-align:center;">${enBoyHtml}</td>
+                        <td style="text-align:center;">${order.quantity ? `${order.quantity} ${order.unit || ''}` : '-'}</td>
+                        <td style="text-align: right;">${unitPriceStr}</td>
+                        <td style="text-align: right; font-weight: 700;">${formatCurrency(order.totalPriceUSD)}</td>
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = tbodyHTML;
+            document.getElementById('subTotal').textContent = formatCurrency(subTotalUSD);
+            window._orderUSD = subTotalUSD;
+            window._orderTRY = subTotalTRY;
 
             const tryTotalEl = document.getElementById('tryTotal');
-            if (tryTotalEl) tryTotalEl.textContent = order.totalPriceTRY
-                ? `${order.totalPriceTRY.toLocaleString('tr-TR', {minimumFractionDigits:2, maximumFractionDigits:2})} TL`
+            if (tryTotalEl) tryTotalEl.textContent = subTotalTRY
+                ? `${subTotalTRY.toLocaleString('tr-TR', {minimumFractionDigits:2, maximumFractionDigits:2})} TL`
                 : '-';
 
             // Başlangıçta KDV'yi uygula (%18 default seçili)
             applyKDV();
-
-            const tbody = document.getElementById('tableBody');
-
-            // Birim fiyat tespiti
-            let unitPriceStr = '-';
-            if (order.unitPrice) {
-                unitPriceStr = formatCurrency(order.unitPrice);
-            } else if (order.pricePerKg) {
-                unitPriceStr = formatCurrency(order.pricePerKg) + ' /kg';
-            } else if (order.pricePerSqm) {
-                unitPriceStr = formatCurrency(order.pricePerSqm) + ' /m²';
-            }
-
-            // En / Boy bilgisini details string'inden parse et
-            let enBoyHtml = '-';
-            if (order.en && order.boy) {
-                enBoyHtml = `<div class="dim-cell"><span>En: ${order.en} cm</span> <span>Boy: ${order.boy} cm</span></div>`;
-            } else if (order.details) {
-                // Details string'inden anahtar kelimeleri ara (En: X, Boy: Y formatı)
-                const enMatch  = order.details.match(/En[:\s]+([\d.,]+)\s*(cm|mm|m)?/i);
-                const boyMatch = order.details.match(/Boy[:\s]+([\d.,]+)\s*(cm|mm|m)?/i);
-                const enVal  = enMatch  ? enMatch[1]  + (enMatch[2]  ? ' '+enMatch[2]  : '') : null;
-                const boyVal = boyMatch ? boyMatch[1] + (boyMatch[2] ? ' '+boyMatch[2] : '') : null;
-                if (enVal || boyVal) {
-                    enBoyHtml = `<div class="dim-cell">${enVal ? `<span>En: ${enVal}</span>` : ''}${boyVal ? ` <span>Boy: ${boyVal}</span>` : ''}</div>`;
-                } else if (order.details) {
-                    // Hiç En/Boy yoksa details'ı küçük yazı olarak göster
-                    const parts = order.details.split('|').filter(p => p.trim());
-                    enBoyHtml = `<div class="dim-cell">${parts.map(p => `<span>${p.trim()}</span>`).join(' ')}</div>`;
-                }
-            }
-
-            tbody.innerHTML = `
-                <tr>
-                    <td>1</td>
-                    <td><strong style="color: #1e3a8a;">${order.name || 'Hammadde Sevk Kalemi'}</strong></td>
-                    <td style="text-align:center;">${enBoyHtml}</td>
-                    <td style="text-align:center;">${order.quantity ? `${order.quantity} ${order.unit || ''}` : '-'}</td>
-                    <td style="text-align: right;">${unitPriceStr}</td>
-                    <td style="text-align: right; font-weight: 700;">${formatCurrency(order.totalPriceUSD)}</td>
-                </tr>
-            `;
         });
 
         // KDV Hesaplama

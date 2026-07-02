@@ -362,7 +362,8 @@ function renderFirmaEkstresi(firmaId) {
             amountStr = formatCurrency(s.totalPriceUSD);
             amountColor = 'var(--text-main)';
             actionBtn = `
-                <a href="siparis_onay.html?id=${s.id}" target="_blank" class="btn-icon" style="color: var(--primary); margin-right: 0.5rem; text-decoration: none; display: inline-flex; align-items: center; justify-content: center;" title="Onay Formu"><i class="fa-solid fa-file-contract"></i></a>
+                <a href="siparis_onay.html?id=${s.id}" target="_blank" class="btn-icon" style="color: var(--primary); margin-right: 0.5rem; text-decoration: none; display: inline-flex; align-items: center; justify-content: center;" title="Tekli Onay Formu"><i class="fa-solid fa-file-contract"></i></a>
+                <a href="siparis_onay.html?firmaId=${firmaId}" target="_blank" class="btn-icon" style="color: #10b981; margin-right: 0.5rem; text-decoration: none; display: inline-flex; align-items: center; justify-content: center;" title="Toplu Onay Formu (Tüm Siparişler)"><i class="fa-solid fa-file-invoice"></i></a>
                 <button class="btn-icon" onclick="duzeltSiparis('${s.id}')" style="color: var(--warning); margin-right: 0.5rem;" title="Düzenle"><i class="fa-solid fa-pen-to-square"></i></button>
                 <button class="btn-icon" onclick="silSiparis('${s.id}', '${firmaId}')" style="color: var(--danger);" title="Sil"><i class="fa-solid fa-trash"></i></button>
             `;
