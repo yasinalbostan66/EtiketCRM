@@ -96,11 +96,29 @@
             </div>
             
             <nav class="sidebar-nav">
-                
+                <div style="margin: 0.5rem 0 0.5rem 1rem; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">
+                    Genel
+                </div>
+                <a href="analiz.html" class="nav-item">
+                    <i class="fa-solid fa-chart-pie"></i>
+                    Analiz & Raporlar
+                </a>
                 <a href="firmalar.html" class="nav-item">
                     <i class="fa-solid fa-users"></i>
-                    Müşteriler / Firmalar
+                    Firmalar / Siparişler
                 </a>
+                
+                <div style="margin: 1rem 0 0.5rem 1rem; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">
+                    Sipariş Yönetimi
+                </div>
+                <a href="siparis.html" class="nav-item">
+                    <i class="fa-solid fa-cart-plus"></i>
+                    Sipariş Oluştur
+                </a>
+
+                <div style="margin: 1rem 0 0.5rem 1rem; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">
+                    Ziyaret & Planlama
+                </div>
                 <a href="ziyaretler.html" class="nav-item">
                     <i class="fa-solid fa-clipboard-list"></i>
                     Ziyaret Kayıtları
@@ -109,18 +127,32 @@
                     <i class="fa-solid fa-calendar-days"></i>
                     Ziyaret Takvimi
                 </a>
+
+                <div style="margin: 1rem 0 0.5rem 1rem; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">
+                    Finans & Ürün
+                </div>
                 <a href="odeme_takibi.html" class="nav-item active">
                     <i class="fa-solid fa-money-bill-transfer"></i>
                     Ödeme Takibi & Cari
                 </a>
-                
-                                <a href="malzeme_fiyatlari.html" class="nav-item">
+                <a href="malzeme_fiyatlari.html" class="nav-item">
                     <i class="fa-solid fa-tags"></i>
                     Malzeme Fiyatları
                 </a>
-                
+                <a href="stok_takibi.html" class="nav-item">
+                    <i class="fa-solid fa-file-export"></i>
+                    Stok ve Rapor Paylaşımı
+                </a>
 
-                            <div style="margin-top: auto; border-top: 1px solid var(--border-color); padding-top: 0.5rem; margin-bottom: 0.5rem;">
+                <div style="margin: 1rem 0 0.5rem 1rem; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">
+                    Sistem
+                </div>
+                <a href="ayarlar.html" class="nav-item">
+                    <i class="fa-solid fa-gear"></i>
+                    Ayarlar
+                </a>
+                
+                <div style="margin-top: auto; border-top: 1px solid var(--border-color); padding-top: 0.5rem; margin-bottom: 0.5rem;">
                     <a href="#" onclick="handleLogout()" class="nav-item" id="sidebarLogoutBtn" style="color: var(--danger);">
                         <i class="fa-solid fa-right-from-bracket"></i>
                         Çıkış Yap
@@ -181,7 +213,12 @@
                     <div class="panel-header">
                         <h2 class="panel-title"><i class="fa-solid fa-list-check"></i> Firma Bazlı Ödeme Durumları</h2>
                         <div class="d-flex gap-2 align-center">
-                            <input type="text" id="firmaAra" class="form-control no-print" placeholder="Firma Ara..." style="width: 200px;">
+                            <input type="text" id="firmaAra" class="form-control no-print" placeholder="Firma Ara..." style="width: 180px;">
+                            <select id="durumFiltre" class="form-control no-print" style="width: 170px;">
+                                <option value="all">Tüm Durumlar</option>
+                                <option value="borclu">Ödeme Bekliyor</option>
+                                <option value="odendi">Ödendi / Borçsuz</option>
+                            </select>
                             <button class="btn btn-primary no-print" style="padding:4px 10px; font-size:0.82rem; white-space:nowrap;" onclick="shareCariDurum()">
                                 <i class="fa-solid fa-share-nodes"></i> Paylaş
                             </button>
@@ -816,14 +853,27 @@
 
             renderDashboard();
 
-            document.getElementById('firmaAra').addEventListener('input', (e) => {
-                const search = e.target.value.toLowerCase();
+            const filterCariTable = () => {
+                const search = document.getElementById('firmaAra').value.toLowerCase();
+                const statusFilter = document.getElementById('durumFiltre').value;
                 const rows = tableBody.querySelectorAll('tr');
                 rows.forEach(row => {
-                    const text = row.children[0].textContent.toLowerCase();
-                    row.style.display = text.includes(search) ? '' : 'none';
+                    const nameText = row.children[0].textContent.toLowerCase();
+                    const statusText = row.children[5] ? row.children[5].textContent : '';
+                    
+                    let matchesStatus = true;
+                    if (statusFilter === 'borclu') {
+                        matchesStatus = statusText.includes('Ödeme Bekliyor');
+                    } else if (statusFilter === 'odendi') {
+                        matchesStatus = statusText.includes('Ödendi');
+                    }
+                    
+                    row.style.display = (nameText.includes(search) && matchesStatus) ? '' : 'none';
                 });
-            });
+            };
+
+            document.getElementById('firmaAra').addEventListener('input', filterCariTable);
+            document.getElementById('durumFiltre').addEventListener('change', filterCariTable);
         });
     </script>
 </body>

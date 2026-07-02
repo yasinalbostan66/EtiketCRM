@@ -1,5 +1,5 @@
 // js/firebase-sync.js
-const firebaseConfig = {
+const DEFAULT_FIREBASE_CONFIG = {
   apiKey: "AIzaSyDeVtAMX-q5Zlz_S-eKzEMOaAFb_5BYq-c",
   authDomain: "etiketcrm.firebaseapp.com",
   projectId: "etiketcrm",
@@ -8,10 +8,85 @@ const firebaseConfig = {
   appId: "1:579736235492:web:dcb3b1da19a12847842bf1"
 };
 
-// Initialize Firebase
-firebase.initializeApp(firebaseConfig);
+// Dynamically load config from localStorage
+let firebaseConfig = { ...DEFAULT_FIREBASE_CONFIG };
+let isCustomServerActive = false;
+
+const customConfigStr = localStorage.getItem('etiket_crm_custom_firebase_config');
+if (customConfigStr) {
+  try {
+    const parsed = JSON.parse(customConfigStr);
+    if (parsed && parsed.apiKey && parsed.projectId) {
+      firebaseConfig = parsed;
+      isCustomServerActive = true;
+      console.log("Using custom Firebase configuration.");
+    }
+  } catch (e) {
+    console.error("Custom Firebase config parse error, falling back to default:", e);
+  }
+}
+
+// Initialize Firebase with fallback protection
+try {
+  firebase.initializeApp(firebaseConfig);
+} catch (e) {
+  console.error("Firebase initialization failed with active config. Falling back to default:", e);
+  if (isCustomServerActive) {
+    try {
+      localStorage.removeItem('etiket_crm_custom_firebase_config');
+      firebase.initializeApp(DEFAULT_FIREBASE_CONFIG);
+      isCustomServerActive = false;
+      console.log("Hata nedeniyle varsayılan Firebase yapılandırmasına geri dönüldü.");
+    } catch (err) {
+      console.error("Default Firebase fallback failed:", err);
+    }
+  }
+}
+
 const db = firebase.firestore();
+
+// Gelişmiş Çevrimdışı (Offline) Mod Kalıcılığı
+db.enablePersistence()
+  .catch((err) => {
+      if (err.code == 'failed-precondition') {
+          console.warn("Firestore Çevrimdışı kalıcılık etkinleştirilemedi: Çoklu sekme açık.");
+      } else if (err.code == 'unimplemented') {
+          console.warn("Firestore Çevrimdışı kalıcılık tarayıcı tarafından desteklenmiyor.");
+      }
+  });
+
 const auth = firebase.auth();
+
+// Helpers for settings and login pages
+window.getFirebaseConfig = function() {
+  const custom = localStorage.getItem('etiket_crm_custom_firebase_config');
+  let configData = null;
+  if (custom) {
+    try {
+      configData = JSON.parse(custom);
+    } catch (e) {
+      console.error(e);
+    }
+  }
+  return {
+    isCustom: !!custom && !!configData,
+    config: configData || DEFAULT_FIREBASE_CONFIG,
+    defaultConfig: DEFAULT_FIREBASE_CONFIG
+  };
+};
+
+window.saveFirebaseConfig = function(configObj) {
+  if (!configObj || !configObj.apiKey || !configObj.projectId) {
+    throw new Error("Geçersiz yapılandırma! apiKey ve projectId alanları zorunludur.");
+  }
+  localStorage.setItem('etiket_crm_custom_firebase_config', JSON.stringify(configObj));
+  return true;
+};
+
+window.resetFirebaseConfig = function() {
+  localStorage.removeItem('etiket_crm_custom_firebase_config');
+  return true;
+};
 
 // Global Logout Function - Moved to main.js for reliability
 // --- Auth Guard ---

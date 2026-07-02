@@ -78,15 +78,29 @@
             </div>
             
             <nav class="sidebar-nav">
-                
+                <div style="margin: 0.5rem 0 0.5rem 1rem; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">
+                    Genel
+                </div>
                 <a href="analiz.html" class="nav-item">
                     <i class="fa-solid fa-chart-pie"></i>
                     Analiz & Raporlar
                 </a>
                 <a href="firmalar.html" class="nav-item">
                     <i class="fa-solid fa-users"></i>
-                    Müşteriler / Firmalar
+                    Firmalar / Siparişler
                 </a>
+                
+                <div style="margin: 1rem 0 0.5rem 1rem; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">
+                    Sipariş Yönetimi
+                </div>
+                <a href="siparis.html" class="nav-item">
+                    <i class="fa-solid fa-cart-plus"></i>
+                    Sipariş Oluştur
+                </a>
+
+                <div style="margin: 1rem 0 0.5rem 1rem; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">
+                    Ziyaret & Planlama
+                </div>
                 <a href="ziyaretler.html" class="nav-item">
                     <i class="fa-solid fa-clipboard-list"></i>
                     Ziyaret Kayıtları
@@ -95,17 +109,23 @@
                     <i class="fa-solid fa-calendar-days"></i>
                     Ziyaret Takvimi
                 </a>
+
+                <div style="margin: 1rem 0 0.5rem 1rem; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">
+                    Finans & Ürün
+                </div>
                 <a href="odeme_takibi.html" class="nav-item">
                     <i class="fa-solid fa-money-bill-transfer"></i>
                     Ödeme Takibi & Cari
                 </a>
-                
                 <a href="malzeme_fiyatlari.html" class="nav-item">
                     <i class="fa-solid fa-tags"></i>
                     Malzeme Fiyatları
                 </a>
-                
-                
+                <a href="stok_takibi.html" class="nav-item">
+                    <i class="fa-solid fa-file-export"></i>
+                    Stok ve Rapor Paylaşımı
+                </a>
+
                 <div style="margin: 1rem 0 0.5rem 1rem; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">
                     Sistem
                 </div>
@@ -116,12 +136,6 @@
                 
                 <div style="margin-top: auto; border-top: 1px solid var(--border-color); padding-top: 0.5rem; margin-bottom: 0.5rem;">
                     <a href="#" onclick="window.handleLogout()" class="nav-item" style="color: var(--danger);">
-                        <i class="fa-solid fa-right-from-bracket"></i>
-                        Çıkış Yap
-                    </a>
-                </div>
-                            <div style="margin-top: auto; border-top: 1px solid var(--border-color); padding-top: 0.5rem; margin-bottom: 0.5rem;">
-                    <a href="#" onclick="handleLogout()" class="nav-item" id="sidebarLogoutBtn" style="color: var(--danger);">
                         <i class="fa-solid fa-right-from-bracket"></i>
                         Çıkış Yap
                     </a>
@@ -295,7 +309,56 @@
                         </div>
                     </div>
 
+                    <!-- Özel Bulut Sunucusu Yapılandırması (Firebase) -->
+                    <div class="settings-card" style="border-left: 4px solid var(--primary);">
+                        <h2 class="settings-card-title"><i class="fa-solid fa-server"></i> Özel Bulut Sunucusu (Self-Host Firebase)</h2>
+                        <p style="color:var(--text-muted); font-size:0.8rem; line-height:1.4; margin-bottom:1rem;">
+                            Uygulamanın verilerini tamamen kendinize ait bir Firebase projesinde depolamak isterseniz, Firebase Web App Yapılandırma JSON kodunu buraya yapıştırabilirsiniz.
+                        </p>
+                        
+                        <!-- Status Badge -->
+                        <div id="settingsServerStatus" style="padding: 10px 14px; border-radius: 8px; margin-bottom: 1rem; font-size: 0.82rem; display: flex; align-items: center; justify-content: space-between;">
+                            <span>Aktif Veritabanı Bağlantısı:</span>
+                            <span id="settingsServerBadge" class="badge badge-purple" style="font-size:0.75rem;">Varsayılan Bulut</span>
+                        </div>
 
+                        <div class="form-group" style="display:flex; flex-direction:column; gap:6px;">
+                            <label style="color:var(--text-muted); font-size:0.8rem;">Firebase Web Yapılandırma Objesi</label>
+                            <textarea class="form-control" id="settingsFirebaseInput" rows="6" placeholder='{&#10;  "apiKey": "...",&#10;  "projectId": "...",&#10;  ...&#10;}' style="font-family: monospace; font-size: 0.8rem; background: var(--bg-color); color: var(--text-main); border: 1px solid var(--border-color); border-radius: 6px; padding: 10px; resize: vertical; box-sizing: border-box; outline: none;"></textarea>
+                        </div>
+                        
+                        <div style="display:flex; gap:10px; margin-top:0.75rem; flex-wrap: wrap;">
+                            <button class="btn btn-primary" id="btnSaveSettingsServer" style="flex:1; border:none; color:#fff; align-items:center; gap:6px; cursor:pointer; padding:8px 16px; border-radius:6px; font-weight:600; min-width: 140px;"><i class="fa-solid fa-floppy-disk"></i> Bağlantıyı Kaydet</button>
+                            <button class="btn btn-outline" id="btnShowSettingsQR" style="border-color:#10b981; color:#10b981; background:transparent; align-items:center; gap:6px; cursor:pointer; padding:8px 12px; border-radius:6px; display:none; min-width: 120px;"><i class="fa-solid fa-qrcode"></i> QR Kod Paylaş</button>
+                            <button class="btn btn-outline" id="btnResetSettingsServer" style="border-color:var(--danger); color:var(--danger); background:transparent; align-items:center; gap:6px; cursor:pointer; padding:8px 12px; border-radius:6px; display:none; min-width: 100px;"><i class="fa-solid fa-rotate-left"></i> Sıfırla</button>
+                    </div>
+
+                    <!-- Manuel Veri Düzeltme & Yönetimi -->
+                    <div class="settings-card" style="border-left: 4px solid var(--warning);">
+                        <h2 class="settings-card-title" style="color:var(--warning);"><i class="fa-solid fa-database"></i> Gelişmiş Veri Düzeltme & Yönetimi (JSON)</h2>
+                        <p style="color:var(--text-muted); font-size:0.8rem; line-height:1.4; margin-bottom:1rem;">
+                            Uygulama içerisindeki kayıtları (firmalar, siparişler, tahsilatlar, ziyaretler) JSON formatında doğrudan ve manuel olarak düzeltebilirsiniz. Dikkatli kullanılması önerilir.
+                        </p>
+                        <div class="form-group">
+                            <label>Düzeltmek İstediğiniz Veri Setini Seçin</label>
+                            <select class="form-control" id="selectEditDataset">
+                                <option value="">Veri Seti Seçiniz...</option>
+                                <option value="etiket_crm_firmalar">Müşteriler / Firmalar</option>
+                                <option value="etiket_crm_siparisler">Siparişler</option>
+                                <option value="etiket_crm_tahsilatlar">Tahsilatlar</option>
+                                <option value="etiket_crm_ziyaretler">Ziyaret Kayıtları</option>
+                                <option value="etiket_crm_malzeme_fiyatlari">Malzeme Fiyatları</option>
+                            </select>
+                        </div>
+                        <div class="form-group" id="jsonEditorContainer" style="display:none; flex-direction:column; gap:6px; margin-top: 1rem;">
+                            <label style="color:var(--text-muted); font-size:0.8rem;">Veri İçeriği (JSON)</label>
+                            <textarea class="form-control" id="datasetJSONArea" rows="12" style="font-family: monospace; font-size: 0.8rem; background: var(--bg-color); color: var(--text-main); border: 1px solid var(--border-color); border-radius: 6px; padding: 10px; resize: vertical; box-sizing: border-box; outline: none;"></textarea>
+                            <div style="display:flex; gap:10px; margin-top:0.75rem;">
+                                <button class="btn btn-primary" id="btnSaveDatasetJSON" style="flex:1; background: var(--warning); color:#000; border:none; font-weight:600;"><i class="fa-solid fa-floppy-disk"></i> Değişiklikleri Kaydet</button>
+                                <button class="btn btn-outline" id="btnResetDatasetJSON" style="border-color:var(--border-color); color:var(--text-muted);"><i class="fa-solid fa-rotate-left"></i> Vazgeç</button>
+                            </div>
+                        </div>
+                    </div>
 
                 </div>
 
@@ -311,6 +374,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
     <script src="js/firebase-sync.js?v=4.0"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <!-- Google Drive Sync Library -->
     <script src="https://accounts.google.com/gsi/client" onload="gisLoaded()" async defer></script>
     <script src="https://apis.google.com/js/api.js" onload="gapiLoaded()" async defer></script>
@@ -523,6 +587,188 @@
                 }
             });
 
+            // --- Özel Sunucu (Firebase) Ayarları ---
+            const settingsFirebaseInput = document.getElementById('settingsFirebaseInput');
+            const settingsServerBadge = document.getElementById('settingsServerBadge');
+            const settingsServerStatus = document.getElementById('settingsServerStatus');
+            const btnSaveSettingsServer = document.getElementById('btnSaveSettingsServer');
+            const btnResetSettingsServer = document.getElementById('btnResetSettingsServer');
+            const btnShowSettingsQR = document.getElementById('btnShowSettingsQR');
+            const settingsQRModal = document.getElementById('settingsQRModal');
+            const btnCloseSettingsQRModal = document.getElementById('btnCloseSettingsQRModal');
+            const settingsQRCodeContainer = document.getElementById('settingsQRCodeContainer');
+            const settingsQRProjectName = document.getElementById('settingsQRProjectName');
+            let qrcodeInstance = null;
+
+            function updateSettingsServerUI() {
+                const configInfo = window.getFirebaseConfig();
+                if (configInfo.isCustom) {
+                    settingsServerBadge.textContent = 'Özel Firebase';
+                    settingsServerBadge.className = 'badge badge-green';
+                    settingsServerStatus.style.background = 'rgba(16, 185, 129, 0.08)';
+                    settingsServerStatus.style.border = '1px solid rgba(16, 185, 129, 0.15)';
+                    settingsFirebaseInput.value = JSON.stringify(configInfo.config, null, 2);
+                    btnResetSettingsServer.style.display = 'inline-flex';
+                    btnShowSettingsQR.style.display = 'inline-flex';
+                } else {
+                    settingsServerBadge.textContent = 'Varsayılan Bulut';
+                    settingsServerBadge.className = 'badge badge-blue';
+                    settingsServerStatus.style.background = 'rgba(59, 130, 246, 0.08)';
+                    settingsServerStatus.style.border = '1px solid rgba(59, 130, 246, 0.15)';
+                    settingsFirebaseInput.value = '';
+                    btnResetSettingsServer.style.display = 'none';
+                    btnShowSettingsQR.style.display = 'none';
+                }
+            }
+
+            updateSettingsServerUI();
+
+            btnShowSettingsQR.addEventListener('click', () => {
+                const configInfo = window.getFirebaseConfig();
+                if (!configInfo.isCustom) return;
+
+                // Clear previous QR
+                settingsQRCodeContainer.innerHTML = '';
+                settingsQRProjectName.textContent = 'Proje: ' + configInfo.config.projectId;
+
+                // Generate new QR
+                if (typeof QRCode !== 'undefined') {
+                    try {
+                        qrcodeInstance = new QRCode(settingsQRCodeContainer, {
+                            text: JSON.stringify(configInfo.config),
+                            width: 200,
+                            height: 200,
+                            colorDark: "#0f172a",
+                            colorLight: "#ffffff",
+                            correctLevel: QRCode.CorrectLevel.M
+                        });
+                        settingsQRModal.style.display = 'flex';
+                    } catch (err) {
+                        console.error(err);
+                        showToast('QR Kod oluşturulamadı.', 'error');
+                    }
+                } else {
+                    showToast('QR Kod kütüphanesi yüklenemedi. Sayfayı yenileyip tekrar deneyin.', 'error');
+                }
+            });
+
+            btnCloseSettingsQRModal.addEventListener('click', () => {
+                settingsQRModal.style.display = 'none';
+            });
+
+            settingsQRModal.addEventListener('click', (e) => {
+                if (e.target === settingsQRModal) {
+                    settingsQRModal.style.display = 'none';
+                }
+            });
+
+            btnSaveSettingsServer.addEventListener('click', () => {
+                const rawVal = settingsFirebaseInput.value.trim();
+                if (!rawVal) {
+                    showToast('Lütfen bir yapılandırma JSON kodu yapıştırın.', 'error');
+                    return;
+                }
+
+                try {
+                    let jsonStr = rawVal;
+                    if (rawVal.indexOf('{') > -1) {
+                        jsonStr = rawVal.substring(rawVal.indexOf('{'), rawVal.lastIndexOf('}') + 1);
+                    }
+
+                    let parsedConfig;
+                    try {
+                        parsedConfig = JSON.parse(jsonStr);
+                    } catch (e) {
+                        const tempFunc = new Function("return (" + jsonStr + ");");
+                        parsedConfig = tempFunc();
+                    }
+
+                    if (!parsedConfig || !parsedConfig.apiKey || !parsedConfig.projectId) {
+                        showToast('Geçersiz yapılandırma! apiKey ve projectId alanları zorunludur.', 'error');
+                        return;
+                    }
+
+                    const cleanedConfig = {
+                        apiKey: parsedConfig.apiKey,
+                        authDomain: parsedConfig.authDomain || "",
+                        projectId: parsedConfig.projectId,
+                        storageBucket: parsedConfig.storageBucket || "",
+                        messagingSenderId: parsedConfig.messagingSenderId || "",
+                        appId: parsedConfig.appId || ""
+                    };
+
+                    window.saveFirebaseConfig(cleanedConfig);
+                    showToast('Özel sunucu bağlantısı başarıyla kaydedildi! Yeniden başlatılıyor...', 'success');
+                    setTimeout(() => location.reload(), 1500);
+                } catch (err) {
+                    console.error(err);
+                    showToast('Çözümleme hatası: ' + err.message, 'error');
+                }
+            });
+
+            btnResetSettingsServer.addEventListener('click', () => {
+                if (confirm('Özel veritabanı yapılandırmasını sıfırlamak ve varsayılan Satış Bulutu sunucusuna dönmek istiyor musunuz?')) {
+                    window.resetFirebaseConfig();
+                    showToast('Varsayılan sunucuya geri dönüldü! Yeniden başlatılıyor...', 'success');
+                    setTimeout(() => location.reload(), 1500);
+                }
+            });
+
+            // --- Gelişmiş Veri Düzeltme JSON Mantığı ---
+            const selectEditDataset = document.getElementById('selectEditDataset');
+            const jsonEditorContainer = document.getElementById('jsonEditorContainer');
+            const datasetJSONArea = document.getElementById('datasetJSONArea');
+            const btnSaveDatasetJSON = document.getElementById('btnSaveDatasetJSON');
+            const btnResetDatasetJSON = document.getElementById('btnResetDatasetJSON');
+
+            if (selectEditDataset) {
+                selectEditDataset.addEventListener('change', () => {
+                    const key = selectEditDataset.value;
+                    if (!key) {
+                        jsonEditorContainer.style.display = 'none';
+                        return;
+                    }
+                    const data = localStorage.getItem(key) || '[]';
+                    try {
+                        const parsed = JSON.parse(data);
+                        datasetJSONArea.value = JSON.stringify(parsed, null, 2);
+                        jsonEditorContainer.style.display = 'flex';
+                    } catch (e) {
+                        datasetJSONArea.value = data;
+                        jsonEditorContainer.style.display = 'flex';
+                    }
+                });
+            }
+
+            if (btnResetDatasetJSON) {
+                btnResetDatasetJSON.addEventListener('click', () => {
+                    selectEditDataset.value = '';
+                    jsonEditorContainer.style.display = 'none';
+                });
+            }
+
+            if (btnSaveDatasetJSON) {
+                btnSaveDatasetJSON.addEventListener('click', () => {
+                    const key = selectEditDataset.value;
+                    if (!key) return;
+
+                    const rawVal = datasetJSONArea.value.trim();
+                    try {
+                        const parsed = JSON.parse(rawVal);
+                        
+                        // Save directly (this triggers the localStorage wrapper set in firebase-sync.js)
+                        localStorage.setItem(key, JSON.stringify(parsed));
+                        
+                        showToast('Veriler başarıyla güncellendi ve bulutla senkronize edildi!', 'success');
+                        selectEditDataset.value = '';
+                        jsonEditorContainer.style.display = 'none';
+                        
+                        window.dispatchEvent(new Event('storage'));
+                    } catch (err) {
+                        alert('Hatalı JSON Formatı! Lütfen geçerli bir JSON dizisi girin.\nHata: ' + err.message);
+                    }
+                });
+            }
 
         });
 
@@ -544,5 +790,23 @@
             }
         };
     </script>
+
+    <!-- QR Kod Gösterim Modalı -->
+    <div id="settingsQRModal" class="modal-overlay" style="display: none; align-items: center; justify-content: center; z-index: 100003;">
+        <div class="modal-content" style="max-width: 400px; background: var(--surface-color); border: 1px solid var(--border-color); color: var(--text-main); border-radius: 12px; animation: modalSlide 0.3s ease-out;">
+            <div class="panel-header" style="border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 1.5rem; background: var(--surface-color);">
+                <span class="panel-title" style="font-weight: 700; font-size: 1.1rem; display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-qrcode" style="color: var(--success);"></i> Kurulum QR Kodu</span>
+                <button type="button" class="btn-icon" id="btnCloseSettingsQRModal" style="border: none; color: var(--text-muted); font-size: 1.2rem; cursor: pointer; background: transparent; padding: 4px;"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body-scroll" style="padding: 2rem; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 15px; text-align: center;">
+                <p style="font-size: 0.82rem; color: var(--text-muted); line-height: 1.4; margin-bottom: 5px;">
+                    Ekip arkadaşlarınız giriş ekranındaki <b>"QR Kod Tara"</b> butonuna basarak bu QR kodu okutabilir ve anında bu veritabanına bağlanabilir.
+                </p>
+                <!-- QR Code Container -->
+                <div id="settingsQRCodeContainer" style="padding: 15px; background: #fff; border-radius: 12px; display: inline-flex; justify-content: center; align-items: center; box-shadow: var(--shadow-md);"></div>
+                <div id="settingsQRProjectName" style="font-weight: 700; font-size: 0.85rem; color: var(--text-main); margin-top: 5px;">Proje: -</div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

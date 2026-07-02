@@ -58,10 +58,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 const dateStr = new Date(v.date).toLocaleDateString('tr-TR');
                 const statusHTML = `<span class="badge ${v.status === 'Tamamlandı' ? 'badge-green' : (v.status === 'İptal Edildi' ? 'badge-orange' : (v.status === 'Demo' ? 'badge-purple' : 'badge-blue'))}">${v.status || 'Planlandı'}</span>`;
                 tr.innerHTML = `
+                    <td>${statusHTML}</td>
                     <td style="font-weight:600;">${dateStr}</td>
                     <td>${v.time || '-'}</td>
                     <td>${firmaAd}</td>
-                    <td>${statusHTML}</td>
                     <td style="font-size:0.85rem; max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${v.note || ''}">${v.note || '-'}</td>
                     <td>
                         <div style="display: flex; justify-content: flex-end; gap: 10px; align-items: center;">

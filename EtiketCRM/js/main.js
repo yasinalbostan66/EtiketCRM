@@ -355,33 +355,40 @@ document.addEventListener('DOMContentLoaded', () => {
         if (avatarEl && initials.length > 0) avatarEl.textContent = initials;
     }
 
-    // --- Vade Gelmiş Sipariş Hatırlatması ---
-    const allFirms = getFirmalar();
-    const allOrds = getSiparisler();
-    const allPays = getTahsilatlar();
-    let pendingDueCount = 0;
-    const today = new Date();
+    // --- Vade Gelmiş Sipariş Hatırlatması (Günde 1 Kez 09:00'dan Sonra) ---
+    const now = new Date();
+    const todayStr = now.getFullYear() + '-' + (now.getMonth() + 1) + '-' + now.getDate();
+    const lastAlertDate = localStorage.getItem('etiket_crm_last_vade_alert_date');
 
-    allFirms.forEach(f => {
-        const fSip = allOrds.filter(s => s.firmaId === f.id);
-        const fTah = allPays.filter(t => t.firmaId === f.id);
-        const sSum = fSip.reduce((a,c) => a+(c.totalPriceUSD||0), 0);
-        const tSum = fTah.reduce((a,c) => a+(c.totalAmountUSD||0), 0);
-        
-        if (sSum - tSum > 0.1) {
-            fSip.forEach(s => {
-                const limitDt = window.getDueDateRaw(s.paymentMethod, s.date);
-                if (limitDt && limitDt <= today) {
-                    pendingDueCount++;
-                }
-            });
+    if (now.getHours() >= 9 && lastAlertDate !== todayStr) {
+        const allFirms = getFirmalar();
+        const allOrds = getSiparisler();
+        const allPays = getTahsilatlar();
+        let pendingDueCount = 0;
+        const today = new Date();
+
+        allFirms.forEach(f => {
+            const fSip = allOrds.filter(s => s.firmaId === f.id);
+            const fTah = allPays.filter(t => t.firmaId === f.id);
+            const sSum = fSip.reduce((a,c) => a+(c.totalPriceUSD||0), 0);
+            const tSum = fTah.reduce((a,c) => a+(c.totalAmountUSD||0), 0);
+            
+            if (sSum - tSum > 0.1) {
+                fSip.forEach(s => {
+                    const limitDt = window.getDueDateRaw(s.paymentMethod, s.date);
+                    if (limitDt && limitDt <= today) {
+                        pendingDueCount++;
+                    }
+                });
+            }
+        });
+
+        if (pendingDueCount > 0) {
+            setTimeout(() => {
+                showToast(`${pendingDueCount} adet siparişin vade tarihi geldi veya geçti!`, 'error');
+                localStorage.setItem('etiket_crm_last_vade_alert_date', todayStr);
+            }, 1500);
         }
-    });
-
-    if (pendingDueCount > 0) {
-        setTimeout(() => {
-            showToast(`${pendingDueCount} adet siparişin vade tarihi geldi veya geçti!`, 'error');
-        }, 1500);
     }
 
 
@@ -439,6 +446,9 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
             
             <nav class="sidebar-nav">
+                <div style="margin: 0.5rem 0 0.5rem 1rem; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">
+                    Genel
+                </div>
                 <a href="index.html" class="nav-item ${cleanedPath === 'index.html' ? 'active' : ''}">
                     <i class="fa-solid fa-chart-line"></i>
                     Genel Bakış
@@ -449,8 +459,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 </a>
                 <a href="firmalar.html" class="nav-item ${cleanedPath.includes('firmalar') || cleanedPath.includes('firma_detay') ? 'active' : ''}">
                     <i class="fa-solid fa-users"></i>
-                    Müşteriler / Firmalar
+                    Firmalar
                 </a>
+                
+                <div style="margin: 1rem 0 0.5rem 1rem; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">
+                    Sipariş Yönetimi
+                </div>
+                <a href="siparis.html" class="nav-item ${cleanedPath === 'siparis.html' ? 'active' : ''}">
+                    <i class="fa-solid fa-cart-plus"></i>
+                    Sipariş Oluştur
+                </a>
+                <a href="siparis.html#siparisListesi" class="nav-item">
+                    <i class="fa-solid fa-list-check"></i>
+                    Alınan Siparişler
+                </a>
+
+                <div style="margin: 1rem 0 0.5rem 1rem; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">
+                    Ziyaret & Planlama
+                </div>
                 <a href="ziyaretler.html" class="nav-item ${cleanedPath === 'ziyaretler.html' ? 'active' : ''}">
                     <i class="fa-solid fa-clipboard-list"></i>
                     Ziyaret Kayıtları
@@ -459,6 +485,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     <i class="fa-solid fa-calendar-days"></i>
                     Ziyaret Takvimi
                 </a>
+
+                <div style="margin: 1rem 0 0.5rem 1rem; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">
+                    Finans & Ürün
+                </div>
                 <a href="odeme_takibi.html" class="nav-item ${cleanedPath === 'odeme_takibi.html' ? 'active' : ''}">
                     <i class="fa-solid fa-money-bill-transfer"></i>
                     Ödeme Takibi & Cari
@@ -468,17 +498,22 @@ document.addEventListener('DOMContentLoaded', () => {
                     Malzeme Fiyatları
                 </a>
                 <a href="stok_takibi.html" class="nav-item ${cleanedPath === 'stok_takibi.html' ? 'active' : ''}">
-                    <i class="fa-solid fa-box-archive"></i>
-                    Stok ve Raporlar
+                    <i class="fa-solid fa-file-export"></i>
+                    Stok ve Rapor Paylaşımı
                 </a>
-                <div style="margin-top: 1rem; border-top: 1px solid var(--border-color); padding-top: 1rem;">
-                    <a href="ayarlar.html" class="nav-item ${cleanedPath === 'ayarlar.html' ? 'active' : ''}">
-                        <i class="fa-solid fa-gear"></i>
-                        Ayarlar
-                    </a>
-                    <a href="#" onclick="handleLogout()" class="nav-item" id="sidebarLogoutBtn" style="color: var(--danger); margin-top: 0.5rem;">
+
+                <div style="margin: 1rem 0 0.5rem 1rem; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">
+                    Sistem
+                </div>
+                <a href="ayarlar.html" class="nav-item ${cleanedPath === 'ayarlar.html' ? 'active' : ''}">
+                    <i class="fa-solid fa-gear"></i>
+                    Ayarlar
+                </a>
+                
+                <div style="margin-top: auto; border-top: 1px solid var(--border-color); padding-top: 0.5rem; margin-bottom: 0.5rem;">
+                    <a href="#" onclick="handleLogout()" class="nav-item" id="sidebarLogoutBtn" style="color: var(--danger);">
                         <i class="fa-solid fa-right-from-bracket"></i>
-                        Güvenli Çıkış
+                        Çıkış Yap
                     </a>
                 </div>
             </nav>
@@ -864,17 +899,41 @@ function initNotificationSystem() {
 }
 
 function updateNotifications() {
-    const list = calculateAllNotifications();
     const badge = document.getElementById('notifBadge');
     const body = document.getElementById('notifBody');
     const countEl = document.getElementById('notifCount');
-
     if (!badge || !body || !countEl) return;
 
-    if (list.length > 0) {
+    const now = new Date();
+    // Günde bir kez 9:00'dan sonra göster
+    if (now.getHours() < 9) {
+        badge.style.display = 'none';
+        countEl.textContent = '0';
+        body.innerHTML = '<div class="notification-empty" style="padding: 2rem; text-align: center; color: var(--text-muted);"><i class="fa-solid fa-clock" style="font-size: 1.5rem; margin-bottom: 8px; display: block; color: var(--primary);"></i> Bildirimler her gün saat 09:00\'dan sonra gösterilir.</div>';
+        return;
+    }
+
+    const todayStr = now.getFullYear() + '-' + (now.getMonth() + 1) + '-' + now.getDate();
+    const isDismissed = (localStorage.getItem('etiket_crm_notif_dismissed_date') === todayStr);
+
+    const list = calculateAllNotifications();
+
+    if (list.length > 0 && !isDismissed) {
         badge.style.display = 'block';
         countEl.textContent = list.length;
         body.innerHTML = '';
+
+        // "Bugün İçin Kapat" Butonu ekle
+        const dismissDiv = document.createElement('div');
+        dismissDiv.style = "padding: 10px 1.25rem; border-bottom: 1px solid var(--border-color); background: rgba(79, 70, 229, 0.05); display: flex; justify-content: center;";
+        dismissDiv.innerHTML = `<button type="button" style="width: 100%; padding: 6px; background: var(--primary); color: white; border: none; border-radius: 6px; font-size: 0.75rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;"><i class="fa-solid fa-circle-check"></i> Bugünlük Bildirimleri Kapat</button>`;
+        dismissDiv.querySelector('button').onclick = (e) => {
+            e.stopPropagation();
+            localStorage.setItem('etiket_crm_notif_dismissed_date', todayStr);
+            updateNotifications();
+        };
+        body.appendChild(dismissDiv);
+
         list.forEach(item => {
             const div = document.createElement('a');
             div.className = 'notification-item';
@@ -898,7 +957,11 @@ function updateNotifications() {
     } else {
         badge.style.display = 'none';
         countEl.textContent = '0';
-        body.innerHTML = '<div class="notification-empty" style="padding: 2rem; text-align: center; color: var(--text-muted);">Şu an için yeni bir bildirim yok.</div>';
+        if (isDismissed) {
+            body.innerHTML = '<div class="notification-empty" style="padding: 2rem; text-align: center; color: var(--text-muted);"><i class="fa-solid fa-circle-check" style="font-size: 1.5rem; margin-bottom: 8px; display: block; color: var(--success);"></i> Bugünün bildirimlerini gördünüz.</div>';
+        } else {
+            body.innerHTML = '<div class="notification-empty" style="padding: 2rem; text-align: center; color: var(--text-muted);">Şu an için yeni bir bildirim yok.</div>';
+        }
     }
 }
 

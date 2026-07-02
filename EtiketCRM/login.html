@@ -145,6 +145,16 @@
             text-align: center;
             display: none;
         }
+        #forgotPasswordLink {
+            color: #818cf8;
+            font-size: 0.85rem;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        #forgotPasswordLink:hover {
+            color: #6366f1;
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
@@ -168,15 +178,81 @@
             <div class="form-group">
                 <label for="password">Şifre</label>
                 <div class="input-icon-group">
-                    <i class="fa-solid fa-lock"></i>
-                    <input type="password" id="password" placeholder="••••••••">
+                    <div class="input-icon-group" style="position: relative;">
+                        <i class="fa-solid fa-lock"></i>
+                        <input type="password" id="password" placeholder="••••••••">
+                        <i class="fa-solid fa-eye" id="togglePassword" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #64748b;"></i>
+                    </div>
                 </div>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem; margin-bottom: 1.25rem;">
+                <label style="display: flex; align-items: center; gap: 6px; font-size: 0.85rem; color: #cbd5e1; cursor: pointer; user-select: none;">
+                    <input type="checkbox" id="rememberMe" style="accent-color: #4f46e5;"> Beni Hatırla
+                </label>
+                <a href="#" id="forgotPasswordLink">Şifremi Unuttum</a>
             </div>
             
             <button type="submit" class="btn-login" id="loginSubmitBtn">Oturum Aç</button>
             <button type="button" class="btn-login" id="registerBtn" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); margin-top:0.75rem;">Yeni Hesap Oluştur</button>
-            <button type="button" class="btn-login" style="background:transparent; border:1px solid rgba(255,255,255,0.15); color:#94a3b8; margin-top:0.75rem; box-shadow:none;" onclick="window.location.href='index.html'">Şifresiz Devam Et (Test Modu)</button>
+            <button type="button" class="btn-login" id="btnCustomServer" style="background:transparent; border:1px solid #4f46e5; color:#818cf8; margin-top:0.75rem; box-shadow:none;" onclick="openServerSettings()"><i class="fa-solid fa-server"></i> Kendi Sunucuna Bağlan (Firebase)</button>
             <div id="loginError">E-posta veya şifre hatalı!</div>
+
+            <!-- Server Settings Modal -->
+            <div id="serverSettingsModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); align-items:center; justify-content:center; z-index:1000;">
+                <div style="background:#111827; padding:2rem; border-radius:12px; width:90%; max-width:400px; border:1px solid #374151;">
+                    <h2 style="color:#f3f4f6; margin-bottom:1rem; margin-top:0;">Firebase Sunucu Ayarları</h2>
+                    <div class="form-group">
+                        <label for="apiKey">API Key</label>
+                        <input type="text" id="apiKey" style="width:100%; padding:10px; background:#000; border:1px solid #374151; color:#fff; border-radius:8px;">
+                    </div>
+                    <div class="form-group">
+                        <label for="authDomain">Auth Domain</label>
+                        <input type="text" id="authDomain" style="width:100%; padding:10px; background:#000; border:1px solid #374151; color:#fff; border-radius:8px;">
+                    </div>
+                    <div class="form-group">
+                        <label for="projectId">Project ID</label>
+                        <input type="text" id="projectId" style="width:100%; padding:10px; background:#000; border:1px solid #374151; color:#fff; border-radius:8px;">
+                    </div>
+                    <div class="form-group" style="display:flex; justify-content:flex-end; gap:0.5rem; margin-top:1.5rem;">
+                        <button type="button" class="btn-login" style="background:#ef4444; margin:0; padding:10px;" onclick="closeServerSettings()">İptal</button>
+                        <button type="button" class="btn-login" style="background:#3b82f6; margin:0; padding:10px;" onclick="saveServerSettings()">Kaydet</button>
+                    </div>
+                </div>
+            </div>
+            <script>
+                // Password visibility toggle
+                document.getElementById('togglePassword').addEventListener('click', function() {
+                    const pwd = document.getElementById('password');
+                    if (pwd.type === 'password') {
+                        pwd.type = 'text';
+                        this.classList.replace('fa-eye', 'fa-eye-slash');
+                    } else {
+                        pwd.type = 'password';
+                        this.classList.replace('fa-eye-slash', 'fa-eye');
+                    }
+                });
+                // Server settings modal functions
+                function openServerSettings() {
+                    document.getElementById('serverSettingsModal').style.display = 'flex';
+                    const cfg = JSON.parse(localStorage.getItem('customFirebaseConfig') || '{}');
+                    document.getElementById('apiKey').value = cfg.apiKey || '';
+                    document.getElementById('authDomain').value = cfg.authDomain || '';
+                    document.getElementById('projectId').value = cfg.projectId || '';
+                }
+                function closeServerSettings() {
+                    document.getElementById('serverSettingsModal').style.display = 'none';
+                }
+                function saveServerSettings() {
+                    const cfg = {
+                        apiKey: document.getElementById('apiKey').value.trim(),
+                        authDomain: document.getElementById('authDomain').value.trim(),
+                        projectId: document.getElementById('projectId').value.trim()
+                    };
+                    localStorage.setItem('customFirebaseConfig', JSON.stringify(cfg));
+                    alert('Firebase ayarları kaydedildi. Sayfayı yenileyin.');
+                    closeServerSettings();
+                }
+            </script>
         </form>
     </div>
 
@@ -185,6 +261,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
     <!-- Firebase configuration -->
     <script src="js/firebase-sync.js?v=4.0"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
 
     <script>
         const loginForm = document.getElementById('loginForm');
@@ -196,6 +273,17 @@
         firebase.auth().onAuthStateChanged((user) => {
             if (user && window.location.pathname.endsWith('login.html')) {
                 window.location.href = 'index.html';
+            }
+        });
+
+        // Beni Hatırla Kontrolü ve Doldurma
+        document.addEventListener('DOMContentLoaded', () => {
+            const rememberedEmail = localStorage.getItem('etiket_crm_remembered_email');
+            const rememberedPassword = localStorage.getItem('etiket_crm_remembered_password');
+            if (rememberedEmail && rememberedPassword) {
+                document.getElementById('email').value = rememberedEmail;
+                document.getElementById('password').value = rememberedPassword;
+                document.getElementById('rememberMe').checked = true;
             }
         });
 
@@ -234,6 +322,43 @@
                 });
         });
 
+        // ŞİFREMİ UNUTTUM İşlemi
+        const forgotPasswordLink = document.getElementById('forgotPasswordLink');
+        forgotPasswordLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value.trim();
+            
+            if(!email) {
+                const userEmail = prompt("Şifre sıfırlama bağlantısı göndermek için lütfen e-posta adresinizi girin:", "");
+                if (userEmail && userEmail.trim()) {
+                    sendResetEmail(userEmail.trim());
+                }
+            } else {
+                if (confirm(`${email} adresine şifre sıfırlama bağlantısı gönderilsin mi?`)) {
+                    sendResetEmail(email);
+                }
+            }
+        });
+
+        function sendResetEmail(email) {
+            errorDiv.style.display = 'none';
+            firebase.auth().sendPasswordResetEmail(email)
+                .then(() => {
+                    alert("Şifre sıfırlama e-postası başarıyla gönderildi! Lütfen gelen kutunuzu (ve gereksiz/spam klasörünü) kontrol edin.");
+                })
+                .catch((error) => {
+                    console.error("Şifre sıfırlama hatası:", error);
+                    errorDiv.style.display = 'block';
+                    if (error.code === 'auth/user-not-found') {
+                        errorDiv.textContent = 'Bu e-posta adresiyle kayıtlı bir kullanıcı bulunamadı!';
+                    } else if (error.code === 'auth/invalid-email') {
+                        errorDiv.textContent = 'Lütfen geçerli bir e-posta adresi girin.';
+                    } else {
+                        errorDiv.textContent = 'Şifre sıfırlama hatası: ' + error.message;
+                    }
+                });
+        }
+
         // GİRİŞ YAP İşlemi
         loginForm.addEventListener('submit', (e) => {
             e.preventDefault();
@@ -254,6 +379,16 @@
             // Firebase Authentication
             firebase.auth().signInWithEmailAndPassword(email, password)
                 .then((userCredential) => {
+                    // Beni Hatırla İşlemi
+                    const rememberMe = document.getElementById('rememberMe').checked;
+                    if (rememberMe) {
+                        localStorage.setItem('etiket_crm_remembered_email', email);
+                        localStorage.setItem('etiket_crm_remembered_password', password);
+                    } else {
+                        localStorage.removeItem('etiket_crm_remembered_email');
+                        localStorage.removeItem('etiket_crm_remembered_password');
+                    }
+                    
                     // Başarılı giriş
                     window.location.href = 'index.html';
                 })
@@ -273,6 +408,222 @@
                     submitBtn.disabled = false;
                 });
         });
+
+        // Sunucu Entegrasyonu Modalı Logic
+        const btnCustomServer = document.getElementById('btnCustomServer');
+        const customServerModal = document.getElementById('customServerModal');
+        const btnCloseServerModal = document.getElementById('btnCloseServerModal');
+        const firebaseConfigInput = document.getElementById('firebaseConfigInput');
+        const btnSaveServer = document.getElementById('btnSaveServer');
+        const btnResetServer = document.getElementById('btnResetServer');
+        const customServerStatus = document.getElementById('customServerStatus');
+        
+        // QR Scanner Elements
+        const btnScanQR = document.getElementById('btnScanQR');
+        const qrScannerContainer = document.getElementById('qr-scanner-container');
+        const btnStopScan = document.getElementById('btnStopScan');
+        let html5QrcodeScanner = null;
+
+        function stopQrScanner() {
+            if (html5QrcodeScanner && html5QrcodeScanner.isScanning) {
+                html5QrcodeScanner.stop().then(() => {
+                    qrScannerContainer.style.display = 'none';
+                    console.log("Scanner stopped.");
+                }).catch(err => console.error("Error stopping scanner:", err));
+            } else {
+                qrScannerContainer.style.display = 'none';
+            }
+        }
+
+        function updateModalUI() {
+            const configInfo = window.getFirebaseConfig();
+            if (configInfo.isCustom) {
+                customServerStatus.innerHTML = '<i class="fa-solid fa-server" style="color: #10b981;"></i> <span>Bağlantı Türü: <b style="color:#10b981;">Özel Sunucu (Aktif)</b><br><small style="color:#94a3b8;">Proje: ' + configInfo.config.projectId + '</small></span>';
+                customServerStatus.style.background = 'rgba(16, 185, 129, 0.1)';
+                customServerStatus.style.borderColor = 'rgba(16, 185, 129, 0.2)';
+                firebaseConfigInput.value = JSON.stringify(configInfo.config, null, 2);
+                btnResetServer.style.display = 'inline-flex';
+            } else {
+                customServerStatus.innerHTML = '<i class="fa-solid fa-cloud" style="color: #3b82f6;"></i> <span>Bağlantı Türü: <b>Varsayılan Bulut Sunucusu</b></span>';
+                customServerStatus.style.background = 'rgba(59, 130, 246, 0.1)';
+                customServerStatus.style.borderColor = 'rgba(59, 130, 246, 0.2)';
+                firebaseConfigInput.value = '';
+                btnResetServer.style.display = 'none';
+            }
+        }
+
+        btnCustomServer.addEventListener('click', () => {
+            customServerModal.style.display = 'flex';
+            updateModalUI();
+        });
+
+        btnCloseServerModal.addEventListener('click', () => {
+            stopQrScanner();
+            customServerModal.style.display = 'none';
+        });
+
+        // Modal dışına tıklayınca kapansın
+        customServerModal.addEventListener('click', (e) => {
+            if (e.target === customServerModal) {
+                stopQrScanner();
+                customServerModal.style.display = 'none';
+            }
+        });
+
+        btnScanQR.addEventListener('click', () => {
+            if (typeof Html5Qrcode === 'undefined') {
+                alert("QR tarayıcı kütüphanesi yüklenemedi. Sayfayı yenileyip tekrar deneyin.");
+                return;
+            }
+
+            qrScannerContainer.style.display = 'block';
+
+            if (!html5QrcodeScanner) {
+                html5QrcodeScanner = new Html5Qrcode("qr-reader");
+            }
+
+            const qrSuccessCallback = (decodedText, decodedResult) => {
+                console.log("QR Code detected:", decodedText);
+                stopQrScanner();
+                firebaseConfigInput.value = decodedText;
+                
+                // Trigger save directly to check and reload
+                setTimeout(() => {
+                    btnSaveServer.click();
+                }, 500);
+            };
+
+            const qrErrorCallback = (errorMessage) => {
+                // Ignore framing errors
+            };
+
+            // Start camera
+            html5QrcodeScanner.start(
+                { facingMode: "environment" },
+                {
+                    fps: 10,
+                    qrbox: { width: 250, height: 250 }
+                },
+                qrSuccessCallback,
+                qrErrorCallback
+            ).catch(err => {
+                console.error("Camera start error:", err);
+                alert("Kamera başlatılamadı! Kamera izni verdiğinizden emin olun.");
+                qrScannerContainer.style.display = 'none';
+            });
+        });
+
+        btnStopScan.addEventListener('click', () => {
+            stopQrScanner();
+        });
+
+        btnSaveServer.addEventListener('click', () => {
+            const rawVal = firebaseConfigInput.value.trim();
+            if (!rawVal) {
+                alert("Lütfen bir Firebase Web Yapılandırma JSON kodu yapıştırın.");
+                return;
+            }
+
+            try {
+                // Parse it. It could be raw JSON or Javascript object representation.
+                let jsonStr = rawVal;
+                
+                // If they pasted a javascript block, let's extract what's inside { ... }
+                if (rawVal.indexOf('{') > -1) {
+                    jsonStr = rawVal.substring(rawVal.indexOf('{'), rawVal.lastIndexOf('}') + 1);
+                }
+                
+                let parsedConfig;
+                try {
+                    parsedConfig = JSON.parse(jsonStr);
+                } catch (e) {
+                    // Try to evaluate it as a javascript object if JSON.parse fails
+                    const tempFunc = new Function("return (" + jsonStr + ");");
+                    parsedConfig = tempFunc();
+                }
+
+                if (!parsedConfig || !parsedConfig.apiKey || !parsedConfig.projectId) {
+                    alert("Geçersiz Firebase yapılandırması! 'apiKey' ve 'projectId' alanları zorunludur.");
+                    return;
+                }
+
+                // Clean standard keys
+                const cleanedConfig = {
+                    apiKey: parsedConfig.apiKey,
+                    authDomain: parsedConfig.authDomain || "",
+                    projectId: parsedConfig.projectId,
+                    storageBucket: parsedConfig.storageBucket || "",
+                    messagingSenderId: parsedConfig.messagingSenderId || "",
+                    appId: parsedConfig.appId || ""
+                };
+
+                window.saveFirebaseConfig(cleanedConfig);
+                alert("Sunucu bağlantısı başarıyla kaydedildi! Sayfa yeniden başlatılıyor...");
+                location.reload();
+            } catch (err) {
+                console.error(err);
+                alert("Yapılandırma çözümlenirken hata oluştu: " + err.message + "\nLütfen kodu doğru formatta yapıştırdığınızdan emin olun.");
+            }
+        });
+
+        btnResetServer.addEventListener('click', () => {
+            if (confirm("Özel sunucu bağlantısını silip varsayılan Satış Bulutu sunucusuna dönmek istiyor musunuz?")) {
+                window.resetFirebaseConfig();
+                alert("Varsayılan bulut sunucusuna geri dönüldü! Sayfa yeniden başlatılıyor...");
+                location.reload();
+            }
+        });
     </script>
+
+    <!-- Sunucu Yapılandırma Modalı -->
+    <div id="customServerModal" class="modal-overlay" style="display: none; align-items: center; justify-content: center; z-index: 100002;">
+        <div class="modal-content" style="max-width: 480px; background: #0f172a; border-color: rgba(255,255,255,0.1); color: #f8fafc;">
+            <div class="panel-header" style="background: rgba(17, 24, 39, 0.85); border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 1.5rem;">
+                <span class="panel-title" style="color: #fff; font-weight: 700; font-size: 1.1rem; display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-server" style="color: #6366f1;"></i> Sunucu Entegrasyonu</span>
+                <button type="button" class="btn-icon" id="btnCloseServerModal" style="border: none; color: #94a3b8; font-size: 1.2rem; cursor: pointer; background: transparent; padding: 4px;"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body-scroll" style="padding: 1.5rem; max-height: 60vh; overflow-y: auto;">
+                <!-- Status indicator -->
+                <div id="customServerStatus" style="padding: 12px; border-radius: 10px; background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.2); margin-bottom: 1.25rem; font-size: 0.85rem; display: flex; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-circle-info" style="color: #3b82f6;"></i>
+                    <span>Bağlantı Türü: <b>Varsayılan Bulut Sunucusu</b></span>
+                </div>
+
+                <!-- QR Scanner Trigger -->
+                <button type="button" class="btn" id="btnScanQR" style="width: 100%; margin-bottom: 1rem; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; font-weight: 600; border: none; padding: 10px; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);"><i class="fa-solid fa-camera"></i> QR Kodu Kamera ile Tara</button>
+                
+                <!-- QR Code Viewfinder -->
+                <div id="qr-scanner-container" style="display: none; width: 100%; border-radius: 12px; overflow: hidden; border: 2px solid rgba(16, 185, 129, 0.4); margin-bottom: 1.25rem; background: #000; position: relative;">
+                    <div id="qr-reader" style="width: 100%; background: #000;"></div>
+                    <button type="button" class="btn" id="btnStopScan" style="position: absolute; bottom: 10px; right: 10px; background: rgba(239, 68, 68, 0.85); color: white; border: none; font-size: 0.75rem; padding: 4px 8px; z-index: 10; cursor: pointer; border-radius: 4px;">Taramayı Kapat</button>
+                </div>
+
+                <p style="font-size: 0.8rem; color: #94a3b8; line-height: 1.4; margin-bottom: 1rem;">
+                    Uygulamayı kendi Firebase veritabanı sunucunuza kolayca bağlayabilirsiniz. Bunun için Firebase Console'dan kopyaladığınız <b>Web App Yapılandırma JSON</b> kodunu aşağıdaki alana yapıştırın veya QR kodu taratın.
+                </p>
+
+                <div class="form-group" style="margin-bottom: 1.25rem; display: flex; flex-direction: column; gap: 6px;">
+                    <label style="color: #cbd5e1; font-weight: 600; font-size: 0.8rem;">Firebase Web Yapılandırması (JSON veya JS Objesi)</label>
+                    <textarea id="firebaseConfigInput" class="form-control" rows="8" placeholder='{&#10;  "apiKey": "AIzaSy...",&#10;  "authDomain": "projem.firebaseapp.com",&#10;  "projectId": "projem",&#10;  ...&#10;}' style="width: 100%; font-family: monospace; font-size: 0.8rem; background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255,255,255,0.1); color: #fff; border-radius: 8px; padding: 10px; resize: vertical; box-sizing: border-box; outline: none;"></textarea>
+                </div>
+
+                <!-- Step-by-step help accordion / small guide -->
+                <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; font-size: 0.75rem;">
+                    <div style="font-weight: 700; color: #fff; margin-bottom: 6px; display: flex; align-items: center; gap: 4px;">
+                        <i class="fa-solid fa-graduation-cap" style="color: #fbbf24;"></i> Nasıl Kurulur? (3 Adım)
+                    </div>
+                    <ol style="margin-left: 15px; color: #94a3b8; display: flex; flex-direction: column; gap: 4px; padding-left: 0;">
+                        <li>Firebase Console'a gidin, yeni bir proje oluşturun.</li>
+                        <li><b>Firestore Database</b> ve <b>Authentication (E-posta/Şifre)</b> modüllerini aktifleştirin.</li>
+                        <li>Proje Ayarları -> Web Uygulaması ekleyin ve size verilen config objesini kopyalayıp buraya yapıştırın.</li>
+                    </ol>
+                </div>
+            </div>
+            <div class="modal-footer" style="background: rgba(17, 24, 39, 0.85); border-top: 1px solid rgba(255,255,255,0.08); padding: 1rem; display: flex; gap: 10px; justify-content: flex-end;">
+                <button type="button" class="btn btn-outline" id="btnResetServer" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.3); background: transparent; font-size: 0.85rem; display: none; align-items: center; gap: 6px; cursor: pointer; padding: 8px 12px; border-radius: 6px;"><i class="fa-solid fa-rotate-left"></i> Varsayılana Sıfırla</button>
+                <button type="button" class="btn btn-primary" id="btnSaveServer" style="font-size: 0.85rem; background: #4f46e5; color: #fff; border: none; align-items: center; gap: 6px; cursor: pointer; padding: 8px 16px; border-radius: 6px; font-weight: 600;"><i class="fa-solid fa-check"></i> Bağlantıyı Kur & Yeniden Başlat</button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
