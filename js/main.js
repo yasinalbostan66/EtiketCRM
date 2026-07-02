@@ -539,13 +539,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 <i class="fa-solid fa-users"></i>
                 <span>Firmalar</span>
             </a>
-            <a href="odeme_takibi.html" class="bottom-nav-item ${cleanedPath === 'odeme_takibi.html' ? 'active' : ''}">
-                <i class="fa-solid fa-money-bill-trend-up"></i>
-                <span>Cari</span>
-            </a>
             <a href="analiz.html" class="bottom-nav-item ${cleanedPath === 'analiz.html' ? 'active' : ''}">
                 <i class="fa-solid fa-chart-pie"></i>
                 <span>Analiz</span>
+            </a>
+            <a href="siparis.html" class="bottom-nav-item ${cleanedPath === 'siparis.html' ? 'active' : ''}">
+                <i class="fa-solid fa-cart-plus"></i>
+                <span>Sipariş Oluştur</span>
+            </a>
+            <a href="siparis.html#siparisListesi" class="bottom-nav-item ${cleanedPath.includes('siparis.html') && cleanedPath.includes('#siparisListesi') ? 'active' : ''}">
+                <i class="fa-solid fa-list-check"></i>
+                <span>Alınan Siparişler</span>
             </a>
             <button class="bottom-nav-item" id="bottomMenuGridBtn">
                 <i class="fa-solid fa-bars"></i>
