@@ -18,7 +18,7 @@
     </script>
     <title>Genel Bakış | SATIŞ KİŞİSEL KULLANIM</title>
     <!-- CSS -->
-    <link rel="stylesheet" href="css/style.css?v=5.2">
+    <link rel="stylesheet" href="css/style.css?v=5.3">
     <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -224,45 +224,84 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
     <!-- Firebase Sync Logic -->
-    <script src="js/firebase-sync.js?v=5.2"></script>
-    <script src="js/main.js?v=5.2"></script>
+    <script src="js/firebase-sync.js?v=5.3"></script>
+    <script src="js/main.js?v=5.3"></script>
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
             // Döviz Kurlarını Çek ve Yaz
             const rates = await fetchExchangeRates();
             document.getElementById('usdRate').textContent = `USD: ${rates.USD} ₺`;
             document.getElementById('eurRate').textContent = `EUR: ${rates.EUR} ₺`;
-            
-            if(document.getElementById('contentUsdRate')) document.getElementById('contentUsdRate').textContent = `${rates.USD} ₺`;
-            if(document.getElementById('contentEurRate')) document.getElementById('contentEurRate').textContent = `${rates.EUR} ₺`;
 
-            const firmalar = getFirmalar();
-            const siparisler = getSiparisler();
-            const tahsilatlar = getTahsilatlar();
-            
-            // İstatistikleri Doldur
-            document.getElementById('statTotalFirma').textContent = firmalar.length;
-            document.getElementById('statTotalSiparis').textContent = siparisler.length;
-            
-            const totalSiparisUSD = siparisler.reduce((acc, curr) => acc + curr.totalPriceUSD, 0);
-            const totalTahsilatUSD = tahsilatlar.reduce((acc, curr) => acc + curr.totalAmountUSD, 0);
-            
-            // Alınacak Ödeme Hesapla (Tüm firmaların bakiyeleri toplamı)
-            let totalReceivable = 0;
-            firmalar.forEach(f => {
-                const fSip = siparisler.filter(s => s.firmaId === f.id);
-                const fTah = tahsilatlar.filter(t => t.firmaId === f.id);
-                const sSum = fSip.reduce((a,c) => a+c.totalPriceUSD, 0);
-                const tSum = fTah.reduce((a,c) => a+c.totalAmountUSD, 0);
-                if (sSum > tSum) {
-                    totalReceivable += (sSum - tSum);
+            // === İstatistik Kartları + İşlemler Tablosu ===
+            // Firebase sync sonrası da çalışsın diye fonksiyon olarak tanımlandı
+            function renderDashboardStats() {
+                const firmalar = getFirmalar();
+                const siparisler = getSiparisler();
+                const tahsilatlar = getTahsilatlar();
+
+                // Stat kartları
+                document.getElementById('statTotalFirma').textContent = firmalar.length;
+                document.getElementById('statTotalSiparis').textContent = siparisler.length;
+
+                const totalSiparisUSD = siparisler.reduce((acc, curr) => acc + (curr.totalPriceUSD || 0), 0);
+                document.getElementById('statTotalRevenue').textContent = formatCurrency(totalSiparisUSD);
+
+                let totalReceivable = 0;
+                firmalar.forEach(f => {
+                    const fSip = siparisler.filter(s => s.firmaId === f.id);
+                    const fTah = tahsilatlar.filter(t => t.firmaId === f.id);
+                    const sSum = fSip.reduce((a,c) => a+(c.totalPriceUSD||0), 0);
+                    const tSum = fTah.reduce((a,c) => a+(c.totalAmountUSD||0), 0);
+                    if (sSum > tSum) totalReceivable += (sSum - tSum);
+                });
+                if (document.getElementById('statTotalReceivable')) {
+                    document.getElementById('statTotalReceivable').textContent = formatCurrency(totalReceivable);
                 }
-            });
 
-            document.getElementById('statTotalRevenue').textContent = formatCurrency(totalSiparisUSD);
-            if (document.getElementById('statTotalReceivable')) {
-                document.getElementById('statTotalReceivable').textContent = formatCurrency(totalReceivable);
+                // İşlemler tablosunu güncelle
+                const tbody = document.getElementById('recentOrdersBody');
+                if (!tbody) return;
+                const allTransactions = [
+                    ...siparisler.map(s => ({...s, transType: 'SIPARIS'})),
+                    ...tahsilatlar.map(t => ({...t, transType: 'TAHSILAT'}))
+                ];
+                if (allTransactions.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 2rem;">Henüz işlem bulunmuyor.</td></tr>`;
+                    return;
+                }
+                const sorted = allTransactions.sort((a,b) => new Date(b.date) - new Date(a.date)).slice(0, 10);
+                tbody.innerHTML = '';
+                sorted.forEach(s => {
+                    const firma = firmalar.find(f => f.id === s.firmaId);
+                    const firmaAdi = firma ? firma.ad : '<Silinmiş Firma>';
+                    const dateStr = new Date(s.date).toLocaleDateString('tr-TR');
+                    let badgeHTML = '', amountColor = 'var(--success)', amountText = '', detailText = '';
+                    if (s.transType === 'SIPARIS') {
+                        badgeHTML = `<span class="badge ${s.type === 'Mürekkep' ? 'badge-blue' : (s.type && s.type.includes('Kağıt') ? 'badge-orange' : 'badge-green')}">${s.type}</span>`;
+                        detailText = `📦 ${s.name} (${s.paymentMethod || 'Kurum içi'})`;
+                        amountText = formatCurrency(s.totalPriceUSD);
+                    } else {
+                        badgeHTML = `<span class="badge" style="background: rgba(59,130,246,0.2); color:#60a5fa;">TAHSİLAT</span>`;
+                        amountColor = 'var(--primary)';
+                        detailText = `💰 ${s.method}`;
+                        amountText = '-' + formatCurrency(s.totalAmountUSD);
+                    }
+                    const tr = document.createElement('tr');
+                    if (s.transType === 'SIPARIS') { tr.style.cursor = 'pointer'; tr.onclick = () => showOrderDetails(s.id); }
+                    tr.innerHTML = `
+                        <td style="color:var(--text-muted);font-size:0.9rem;">${dateStr}</td>
+                        <td style="font-weight:500;">${firmaAdi}</td>
+                        <td>${badgeHTML}</td>
+                        <td class="hide-mobile" style="font-size:0.85rem;max-width:280px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${detailText}">${detailText}</td>
+                        <td style="font-weight:600;color:${amountColor};">${amountText}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
             }
+
+            // İlk render
+            renderDashboardStats();
             
             // Ziyaretleri Ayrı Kartlar Halinde Gösteren Fonksiyon
             function renderRecentVisits() {
@@ -328,63 +367,14 @@
             }
 
             renderRecentVisits();
-            
-            // Veri senkronizasyonu olduğunda ziyaretleri tazele
-            window.addEventListener('storage', renderRecentVisits);
 
-            // Tabloyu (Sipariş ve Tahsilat) Doldur
-            const allTransactions = [
-                ...siparisler.map(s => ({...s, transType: 'SIPARIS'})),
-                ...tahsilatlar.map(t => ({...t, transType: 'TAHSILAT'}))
-            ];
-
-            const tbody = document.getElementById('recentOrdersBody');
-            if (allTransactions.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 2rem;">Henüz işlem bulunmuyor.</td></tr>`;
-                return;
-            }
-            
-            // Tarihe göre sondan başa sırala
-            const sorted = allTransactions.sort((a,b) => new Date(b.date) - new Date(a.date)).slice(0, 10);
-            
-            sorted.forEach(s => {
-                const firma = firmalar.find(f => f.id === s.firmaId);
-                const firmaAdi = firma ? firma.ad : '<Silinmiş Firma>';
-                const dateObj = new Date(s.date);
-                const dateStr = dateObj.toLocaleDateString('tr-TR');
-                
-                let badgeHTML = '';
-                let amountColor = 'var(--success)';
-                let amountText = '';
-                let detailText = '';
-
-                if (s.transType === 'SIPARIS') {
-                    badgeHTML = `<span class="badge ${s.type === 'Mürekkep' ? 'badge-blue' : (s.type.includes('Kağıt') ? 'badge-orange' : 'badge-green')}">${s.type}</span>`;
-                    detailText = `📦 ${s.name} (${s.paymentMethod || 'Kurum içi'})`;
-                    amountText = formatCurrency(s.totalPriceUSD);
-                } else if (s.transType === 'TAHSILAT') {
-                    badgeHTML = `<span class="badge" style="background: rgba(59, 130, 246, 0.2); color: #60a5fa;">TAHSİLAT</span>`;
-                    amountColor = 'var(--primary)';
-                    detailText = `💰 ${s.method}`;
-                    amountText = '-' + formatCurrency(s.totalAmountUSD);
-                }
-
-                const tr = document.createElement('tr');
-                if (s.transType === 'SIPARIS') {
-                    tr.style.cursor = 'pointer';
-                    tr.title = 'Detayları Gör';
-                    tr.onclick = () => showOrderDetails(s.id);
-                }
-                
-                tr.innerHTML = `
-                    <td style="color: var(--text-muted); font-size: 0.9rem;">${dateStr}</td>
-                    <td style="font-weight: 500;">${firmaAdi}</td>
-                    <td>${badgeHTML}</td>
-                    <td class="hide-mobile" style="font-size: 0.85rem; max-width: 280px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${detailText}">${detailText}</td>
-                    <td style="font-weight: 600; color: ${amountColor};">${amountText}</td>
-                `;
-                tbody.appendChild(tr);
+            // Firebase sync olduğunda HER ŞEYİ yenile (istatistikler + ziyaretler + tablo)
+            window.addEventListener('storage', () => {
+                renderDashboardStats();
+                renderRecentVisits();
             });
+
+            // Tablo renderDashboardStats() içinde zaten yapılıyor
 
             // --- İstatistik Kartları Detay Modalı Tetikleyicileri ---
             const statsDetailModal = document.getElementById('statsDetailModal');
