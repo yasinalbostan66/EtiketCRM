@@ -58,7 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Rota hesaplamayı o günkü tarihe göre tetikle
             const todayStr = new Date().toISOString().split('T')[0];
-            updateDailyRoute(todayStr);
+            if (typeof updateDailyRoute === 'function') updateDailyRoute(todayStr);
         },
         dateClick: function(info) {
              const parts = info.dateStr.split('T');
@@ -67,7 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
              if (parts[1]) {
                   document.getElementById('visitSaat').value = parts[1].substring(0, 5); // HH:MM
              }
-             updateDailyRoute(parts[0]);
+             if (typeof updateDailyRoute === 'function') updateDailyRoute(parts[0]);
         },
         eventClick: function(info) {
              viewVisit(info.event.id);
@@ -276,6 +276,10 @@ document.addEventListener('DOMContentLoaded', () => {
     let routeMapInstance = null;
 
     async function updateDailyRoute(dateStr) {
+        if (typeof L === 'undefined') {
+            console.warn("Leaflet is not defined. Route mapping is disabled.");
+            return;
+        }
         const visits = getVisits().filter(v => v.date === dateStr);
         const routePanel = document.getElementById('routePanel');
         const routeList = document.getElementById('routeList');
@@ -284,7 +288,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const firmalar = typeof getFirmalar === 'function' ? getFirmalar() : [];
 
         if (visits.length === 0) {
-            routePanel.style.display = 'none';
+            if (routePanel) routePanel.style.display = 'none';
             return;
         }
 

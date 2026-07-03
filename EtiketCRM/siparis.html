@@ -9,7 +9,7 @@
     <link rel="apple-touch-icon" href="images/icon-192.png">
     <title>Yeni Sipariş Oluştur | SATIŞ KİŞİSEL KULLANIM</title>
     <!-- CSS -->
-    <link rel="stylesheet" href="css/style.css?v=5.7">
+    <link rel="stylesheet" href="css/style.css?v=5.8">
     <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -253,8 +253,8 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
-    <script src="js/firebase-sync.js?v=5.7"></script>
-    <script src="js/main.js?v=5.7"></script>
+    <script src="js/firebase-sync.js?v=5.8"></script>
+    <script src="js/main.js?v=5.8"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const selectFirma = document.getElementById('selectFirma');
@@ -326,12 +326,12 @@
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
                         <td style="text-align:center;"><input type="checkbox" class="order-select-checkbox" data-id="${s.id}" onchange="onOrderSelectChange()"></td>
-                        <td>${dateStr}</td>
+                        <td class="nowrap" style="white-space: nowrap !important;">${dateStr}</td>
                         <td style="font-weight:600;">${f ? f.ad : 'Bilinmeyen Firma'}</td>
                         <td>${s.name || 'Sipariş Detayı yok'}</td>
-                        <td><span class="badge" style="background:var(--primary-light); color:var(--primary); font-weight:600; padding:4px 8px; border-radius:6px;">${s.type}</span></td>
-                        <td style="text-align:right; font-weight:600; color:var(--success);">$${parseFloat(s.totalPriceUSD || 0).toFixed(2)}</td>
-                        <td style="text-align:right; white-space: nowrap;">
+                        <td class="nowrap" style="white-space: nowrap !important;"><span class="badge" style="background:var(--primary-light); color:var(--primary); font-weight:600; padding:4px 8px; border-radius:6px;">${s.type}</span></td>
+                        <td class="text-right nowrap" style="text-align:right; font-weight:600; color:var(--success); white-space: nowrap !important;">$${parseFloat(s.totalPriceUSD || 0).toFixed(2)}</td>
+                        <td style="text-align:right; white-space: nowrap !important;" class="nowrap">
                             <a href="siparis_onay.html?id=${s.id}" target="_blank" class="btn btn-outline" style="padding:4px 8px; font-size:0.75rem; color:var(--primary); border-color:var(--primary); background:transparent; margin-right:4px; text-decoration:none;"><i class="fa-solid fa-file-contract"></i> Tekli Onay</a>
                             <a href="siparis_onay.html?firmaId=${s.firmaId}" target="_blank" class="btn btn-outline" style="padding:4px 8px; font-size:0.75rem; color:#10b981; border-color:#10b981; background:transparent; margin-right:4px; text-decoration:none;"><i class="fa-solid fa-file-invoice"></i> Toplu Onay</a>
                             <button class="btn btn-outline" style="padding:4px 8px; font-size:0.75rem; color:var(--warning); border-color:var(--warning); background:transparent; margin-right:4px;" onclick="duzeltSiparis('${s.id}')"><i class="fa-solid fa-edit"></i> Düzelt</button>
