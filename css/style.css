@@ -1087,10 +1087,22 @@ tbody tr:hover {
 
     /* Tablolarda yatay kaydırma yerine sadece önemli sutunlar */
     .table-responsive {
-        -webkit-overflow-scrolling: touch;
-        overflow-x: auto;
+        -webkit-overflow-scrolling: touch !important;
+        overflow-x: auto !important;
+        overflow-y: hidden;
         border-radius: 8px;
         width: 100%;
+        margin-bottom: 1rem;
+    }
+    .table-responsive::-webkit-scrollbar {
+        height: 6px !important;
+    }
+    .table-responsive::-webkit-scrollbar-thumb {
+        background: #cbd5e1 !important;
+        border-radius: 3px !important;
+    }
+    .table-responsive::-webkit-scrollbar-track {
+        background: #f1f5f9 !important;
     }
 
     .table-responsive table {
