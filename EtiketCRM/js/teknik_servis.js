@@ -151,6 +151,11 @@ function openEditServiceModal(id) {
     const rec = records.find(r => r.id === id);
     if (!rec) return;
 
+    if (typeof checkRecordPermission === 'function' && !checkRecordPermission(rec.created_by)) {
+        alert("Bu servis kaydını düzenleme yetkiniz yok! Sadece oluşturan kullanıcı düzenleyebilir.");
+        return;
+    }
+
     document.getElementById('editServiceId').value = rec.id;
     document.getElementById('serviceFirmaSec').value = rec.firmaId;
     document.getElementById('serviceYetkili').value = rec.yetkili || '';
@@ -197,10 +202,12 @@ function saveServiceForm(event) {
         }
     } else {
         // Yeni Ekle
+        const currentUser = firebase.auth().currentUser;
         const newRecord = {
             id: 'srv_' + Date.now().toString(36) + Math.random().toString(36).substr(2),
             firmaId, yetkili, telefon, cihaz, seriNo, urunTipi, ariza, islem, durum, ucret,
-            tarih: new Date().toISOString()
+            tarih: new Date().toISOString(),
+            created_by: currentUser ? currentUser.uid : 'local_user'
         };
         records.push(newRecord);
     }
@@ -216,9 +223,14 @@ function saveServiceForm(event) {
 
 // Kayıt sil
 function deleteServiceRecord(id) {
-    if (!confirm('Bu teknik servis kaydını silmek istediğinize emin misiniz?')) return;
-
     let records = getTeknikServis();
+    const rec = records.find(r => r.id === id);
+    if (rec && typeof checkRecordPermission === 'function' && !checkRecordPermission(rec.created_by)) {
+        alert("Bu servis kaydını silme yetkiniz yok! Sadece oluşturan kullanıcı silebilir.");
+        return;
+    }
+
+    if (!confirm('Bu teknik servis kaydını silmek istediğinize emin misiniz?')) return;
     records = records.filter(r => r.id !== id);
     saveTeknikServisLocal(records);
     renderTeknikServis();

@@ -254,6 +254,11 @@ function openEditTransactionModal(id) {
     const rec = records.find(r => r.id === id);
     if (!rec) return;
 
+    if (typeof checkRecordPermission === 'function' && !checkRecordPermission(rec.created_by)) {
+        alert("Bu muhasebe kaydını düzenleme yetkiniz yok! Sadece oluşturan kullanıcı düzenleyebilir.");
+        return;
+    }
+
     document.getElementById('editTransId').value = rec.id;
     document.getElementById('transFirmaSec').value = rec.firmaId || '';
     document.getElementById('transType').value = rec.tip;
@@ -306,10 +311,12 @@ function saveTransactionForm(event) {
             };
         }
     } else {
+        const currentUser = firebase.auth().currentUser;
         const newTrans = {
             id: 'tr_' + Date.now().toString(36) + Math.random().toString(36).substr(2),
             firmaId, tip, kategori, faturaNo, tutar, doviz, description, faturaBase64,
-            tarih: new Date().toISOString()
+            tarih: new Date().toISOString(),
+            created_by: currentUser ? currentUser.uid : 'local_user'
         };
         records.push(newTrans);
     }
@@ -325,9 +332,14 @@ function saveTransactionForm(event) {
 
 // Kayıt sil
 function deleteTransactionRecord(id) {
-    if (!confirm('Bu muhasebe kaydını silmek istediğinize emin misiniz?')) return;
-
     let records = getMuhasebe();
+    const rec = records.find(r => r.id === id);
+    if (rec && typeof checkRecordPermission === 'function' && !checkRecordPermission(rec.created_by)) {
+        alert("Bu işlemi silme yetkiniz yok! Sadece oluşturan kullanıcı silebilir.");
+        return;
+    }
+
+    if (!confirm('Bu muhasebe kaydını silmek istediğinize emin misiniz?')) return;
     records = records.filter(r => r.id !== id);
     saveMuhasebeLocal(records);
     renderMuhasebe();

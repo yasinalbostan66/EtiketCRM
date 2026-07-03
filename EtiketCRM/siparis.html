@@ -9,7 +9,7 @@
     <link rel="apple-touch-icon" href="images/icon-192.png">
     <title>Yeni Sipariş Oluştur | SATIŞ KİŞİSEL KULLANIM</title>
     <!-- CSS -->
-    <link rel="stylesheet" href="css/style.css?v=5.5">
+    <link rel="stylesheet" href="css/style.css?v=5.6">
     <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -219,12 +219,18 @@
                 <div class="panel" id="siparisListesi" style="margin-top: 2rem;">
                     <div class="panel-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
                         <h2 class="panel-title" style="margin:0;"><i class="fa-solid fa-list-check"></i> Alınan Siparişler</h2>
-                        <input type="text" id="siparisAra" class="form-control no-print" placeholder="Sipariş veya Firma Ara..." style="width: 220px; font-size:0.85rem; padding: 6px 12px; height:auto;">
+                        <div class="d-flex gap-2 flex-wrap align-center no-print">
+                            <button id="btnBulkOffer" class="btn btn-outline" style="color:var(--primary); border-color:var(--primary); background:transparent; display:none; align-items:center; gap:6px; font-size:0.8rem; padding: 6px 12px; height:auto;" onclick="createBulkOffer()">
+                                <i class="fa-solid fa-file-contract"></i> Seçilenlerden Teklif Formu Oluştur
+                            </button>
+                            <input type="text" id="siparisAra" class="form-control" placeholder="Sipariş veya Firma Ara..." style="width: 220px; font-size:0.85rem; padding: 6px 12px; height:auto;">
+                        </div>
                     </div>
                     <div class="table-responsive">
                         <table>
                             <thead>
                                 <tr>
+                                    <th style="width: 40px; text-align: center;"><input type="checkbox" id="selectAllOrders" onchange="toggleSelectAllOrders(this)"></th>
                                     <th>Tarih</th>
                                     <th>Firma</th>
                                     <th>Sipariş / Malzeme</th>
@@ -247,8 +253,8 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
-    <script src="js/firebase-sync.js?v=5.5"></script>
-    <script src="js/main.js?v=5.5"></script>
+    <script src="js/firebase-sync.js?v=5.6"></script>
+    <script src="js/main.js?v=5.6"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const selectFirma = document.getElementById('selectFirma');
@@ -319,6 +325,7 @@
                     
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
+                        <td style="text-align:center;"><input type="checkbox" class="order-select-checkbox" data-id="${s.id}" onchange="onOrderSelectChange()"></td>
                         <td>${dateStr}</td>
                         <td style="font-weight:600;">${f ? f.ad : 'Bilinmeyen Firma'}</td>
                         <td>${s.name || 'Sipariş Detayı yok'}</td>
@@ -333,12 +340,44 @@
                     `;
                     siparisTableBody.appendChild(tr);
                 });
+
+                // Reset main checkbox
+                const selectAll = document.getElementById('selectAllOrders');
+                if (selectAll) selectAll.checked = false;
+                onOrderSelectChange();
             }
 
+            window.toggleSelectAllOrders = function(master) {
+                const checkboxes = document.querySelectorAll('.order-select-checkbox');
+                checkboxes.forEach(cb => cb.checked = master.checked);
+                onOrderSelectChange();
+            };
+
+            window.onOrderSelectChange = function() {
+                const checked = document.querySelectorAll('.order-select-checkbox:checked');
+                const btnBulk = document.getElementById('btnBulkOffer');
+                if (btnBulk) {
+                    btnBulk.style.display = checked.length > 0 ? 'inline-flex' : 'none';
+                }
+            };
+
+            window.createBulkOffer = function() {
+                const checked = document.querySelectorAll('.order-select-checkbox:checked');
+                const ids = Array.from(checked).map(cb => cb.getAttribute('data-id'));
+                if (ids.length === 0) return;
+                window.open(`siparis_onay.html?ids=${ids.join(',')}`, '_blank');
+            };
+
             window.deleteSiparis = function(id) {
+                const siparisler = typeof getSiparisler === 'function' ? getSiparisler() : [];
+                const s = siparisler.find(o => o.id === id);
+                if (s && typeof checkRecordPermission === 'function' && !checkRecordPermission(s.created_by)) {
+                    showToast('Bu siparişi silme yetkiniz yok! Sadece oluşturan kullanıcı silebilir.', 'error');
+                    return;
+                }
+
                 if (confirm('Bu siparişi silmek istediğinizden emin misiniz?')) {
-                    const siparisler = typeof getSiparisler === 'function' ? getSiparisler() : [];
-                    const index = siparisler.findIndex(s => s.id === id);
+                    const index = siparisler.findIndex(item => item.id === id);
                     if (index > -1) {
                         siparisler.splice(index, 1);
                         localStorage.setItem('etiket_crm_siparisler', JSON.stringify(siparisler));
@@ -358,6 +397,11 @@
                 const siparisler = typeof getSiparisler === 'function' ? getSiparisler() : [];
                 const s = siparisler.find(item => item.id === id);
                 if (!s) return;
+
+                if (typeof checkRecordPermission === 'function' && !checkRecordPermission(s.created_by)) {
+                    showToast('Bu siparişi düzenleme yetkiniz yok! Sadece oluşturan kullanıcı düzenleyebilir.', 'error');
+                    return;
+                }
 
                 // Firma seçim listesini doldur
                 editSiparisFirma.innerHTML = '';
