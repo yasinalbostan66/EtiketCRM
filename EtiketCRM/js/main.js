@@ -450,6 +450,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const cleanedPath = currentPath.split('?')[0] || 'index.html';
 
         sidebar.innerHTML = `
+            <style>
+                @keyframes pulse {
+                    0% { transform: scale(0.95); opacity: 0.5; }
+                    50% { transform: scale(1.1); opacity: 1; }
+                    100% { transform: scale(0.95); opacity: 0.5; }
+                }
+            </style>
             <div class="sidebar-header">
                 <a href="index.html" class="logo">
                     <i class="fa-solid fa-layer-group"></i>
@@ -515,6 +522,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 </a>
 
                 <div style="margin: 1rem 0 0.5rem 1rem; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">
+                    Operasyon & Destek
+                </div>
+                <a href="duyurular.html" class="nav-item ${cleanedPath === 'duyurular.html' ? 'active' : ''}">
+                    <i class="fa-solid fa-bullhorn" style="color: #fb923c !important;"></i>
+                    Duyurular
+                </a>
+                <a href="teknik_servis.html" class="nav-item ${cleanedPath === 'teknik_servis.html' ? 'active' : ''}">
+                    <i class="fa-solid fa-screwdriver-wrench" style="color: #38bdf8 !important;"></i>
+                    Teknik Servis
+                </a>
+                <a href="muhasebe.html" class="nav-item ${cleanedPath === 'muhasebe.html' ? 'active' : ''}">
+                    <i class="fa-solid fa-calculator" style="color: #a3e635 !important;"></i>
+                    Muhasebe Paneli
+                </a>
+
+                <div style="margin: 1rem 0 0.5rem 1rem; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">
                     Sistem
                 </div>
                 <a href="ayarlar.html" class="nav-item ${cleanedPath === 'ayarlar.html' ? 'active' : ''}">
@@ -522,6 +545,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     Ayarlar
                 </a>
                 
+                <div id="activeUsersWidget" style="margin-top: 1rem; padding: 0.75rem; background: rgba(255,255,255,0.03); border-radius: 12px; border: 1px solid var(--border-color); font-size: 0.8rem;">
+                    <div style="font-weight: 700; color: #fff; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 6px;">
+                        <i class="fa-solid fa-circle" style="color: var(--success); font-size: 0.55rem; animation: pulse 1.5s infinite;"></i>
+                        Çalışan Durumları
+                    </div>
+                    <div id="activeUsersList" style="display: flex; flex-direction: column; gap: 6px; max-height: 120px; overflow-y: auto;">
+                        <span style="color: var(--text-muted); font-size: 0.75rem;">Yükleniyor...</span>
+                    </div>
+                </div>
+
                 <div style="margin-top: auto; border-top: 1px solid var(--border-color); padding-top: 0.5rem; margin-bottom: 0.5rem;">
                     <a href="#" onclick="handleLogout()" class="nav-item" id="sidebarLogoutBtn" style="color: var(--danger);">
                         <i class="fa-solid fa-right-from-bracket"></i>
@@ -1066,3 +1099,57 @@ function calculateAllNotifications() {
 
     return notifications;
 }
+
+// --- Çalışan / Kullanıcı Durum Listesi Güncelleme ---
+function updateActiveUsersList() {
+    const listContainer = document.getElementById('activeUsersList');
+    if (!listContainer) return;
+
+    let kullanicilar = [];
+    try {
+        kullanicilar = JSON.parse(localStorage.getItem('etiket_crm_kullanicilar') || '[]');
+    } catch(e) {}
+
+    if (kullanicilar.length === 0) {
+        listContainer.innerHTML = `<span style="color: var(--text-muted); font-size: 0.75rem;">Kayıtlı kullanıcı yok</span>`;
+        return;
+    }
+
+    listContainer.innerHTML = '';
+    const now = new Date();
+
+    // Kendimizi en üste alacak şekilde sıralayabiliriz
+    kullanicilar.sort((a, b) => (b.durum === 'aktif' ? 1 : 0) - (a.durum === 'aktif' ? 1 : 0));
+
+    kullanicilar.forEach(user => {
+        let isOnline = false;
+        if (user.sonGorulme) {
+            const lastSeenDate = new Date(user.sonGorulme);
+            const diffInSeconds = Math.abs((now - lastSeenDate) / 1000);
+            if (diffInSeconds <= 60 && user.durum === 'aktif') {
+                isOnline = true;
+            }
+        }
+
+        const userItem = document.createElement('div');
+        userItem.style = "display: flex; align-items: center; justify-content: space-between; font-size: 0.75rem; color: var(--text-main); padding: 2px 0;";
+        
+        userItem.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 6px;">
+                <span style="width: 8px; height: 8px; border-radius: 50%; background: ${isOnline ? 'var(--success)' : '#64748b'}; display: inline-block; box-shadow: ${isOnline ? '0 0 6px var(--success)' : 'none'};"></span>
+                <span style="font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 110px;" title="${user.email}">${user.ad || user.email.split('@')[0].toUpperCase()}</span>
+            </div>
+            <span style="font-size: 0.65rem; color: var(--text-muted);">${isOnline ? 'Aktif' : 'Pasif'}</span>
+        `;
+        listContainer.appendChild(userItem);
+    });
+}
+
+// Sayfa yüklendiğinde ve storage değişiminde tetikle
+document.addEventListener('DOMContentLoaded', () => {
+    updateActiveUsersList();
+    setInterval(updateActiveUsersList, 15000);
+});
+window.addEventListener('storage', updateActiveUsersList);
+window.renderKullanicilar = updateActiveUsersList;
+

@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Muhasebe Yönetimi | SATIŞ KİŞİSEL KULLANIM</title>
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/style.css?v=5.5">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .invoice-preview-container {
+            width: 100%;
+            max-height: 400px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background: rgba(0,0,0,0.1);
+            margin-top: 0.5rem;
+        }
+        .invoice-preview-container img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+    </style>
+</head>
+<body>
+    <script>if(localStorage.getItem("etiket_crm_theme") === "light") document.body.classList.add("light-mode");</script>
+
+    <div class="app-wrapper">
+        <!-- Sidebar -->
+        <aside class="sidebar"></aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-header">
+                <div class="d-flex align-center gap-2">
+                    <button class="btn-icon hide-desktop" id="mobileMenuBtn">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <div class="page-title">Gelir & Gider Muhasebesi</div>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-primary" onclick="openNewTransactionModal()">
+                        <i class="fa-solid fa-file-invoice-dollar"></i> <span class="hide-mobile">Fatura / İşlem Ekle</span>
+                    </button>
+                </div>
+            </header>
+
+            <div class="content-wrapper">
+                <!-- Finansal Özet Kartları -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon green">
+                            <i class="fa-solid fa-arrow-trend-up"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="totalGelirUSD">$0.00</h3>
+                            <p>Toplam Gelir (USD)</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon red" style="background: rgba(239, 68, 68, 0.2); color: #f87171;">
+                            <i class="fa-solid fa-arrow-trend-down"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="totalGiderUSD">$0.00</h3>
+                            <p>Toplam Gider (USD)</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon blue">
+                            <i class="fa-solid fa-vault"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="netBakiyeUSD">$0.00</h3>
+                            <p>Kasa Bakiye (USD)</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filtreleme ve Arama -->
+                <div class="panel" style="margin-bottom: 1.5rem;">
+                    <div class="panel-body">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="searchFinance">İşlem veya Açıklama Ara</label>
+                                <input type="text" id="searchFinance" class="form-control" placeholder="Örn: Fatura No, Gider Tipi..." oninput="renderMuhasebe()">
+                            </div>
+                            <div class="form-group">
+                                <label for="filterType">İşlem Tipi</label>
+                                <select id="filterType" class="form-control" onchange="renderMuhasebe()">
+                                    <option value="HEPSİ">Tüm İşlemler</option>
+                                    <option value="Gelir">Gelir (Fatura/Tahsilat)</option>
+                                    <option value="Gider">Gider (Alım/Giderler)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- İşlemler ve Fatura Listesi -->
+                <div class="panel">
+                    <div class="panel-header">
+                        <h2 class="panel-title"><i class="fa-solid fa-receipt"></i> Fatura & Muhasebe Kayıtları</h2>
+                    </div>
+                    <div class="table-responsive">
+                        <table id="financeTable">
+                            <thead>
+                                <tr>
+                                    <th>Tarih</th>
+                                    <th>Firma Adı</th>
+                                    <th>Açıklama / Fatura No</th>
+                                    <th>Kategori</th>
+                                    <th>Tür</th>
+                                    <th>Tutar ($)</th>
+                                    <th>Fatura</th>
+                                    <th style="text-align: right;">İşlem</th>
+                                </tr>
+                            </thead>
+                            <tbody id="financeTableBody">
+                                <!-- JS ile doldurulacak -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Fatura / İşlem Ekleme Modalı -->
+    <div id="newTransactionModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content panel" style="max-width: 550px; width: 95%;">
+            <div class="panel-header">
+                <h2 class="panel-title"><i class="fa-solid fa-file-invoice-dollar"></i> Yeni Fatura / Muhasebe Girişi</h2>
+                <button class="btn-icon" onclick="closeNewTransactionModal()">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <form id="transactionForm" onsubmit="saveTransactionForm(event)">
+                <input type="hidden" id="editTransId">
+                <div class="modal-body-scroll">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="transFirmaSec">Firma (Seçmeli)</label>
+                            <select id="transFirmaSec" class="form-control">
+                                <option value="" selected>Firmadan Bağımsız (Genel Gider vs.)</option>
+                                <!-- Firmalar JS ile eklenecek -->
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="transType">İşlem Tipi *</label>
+                            <select id="transType" class="form-control" required onchange="onTransTypeChange()">
+                                <option value="Gelir">Gelir (Gelen Ödeme / Satış Faturası)</option>
+                                <option value="Gider">Gider (Yapılan Ödeme / Alım Faturası)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="transCategory">Kategori *</label>
+                            <select id="transCategory" class="form-control" required>
+                                <!-- JS ile yüklenecek -->
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="transFaturaNo">Fatura Numarası / Makbuz</label>
+                            <input type="text" id="transFaturaNo" class="form-control" placeholder="Örn: FT-2026-0012">
+                        </div>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="transTutar">Fatura / İşlem Tutarı *</label>
+                            <input type="number" id="transTutar" class="form-control" step="0.01" min="0.01" required placeholder="0.00">
+                        </div>
+                        <div class="form-group">
+                            <label for="transCurrency">Döviz Birimi</label>
+                            <select id="transCurrency" class="form-control">
+                                <option value="USD">Dolar ($)</option>
+                                <option value="TRY">Türk Lirası (₺)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="transDescription">Detay / Açıklama</label>
+                        <input type="text" id="transDescription" class="form-control" placeholder="İşleme ait kısa not veya detay">
+                    </div>
+
+                    <!-- FATURA DOSYASI EKLEME (Base64) -->
+                    <div class="form-group" style="margin-top: 1rem;">
+                        <label for="transFile">Fatura Görseli / Belge Ekle (PDF veya Resim)</label>
+                        <input type="file" id="transFile" class="form-control" accept="image/*,application/pdf" onchange="handleTransFileChange(this)">
+                        <div id="fileUploadStatus" style="font-size: 0.75rem; margin-top: 4px; color: var(--success); display: none;">
+                            <i class="fa-solid fa-circle-check"></i> Dosya başarıyla yüklendi.
+                        </div>
+                        <input type="hidden" id="transFileBase64">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="closeNewTransactionModal()">İptal</button>
+                    <button type="submit" class="btn btn-primary">Kaydet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Fatura Görsel Görüntüleme Modalı -->
+    <div id="invoiceViewModal" class="modal-overlay" style="display: none; z-index: 20000;">
+        <div class="modal-content panel" style="max-width: 700px; width: 95%;">
+            <div class="panel-header">
+                <h2 class="panel-title"><i class="fa-solid fa-image"></i> Fatura Görseli</h2>
+                <button class="btn-icon" onclick="closeInvoiceViewModal()">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="modal-body-scroll" style="display: flex; justify-content: center; align-items: center; background: #000; min-height: 350px;">
+                <img id="invoiceModalImg" src="" alt="Fatura Görseli" style="max-width: 100%; max-height: 70vh; object-fit: contain;">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline" onclick="closeInvoiceViewModal()">Kapat</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+
+    <!-- Core JS -->
+    <script src="js/firebase-sync.js?v=5.5"></script>
+    <script src="js/main.js?v=5.5"></script>
+    <script src="js/muhasebe.js"></script>
+</body>
+</html>
