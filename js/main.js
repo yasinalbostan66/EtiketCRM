@@ -84,10 +84,19 @@ function saveFirmalar(data) {
     }
 }
 
+window.checkRecordPermission = function(createdBy) {
+    if (!createdBy || createdBy === 'local_user') return true; 
+    const currentUser = firebase.auth().currentUser;
+    if (!currentUser) return true; 
+    return currentUser.uid === createdBy;
+};
+
 function addFirma(firma) {
     const firmalar = getFirmalar();
+    const currentUser = firebase.auth().currentUser;
     firma.id = 'frm_' + Date.now().toString(36) + Math.random().toString(36).substr(2);
     firma.dateAdded = new Date().toISOString();
+    firma.created_by = currentUser ? currentUser.uid : 'local_user';
     firmalar.push(firma);
     saveFirmalar(firmalar);
     return firma;
@@ -97,6 +106,10 @@ function updateFirma(firma) {
     const firmalar = getFirmalar();
     const index = firmalar.findIndex(f => f.id === firma.id);
     if (index !== -1) {
+        if (!checkRecordPermission(firmalar[index].created_by)) {
+            alert("Bu firmayı düzenleme yetkiniz yok! Sadece oluşturan kullanıcı düzenleyebilir.");
+            return false;
+        }
         firmalar[index] = { ...firmalar[index], ...firma };
         saveFirmalar(firmalar);
         return true;
@@ -132,9 +145,11 @@ function saveSiparisler(data) {
 
 function addSiparis(firmaId, siparisDetay) {
     const siparisler = getSiparisler();
+    const currentUser = firebase.auth().currentUser;
     siparisDetay.id = 'ord_' + Date.now().toString(36) + Math.random().toString(36).substr(2);
     siparisDetay.firmaId = firmaId;
     siparisDetay.date = new Date().toISOString();
+    siparisDetay.created_by = currentUser ? currentUser.uid : 'local_user';
     siparisler.push(siparisDetay);
     saveSiparisler(siparisler);
     return siparisDetay;
@@ -144,6 +159,10 @@ function updateSiparis(siparis) {
     const siparisler = getSiparisler();
     const index = siparisler.findIndex(s => s.id === siparis.id);
     if (index !== -1) {
+        if (!checkRecordPermission(siparisler[index].created_by)) {
+            alert("Bu siparişi düzenleme yetkiniz yok! Sadece oluşturan kullanıcı düzenleyebilir.");
+            return false;
+        }
         siparisler[index] = { ...siparisler[index], ...siparis };
         saveSiparisler(siparisler);
         return true;
@@ -179,10 +198,12 @@ function saveTahsilatlar(data) {
 
 function addTahsilat(firmaId, tahsilat) {
     const tahsilatlar = getTahsilatlar();
+    const currentUser = firebase.auth().currentUser;
     tahsilat.id = 'pay_' + Date.now().toString(36) + Math.random().toString(36).substr(2);
     tahsilat.firmaId = firmaId;
     tahsilat.date = new Date().toISOString();
     tahsilat.type = 'Tahsilat';
+    tahsilat.created_by = currentUser ? currentUser.uid : 'local_user';
     tahsilatlar.push(tahsilat);
     saveTahsilatlar(tahsilatlar);
     return tahsilat;
@@ -192,6 +213,10 @@ function updateTahsilat(tahsilat) {
     const tahsilatlar = getTahsilatlar();
     const index = tahsilatlar.findIndex(t => t.id === tahsilat.id);
     if (index !== -1) {
+        if (!checkRecordPermission(tahsilatlar[index].created_by)) {
+            alert("Bu tahsilatı düzenleme yetkiniz yok! Sadece oluşturan kullanıcı düzenleyebilir.");
+            return false;
+        }
         tahsilatlar[index] = { ...tahsilatlar[index], ...tahsilat };
         saveTahsilatlar(tahsilatlar);
         return true;

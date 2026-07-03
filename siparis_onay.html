@@ -397,17 +397,18 @@
         <p>Hatalı bir sipariş ID'si kullanıyor olabilirsiniz.</p>
     </div>
 
-    <script src="js/main.js?v=5.5"></script>
+    <script src="js/main.js?v=5.6"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const urlParams = new URLSearchParams(window.location.search);
             const orderId = urlParams.get('id');
             const firmaId = urlParams.get('firmaId');
+            const idsParam = urlParams.get('ids');
 
             const contentArea = document.getElementById('contentArea');
             const errorArea = document.getElementById('errorArea');
 
-            if (!orderId && !firmaId) {
+            if (!orderId && !firmaId && !idsParam) {
                 contentArea.style.display = 'none';
                 errorArea.style.display = 'block';
                 return;
@@ -421,7 +422,18 @@
             let paymentMethodStr = 'Kurum içi';
             let orderDate = new Date();
 
-            if (orderId) {
+            if (idsParam) {
+                const ids = idsParam.split(',');
+                targetOrders = siparisler.filter(o => ids.includes(o.id));
+                if (targetOrders.length === 0) {
+                    contentArea.style.display = 'none';
+                    errorArea.style.display = 'block';
+                    return;
+                }
+                firma = firmalar.find(f => f.id === targetOrders[0].firmaId);
+                paymentMethodStr = targetOrders[0].paymentMethod || 'Kurum içi';
+                orderDate = new Date(targetOrders[0].date);
+            } else if (orderId) {
                 const order = siparisler.find(o => o.id === orderId);
                 if (!order) {
                     contentArea.style.display = 'none';

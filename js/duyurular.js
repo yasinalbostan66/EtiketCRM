@@ -122,7 +122,8 @@ function saveAnnouncement(event) {
         priority: priority,
         icerik: content,
         tarih: new Date().toISOString(),
-        ekleyen: authorName
+        ekleyen: authorName,
+        created_by: user ? user.uid : 'local_user'
     };
 
     const duyurular = getDuyurular();
@@ -139,10 +140,16 @@ function saveAnnouncement(event) {
 
 // Duyuru Sil
 function deleteAnnouncement(id) {
+    let duyurular = getDuyurular();
+    const ann = duyurular.find(a => a.id === id);
+    if (ann && typeof checkRecordPermission === 'function' && !checkRecordPermission(ann.created_by)) {
+        alert("Bu duyuruyu silme yetkiniz yok! Sadece oluşturan kullanıcı silebilir.");
+        return;
+    }
+    
     if (!confirm('Bu duyuruyu silmek istediğinize emin misiniz?')) return;
 
-    let duyurular = getDuyurular();
-    duyurular = duyurular.filter(ann => ann.id !== id);
+    duyurular = duyurular.filter(a => a.id !== id);
     saveDuyurularLocal(duyurular);
     renderDuyurular();
 

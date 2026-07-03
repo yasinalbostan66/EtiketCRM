@@ -95,16 +95,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let visits = getVisits();
         if (editId) {
+             const existing = visits.find(v => v.id === editId);
+             if (existing && !checkRecordPermission(existing.created_by)) {
+                  showToast('Bu ziyareti düzenleme yetkiniz yok! Sadece oluşturan kullanıcı düzenleyebilir.', 'error');
+                  return;
+             }
              visits = visits.map(v => v.id === editId ? { ...v, firmaId, date, time, note, status: durum } : v);
              showToast('Ziyaret güncellemesi kaydedildi.', 'success');
         } else {
+             const currentUser = firebase.auth().currentUser;
              visits.push({
                  id: 'vis_' + Date.now().toString(36),
                  firmaId,
                  date,
                  time,
                  note,
-                 status: durum
+                 status: durum,
+                 created_by: currentUser ? currentUser.uid : 'local_user'
              });
              showToast('Yeni ziyaret kaydı eklendi.', 'success');
         }
@@ -131,6 +138,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const v = getVisits().find(item => item.id === id);
         if (!v) return;
 
+        if (!checkRecordPermission(v.created_by)) {
+            showToast('Bu ziyareti düzenleme yetkiniz yok! Sadece oluşturan kullanıcı düzenleyebilir.', 'error');
+            return;
+        }
+
         document.getElementById('editVisitId').value = v.id;
         document.getElementById('visitFirma').value = v.firmaId;
         document.getElementById('visitTarih').value = v.date;
@@ -146,6 +158,11 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     window.silZiyaret = function(id) {
+        const v = getVisits().find(item => item.id === id);
+        if (v && !checkRecordPermission(v.created_by)) {
+            showToast('Bu ziyareti silme yetkiniz yok! Sadece oluşturan kullanıcı silebilir.', 'error');
+            return;
+        }
         if (confirm('Bu ziyaret kaydını silmek istediğinize emin misiniz?')) {
             const visits = getVisits().filter(v => v.id !== id);
             saveVisits(visits);

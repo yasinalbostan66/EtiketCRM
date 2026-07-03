@@ -510,6 +510,8 @@ th, td {
     text-align: left;
     border-bottom: 1px solid var(--border-color);
     vertical-align: middle !important;
+    word-break: break-word;
+    overflow-wrap: anywhere;
 }
 
 th {
@@ -1099,8 +1101,10 @@ tbody tr:hover {
     table th, table td {
         padding: 8px 6px !important;
         font-size: 0.78rem !important;
-        white-space: nowrap !important;
+        white-space: normal !important;
         vertical-align: middle !important;
+        word-break: break-word;
+        overflow-wrap: anywhere;
     }
 
     table td:first-child {
