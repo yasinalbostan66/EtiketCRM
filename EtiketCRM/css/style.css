@@ -497,11 +497,13 @@ body.light-mode .bottom-nav-item.active {
 
 /* Tables (Professional CRM Look) */
 .table-responsive {
-    overflow-x: auto;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
 }
 
-table {
+.table-responsive table {
     width: 100%;
+    min-width: 950px !important; /* Masaüstünde dar alanlarda ezilmeyi ve dikey kırılmayı önler */
     border-collapse: collapse;
 }
 
@@ -510,8 +512,8 @@ th, td {
     text-align: left;
     border-bottom: 1px solid var(--border-color);
     vertical-align: middle !important;
-    word-break: break-word;
-    overflow-wrap: anywhere;
+    word-break: normal;
+    overflow-wrap: break-word;
 }
 
 th {
