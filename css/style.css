@@ -512,8 +512,7 @@ th, td {
     text-align: left;
     border-bottom: 1px solid var(--border-color);
     vertical-align: middle !important;
-    word-break: normal;
-    overflow-wrap: break-word;
+    white-space: nowrap !important;
 }
 
 th {
@@ -1115,10 +1114,8 @@ tbody tr:hover {
     table th, table td {
         padding: 10px 8px !important;
         font-size: 0.82rem !important;
-        white-space: normal !important;
+        white-space: nowrap !important;
         vertical-align: middle !important;
-        word-break: normal;
-        overflow-wrap: break-word;
     }
 
     /* Tutar, tarih, badge ve butonlar gibi tek satır kalması gereken alanlar */
