@@ -1,12 +1,4 @@
-const getVisits = () => {
-    try {
-        return JSON.parse(localStorage.getItem('etiket_crm_ziyaretler')) || [];
-    } catch(e) {
-        console.error("Localstorage ziyaretler parse hatası:", e);
-        return [];
-    }
-};
-
+const getVisits = () => JSON.parse(localStorage.getItem('etiket_crm_ziyaretler')) || [];
 const saveVisits = (visits) => {
     localStorage.setItem('etiket_crm_ziyaretler', JSON.stringify(visits));
     try {
@@ -20,8 +12,6 @@ const saveVisits = (visits) => {
         }
     } catch (e) {}
 };
-
-let globalCalendar = null; // Storage event dinleyicisinin erişebilmesi için global scope'a taşındı
 
 document.addEventListener('DOMContentLoaded', () => {
     const calendarEl = document.getElementById('calendar');
@@ -43,118 +33,84 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     populateFirmaSelect();
 
-    // FullCalendar Kurulumu (Geri Yüklenen Stabil Sürüm - Global Scope)
-    try {
-        globalCalendar = new FullCalendar.Calendar(calendarEl, {
-            initialView: 'dayGridMonth', // Aylık Görünüm (Eski stabil haline getirildi)
-            locale: 'tr',
-            headerToolbar: false, // Özel toolbar butonları kullanılacak
-            firstDay: 1, // Pazartesi başlasın
-            events: getVisitsForCalendar(),
-            datesSet: function(info) {
-                // Başlığı güncelle
-                const viewTitle = info.view.title;
-                let customTitleText = viewTitle;
-                if (info.view.type === 'timeGridWeek' || info.view.type === 'dayGridWeek') {
-                    customTitleText = "Haftalık Plan (" + viewTitle + ")";
-                } else if (info.view.type === 'timeGridDay' || info.view.type === 'dayGridDay') {
-                    customTitleText = "Günlük Plan (" + viewTitle + ")";
-                } else if (info.view.type === 'dayGridMonth') {
-                    customTitleText = "Aylık Plan (" + viewTitle + ")";
-                } else {
-                    customTitleText = viewTitle;
-                }
-                const titleEl = document.getElementById('customCalendarTitle');
-                if (titleEl) titleEl.textContent = customTitleText;
+    populateFirmaSelect();
 
-                // Rota hesaplamayı o günkü tarihe göre tetikle
-                const todayStr = new Date().toISOString().split('T')[0];
-                if (typeof updateDailyRoute === 'function') updateDailyRoute(todayStr);
-            },
-            dateClick: function(info) {
-                 const parts = info.dateStr.split('T');
-                 if (typeof window.openVisitModal === 'function') window.openVisitModal();
-                 document.getElementById('visitTarih').value = parts[0];
-                 if (parts[1]) {
-                      document.getElementById('visitSaat').value = parts[1].substring(0, 5); // HH:MM
-                 }
-                 if (typeof updateDailyRoute === 'function') updateDailyRoute(parts[0]);
-            },
-            eventClick: function(info) {
-                 viewVisit(info.event.id);
+    // FullCalendar Kurulumu
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        locale: 'tr',
+        headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'multiMonthYear,dayGridMonth,timeGridWeek,timeGridDay'
+        },
+        buttonText: {
+            today: 'Bugün',
+            year: 'Yıl',
+            month: 'Ay',
+            week: 'Hafta',
+            day: 'Gün'
+        },
+        events: getVisitsForCalendar(),
+        datesSet: function(info) {
+             const d = info.view.currentStart;
+             const yearSelect = document.getElementById('fcYearSelect');
+             if (yearSelect) {
+                 yearSelect.value = d.getFullYear();
+             }
+        },
+        dateClick: function(info) {
+             const parts = info.dateStr.split('T');
+             if (typeof window.openVisitModal === 'function') window.openVisitModal();
+             document.getElementById('visitTarih').value = parts[0];
+             if (parts[1]) {
+                  document.getElementById('visitSaat').value = parts[1].substring(0, 5); // HH:MM
+             }
+             // O güne ait rota planını göster
+             updateDailyRoute(parts[0]);
+        },
+        eventClick: function(info) {
+             viewVisit(info.event.id);
+        }
+    });
+
+    // Toolbar'a Özel Yıl Seçici Ekle
+    function injectYearSelect() {
+        const rightChunk = document.querySelector('#calendar .fc-toolbar-chunk:last-child');
+        if (rightChunk) {
+            const select = document.createElement('select');
+            select.id = 'fcYearSelect';
+            select.className = 'fc-button fc-button-primary'; // Match FC style if possible, or form-control
+            select.style.padding = '4px 10px';
+            select.style.background = 'var(--surface-color)';
+            select.style.border = '1px solid var(--border-color)';
+            select.style.color = 'var(--text-main)';
+            select.style.borderRadius = '4px';
+            select.style.marginLeft = '8px';
+            select.style.height = '34px'; // Match button heights
+
+            const currentYear = new Date().getFullYear();
+            for (let y = currentYear - 3; y <= currentYear + 3; y++) {
+                const opt = document.createElement('option');
+                opt.value = y;
+                opt.textContent = y;
+                select.appendChild(opt);
             }
-        });
-        
-        globalCalendar.render();
-    } catch(err) {
-        console.error("FullCalendar ilklendirme hatası:", err);
-    }
+            select.value = calendar.view.currentStart.getFullYear();
 
-    // Özel Arayüz Butonlarını FullCalendar API'sine bağla
-    function wireCustomCalendarButtons() {
-        const viewDay = document.getElementById('viewBtnDay');
-        const viewWeek = document.getElementById('viewBtnWeek');
-        const viewMonth = document.getElementById('viewBtnMonth');
-        const viewYear = document.getElementById('viewBtnYear');
-
-        const navPrev = document.getElementById('navBtnPrev');
-        const navToday = document.getElementById('navBtnToday');
-        const navNext = document.getElementById('navBtnNext');
-
-        const mapRouteToggle = document.getElementById('btnMapRouteToggle');
-
-        const updateBtnStates = (activeBtn) => {
-            [viewDay, viewWeek, viewMonth, viewYear].forEach(btn => {
-                if (btn) {
-                    btn.style.background = '#f1f5f9';
-                    btn.style.color = '#475569';
-                }
+            select.addEventListener('change', (e) => {
+                 const current = calendar.view.currentStart;
+                 calendar.gotoDate(new Date(parseInt(e.target.value), current.getMonth(), 1));
             });
-            if (activeBtn) {
-                activeBtn.style.background = '#3b82f6';
-                activeBtn.style.color = '#fff';
-            }
-        };
 
-        if (viewDay) viewDay.onclick = () => { 
-            try { globalCalendar.changeView('timeGridDay'); } catch(e) { globalCalendar.changeView('dayGridDay'); }
-            updateBtnStates(viewDay); 
-        };
-        if (viewWeek) viewWeek.onclick = () => { 
-            try { globalCalendar.changeView('timeGridWeek'); } catch(e) { globalCalendar.changeView('dayGridWeek'); }
-            updateBtnStates(viewWeek); 
-        };
-        if (viewMonth) viewMonth.onclick = () => { 
-            try { globalCalendar.changeView('dayGridMonth'); } catch(e) { globalCalendar.changeView('dayGridMonth'); }
-            updateBtnStates(viewMonth); 
-        };
-        if (viewYear) viewYear.onclick = () => { 
-            try { globalCalendar.changeView('multiMonthYear'); } catch(e) { globalCalendar.changeView('listYear'); }
-            updateBtnStates(viewYear); 
-        };
-
-        if (navPrev) navPrev.onclick = () => { if (globalCalendar) globalCalendar.prev(); };
-        if (navToday) navToday.onclick = () => { if (globalCalendar) globalCalendar.today(); };
-        if (navNext) navNext.onclick = () => { if (globalCalendar) globalCalendar.next(); };
-
-        if (mapRouteToggle) {
-            mapRouteToggle.onclick = () => {
-                const routePanel = document.getElementById('routePanel');
-                if (routePanel) {
-                    if (routePanel.style.display === 'none') {
-                        routePanel.style.display = 'block';
-                        // Haritayı yeniden boyutlandır Leaflet bug engellemek için
-                        if (window.routeMapObj) {
-                            setTimeout(() => window.routeMapObj.invalidateSize(), 200);
-                        }
-                    } else {
-                        routePanel.style.display = 'none';
-                    }
-                }
-            };
+            rightChunk.appendChild(select);
         }
     }
-    wireCustomCalendarButtons();
+
+    calendar.render();
+    injectYearSelect();
+
+    const jumpBtn = { addEventListener: () => {} }; // Dummy to avoid errors if any other script binds to it
 
     function getVisitsForCalendar() {
         const visits = getVisits();
@@ -290,10 +246,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let routeMapInstance = null;
 
     async function updateDailyRoute(dateStr) {
-        if (typeof L === 'undefined') {
-            console.warn("Leaflet is not defined. Route mapping is disabled.");
-            return;
-        }
         const visits = getVisits().filter(v => v.date === dateStr);
         const routePanel = document.getElementById('routePanel');
         const routeList = document.getElementById('routeList');
@@ -302,7 +254,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const firmalar = typeof getFirmalar === 'function' ? getFirmalar() : [];
 
         if (visits.length === 0) {
-            if (routePanel) routePanel.style.display = 'none';
+            routePanel.style.display = 'none';
             return;
         }
 
@@ -427,12 +379,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Bulut Senkronizasyonu Tetikleyicisi
     window.addEventListener('storage', () => {
-        if (globalCalendar && typeof getVisitsForCalendar === 'function') {
-            try {
-                globalCalendar.setOption('events', getVisitsForCalendar());
-            } catch(e) {
-                console.error("Storage event calendar sync error:", e);
-            }
+        if (typeof calendar !== 'undefined' && typeof getVisitsForCalendar === 'function') {
+            calendar.setOption('events', getVisitsForCalendar());
         }
     });
 });
