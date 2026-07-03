@@ -482,10 +482,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     100% { transform: scale(0.95); opacity: 0.5; }
                 }
             </style>
-            <div class="sidebar-header">
-                <a href="index.html" class="logo">
-                    <i class="fa-solid fa-layer-group"></i>
-                    SATIŞ KULLANIMI
+            <div class="sidebar-header" style="padding: 1.5rem 1.25rem 1rem 1.25rem;">
+                <a href="index.html" class="logo" style="display: flex; align-items: center; gap: 8px; text-decoration: none;">
+                    <div style="line-height: 1.1;">
+                        <span style="color:#3b82f6; font-family:'Outfit', sans-serif; font-size:1.35rem; font-weight:800; letter-spacing:-0.5px;">LINKUP</span>
+                        <span style="color:#ef4444; font-size:0.85rem; font-weight:700; display:block;">CRM <span style="font-size:0.65rem; color:var(--text-muted); font-weight:500;">by Yasin</span></span>
+                    </div>
+                    <i class="fa-solid fa-chart-line" style="color: #3b82f6; font-size:1.5rem;"></i>
                 </a>
             </div>
             
