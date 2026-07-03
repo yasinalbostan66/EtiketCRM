@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Duyurular | SATIŞ KİŞİSEL KULLANIM</title>
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/style.css?v=5.5">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .announcement-card {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--card-radius);
+            padding: 1.5rem;
+            margin-bottom: 1.25rem;
+            position: relative;
+            transition: var(--transition);
+        }
+        .announcement-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary-light);
+        }
+        .announcement-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.75rem;
+        }
+        .announcement-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--text-main);
+            font-family: 'Outfit', sans-serif;
+        }
+        .announcement-meta {
+            display: flex;
+            gap: 12px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+            align-items: center;
+        }
+        .announcement-content {
+            font-size: 0.92rem;
+            line-height: 1.6;
+            color: var(--text-main);
+            white-space: pre-line;
+        }
+        .priority-badge {
+            font-size: 0.7rem;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .priority-bilgi { background: rgba(59, 130, 246, 0.15); color: #60a5fa; }
+        .priority-uyari { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
+        .priority-acil { background: rgba(239, 68, 68, 0.15); color: #f87171; }
+    </style>
+</head>
+<body>
+    <script>if(localStorage.getItem("etiket_crm_theme") === "light") document.body.classList.add("light-mode");</script>
+
+    <div class="app-wrapper">
+        <!-- Sidebar -->
+        <aside class="sidebar"></aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-header">
+                <div class="d-flex align-center gap-2">
+                    <button class="btn-icon hide-desktop" id="mobileMenuBtn">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <div class="page-title">İlan Tahtası & Duyurular</div>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-primary" onclick="openNewAnnouncementModal()">
+                        <i class="fa-solid fa-plus"></i> <span class="hide-mobile">Yeni Duyuru</span>
+                    </button>
+                </div>
+            </header>
+
+            <div class="content-wrapper">
+                <!-- Arama ve Filtreleme -->
+                <div class="panel" style="margin-bottom: 1.5rem;">
+                    <div class="panel-body d-flex gap-2 flex-wrap" style="padding: 1.25rem;">
+                        <input type="text" id="searchAnnouncements" class="form-control" placeholder="Duyurularda ara..." style="flex: 1; min-width: 200px;" oninput="renderDuyurular()">
+                        <select id="filterPriority" class="form-control" style="width: auto; min-width: 150px;" onchange="renderDuyurular()">
+                            <option value="HEPSİ">Tüm Dereceler</option>
+                            <option value="bilgi">Bilgi</option>
+                            <option value="uyari">Uyarı</option>
+                            <option value="acil">Önemli/Acil</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Duyurular Listesi -->
+                <div id="announcementsList">
+                    <div style="text-align: center; padding: 3rem; color: var(--text-muted);">
+                        <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+                        <p>Duyurular yükleniyor...</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Yeni Duyuru Modalı -->
+    <div id="newAnnouncementModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content panel" style="max-width: 500px; width: 95%;">
+            <div class="panel-header">
+                <h2 class="panel-title"><i class="fa-solid fa-bullhorn"></i> Yeni Duyuru Yayınla</h2>
+                <button class="btn-icon" onclick="closeNewAnnouncementModal()">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <form id="announcementForm" onsubmit="saveAnnouncement(event)">
+                <div class="modal-body-scroll">
+                    <div class="form-group">
+                        <label for="annTitle">Başlık</label>
+                        <input type="text" id="annTitle" class="form-control" required placeholder="Duyuru başlığını yazın">
+                    </div>
+                    <div class="form-group">
+                        <label for="annPriority">Önem Derecesi</label>
+                        <select id="annPriority" class="form-control">
+                            <option value="bilgi">Bilgi (Mavi)</option>
+                            <option value="uyari">Uyarı (Sarı)</option>
+                            <option value="acil">Önemli / Acil (Kırmızı)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="annContent">Duyuru İçeriği</label>
+                        <textarea id="annContent" class="form-control" rows="6" required placeholder="Duyuru detaylarını buraya yazın..." style="resize: vertical;"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="closeNewAnnouncementModal()">İptal</button>
+                    <button type="submit" class="btn btn-primary">Yayınla</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+
+    <!-- Core JS -->
+    <script src="js/firebase-sync.js?v=5.5"></script>
+    <script src="js/main.js?v=5.5"></script>
+    <script src="js/duyurular.js"></script>
+</body>
+</html>

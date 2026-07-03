@@ -88,17 +88,43 @@ window.resetFirebaseConfig = function() {
   return true;
 };
 
-// Global Logout Function - Moved to main.js for reliability
-// --- Auth Guard ---
+// --- Auth Guard & Aktiflik İzleme ---
 auth.onAuthStateChanged(user => {
     if (!user && !window.location.pathname.endsWith('login.html')) {
         window.location.replace('login.html'); 
+    } else if (user) {
+        // Kullanıcı giriş yaptı, durumunu aktif yap
+        const uId = user.uid;
+        const userEmail = user.email;
+        const userName = localStorage.getItem('etiket_crm_userName') || userEmail.split('@')[0].toUpperCase();
+        
+        // Firestore'a aktiflik durumunu yaz
+        db.collection('kullanicilar').doc(uId).set({
+            id: uId,
+            email: userEmail,
+            ad: userName,
+            sonGorulme: new Date().toISOString(),
+            durum: 'aktif'
+        }, { merge: true }).catch(e => console.error("Kullanıcı aktiflik hatası:", e));
+
+        // Heartbeat (20 saniyede bir son görülmeyi güncelle)
+        if (window.userHeartbeatInterval) clearInterval(window.userHeartbeatInterval);
+        window.userHeartbeatInterval = setInterval(() => {
+            if (firebase.auth().currentUser) {
+                db.collection('kullanicilar').doc(uId).update({
+                    sonGorulme: new Date().toISOString(),
+                    durum: 'aktif'
+                }).catch(() => {});
+            }
+        }, 20000);
     }
 });
 
 let isSyncingFromFirestore = false;
 
-const COLLECTIONS = ['firmalar', 'siparisler', 'tahsilatlar', 'malzeme_fiyatlari', 'ziyaretler'];
+const COLLECTIONS = ['firmalar', 'siparisler', 'tahsilatlar', 'malzeme_fiyatlari', 'ziyaretler', 'duyurular', 'teknik_servis', 'muhasebe', 'kullanicilar'];
+
+
 
 // 1. Live Sync from Firestore to LocalStorage
 COLLECTIONS.forEach(col => {
@@ -136,6 +162,11 @@ COLLECTIONS.forEach(col => {
         if (typeof renderSiparisler === 'function') renderSiparisler();
         if (typeof renderTahsilatlar === 'function') renderTahsilatlar();
         if (typeof loadFirmaDetails === 'function') loadFirmaDetails();
+        if (typeof renderDuyurular === 'function') renderDuyurular();
+        if (typeof renderTeknikServis === 'function') renderTeknikServis();
+        if (typeof renderMuhasebe === 'function') renderMuhasebe();
+        if (typeof renderKullanicilar === 'function') renderKullanicilar();
+
         if (col === 'ziyaretler') {
             const calendarEl = document.getElementById('calendar');
             if (calendarEl && calendarEl.FullCalendar) {
@@ -183,7 +214,7 @@ localStorage.setItem = function(key, value) {
                 });
 
                 // 2b. Silinenleri Firestore'dan Temizle (Güvenli - sadece ana koleksiyonlarda)
-                const mainCollections = ['firmalar', 'siparisler', 'tahsilatlar', 'malzeme_fiyatlari', 'ziyaretler'];
+                const mainCollections = ['firmalar', 'siparisler', 'tahsilatlar', 'malzeme_fiyatlari', 'ziyaretler', 'duyurular', 'teknik_servis', 'muhasebe', 'kullanicilar'];
                 if (mainCollections.includes(col) && firebase.auth().currentUser) {
                     db.collection(col).get().then(snapshot => {
                         snapshot.docs.forEach(doc => {
