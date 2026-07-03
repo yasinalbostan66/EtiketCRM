@@ -213,6 +213,18 @@ function getMalzemeFiyatlari() {
 
 function saveMalzemeFiyatlari(data) {
     localStorage.setItem(MALZEME_FIYATLARI_KEY, JSON.stringify(data));
+
+    // Direct Cloud Backup
+    try {
+        if (firebase.auth().currentUser) {
+            data.forEach(item => {
+                if (item.id) {
+                    firebase.firestore().collection('malzeme_fiyatlari').doc(item.id).set(item, { merge: true })
+                       .catch(e => console.error("Firestore Save Fail (MalzemeFiyat):", e));
+                }
+            });
+        }
+    } catch (e) {}
 }
 
 // --- Ortak Fonksiyonlar ---
@@ -523,7 +535,8 @@ document.addEventListener('DOMContentLoaded', () => {
     injectSidebar();
 
     // --- Profesyonel Mobil Alt Navigasyon (Bottom Nav) ---
-    if (window.innerWidth <= 992 && !document.querySelector('.mobile-bottom-nav')) {
+    // Her zaman oluştur; CSS @media (max-width: 992px) gösterim kontrolünü yapar
+    if (!document.querySelector('.mobile-bottom-nav')) {
         const bottomNav = document.createElement('div');
         bottomNav.className = 'mobile-bottom-nav';
         

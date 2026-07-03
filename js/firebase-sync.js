@@ -154,7 +154,11 @@ localStorage.setItem = function(key, value) {
     
     if (key.startsWith('etiket_crm_')) {
         const col = key.replace('etiket_crm_', '');
-        if (col === 'theme') return; // Filtrele
+        // Sadece veri koleksiyonlarını sync et; ayarları ve geçici anahtarları atla
+        const NON_SYNC_KEYS = ['theme', 'brightness', 'companyName', 'companyLogo', 'userName', 
+                               'primary_color', 'custom_firebase_config', 'last_vade_alert_date', 
+                               'test_diag', 'visits'];
+        if (NON_SYNC_KEYS.some(k => col === k || col.startsWith(k))) return;
         
         try {
             const data = JSON.parse(value);
@@ -178,16 +182,19 @@ localStorage.setItem = function(key, value) {
                     }
                 });
 
-                // 2b. Silinenleri Firestore'dan Temizle (GEÇİCİ OLARAK PASİF EDİLDİ - ÇATIŞMADAN DOLAYI YUTUYOR OLABİLİR)
-                /*
-                db.collection(col).get().then(snapshot => {
-                    snapshot.docs.forEach(doc => {
-                        if (!data.find(d => d.id === doc.id)) {
-                            doc.ref.delete();
-                        }
-                    });
-                });
-                */
+                // 2b. Silinenleri Firestore'dan Temizle (Güvenli - sadece ana koleksiyonlarda)
+                const mainCollections = ['firmalar', 'siparisler', 'tahsilatlar', 'malzeme_fiyatlari', 'ziyaretler'];
+                if (mainCollections.includes(col) && firebase.auth().currentUser) {
+                    db.collection(col).get().then(snapshot => {
+                        snapshot.docs.forEach(doc => {
+                            if (!data.find(d => d.id === doc.id)) {
+                                doc.ref.delete()
+                                    .then(() => { if (typeof window.addDiagLog === 'function') window.addDiagLog(`🗑️ Buluttan Silindi: ${doc.id}`); })
+                                    .catch(e => console.error(`Firestore Silme Hatası [${col}]:`, e));
+                            }
+                        });
+                    }).catch(e => console.error(`Firestore Get Hatası [${col}]:`, e));
+                }
             }
         } catch (e) {
             console.error('Firebase Sync Hatası - Key: ' + key, e);
