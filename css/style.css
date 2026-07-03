@@ -1095,16 +1095,25 @@ tbody tr:hover {
 
     .table-responsive table {
         width: 100% !important;
-        min-width: 500px !important; /* Tablolar kaydırılabilir, sütunlar görünür kalır */
+        min-width: 750px !important; /* Tablo daralmasın, kaydırılabilir kalsın */
     }
 
     table th, table td {
-        padding: 8px 6px !important;
-        font-size: 0.78rem !important;
+        padding: 10px 8px !important;
+        font-size: 0.82rem !important;
         white-space: normal !important;
         vertical-align: middle !important;
-        word-break: break-word;
-        overflow-wrap: anywhere;
+        word-break: normal;
+        overflow-wrap: break-word;
+    }
+
+    /* Tutar, tarih, badge ve butonlar gibi tek satır kalması gereken alanlar */
+    .nowrap, .text-nowrap, 
+    table td.text-right, 
+    table td:nth-child(1),
+    table td:nth-child(5),
+    table td:last-child {
+        white-space: nowrap !important;
     }
 
     table td:first-child {
