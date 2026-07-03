@@ -17,7 +17,7 @@
         }
     </script>
     <title>Giriş Yap | SATIŞ KİŞİSEL KULLANIM CRM</title>
-    <link rel="stylesheet" href="css/style.css?v=5.2">
+    <link rel="stylesheet" href="css/style.css?v=5.3">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body {
@@ -193,7 +193,6 @@
             </div>
             
             <button type="submit" class="btn-login" id="loginSubmitBtn">Oturum Aç</button>
-            <button type="button" class="btn-login" id="registerBtn" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); margin-top:0.75rem;">Yeni Hesap Oluştur</button>
             <button type="button" class="btn-login" id="btnCustomServer" style="background:transparent; border:1px solid #4f46e5; color:#818cf8; margin-top:0.75rem; box-shadow:none;" onclick="openServerSettings()"><i class="fa-solid fa-server"></i> Kendi Sunucuna Bağlan (Firebase)</button>
             <div id="loginError">E-posta veya şifre hatalı!</div>
 
@@ -260,13 +259,12 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
     <!-- Firebase configuration -->
-    <script src="js/firebase-sync.js?v=5.2"></script>
+    <script src="js/firebase-sync.js?v=5.3"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
 
     <script>
         const loginForm = document.getElementById('loginForm');
         const submitBtn = document.getElementById('loginSubmitBtn');
-        const registerBtn = document.getElementById('registerBtn');
         const errorDiv = document.getElementById('loginError');
 
         // Kullanıcı önceden giriş yapmışsa ana sayfaya yönlendir
@@ -285,41 +283,6 @@
                 document.getElementById('password').value = rememberedPassword;
                 document.getElementById('rememberMe').checked = true;
             }
-        });
-
-        // ÜYE OL İşlemi
-        registerBtn.addEventListener('click', () => {
-            const email = document.getElementById('email').value.trim();
-            const password = document.getElementById('password').value;
-            
-            if(!email || !password) {
-                errorDiv.textContent = 'Kayıt olmak için lütfen bir e-posta ve şifre belirleyin!';
-                errorDiv.style.display = 'block';
-                return;
-            }
-
-            errorDiv.style.display = 'none';
-            registerBtn.textContent = 'Kayıt Ediliyor...';
-            registerBtn.disabled = true;
-
-            firebase.auth().createUserWithEmailAndPassword(email, password)
-                .then((userCredential) => {
-                    alert("Hesabınız ( " + email + " ) başarıyla oluşturuldu! Şimdi bu bilgilerle giriş yapabilirsiniz.");
-                    window.location.href = 'index.html';
-                })
-                .catch((error) => {
-                    console.error("Kayıt hatası:", error);
-                    errorDiv.style.display = 'block';
-                    if(error.code === 'auth/email-already-in-use') {
-                        errorDiv.textContent = 'Bu e-posta adresi zaten kullanımda! Lütfen sadece Oturum Aç butonunu kullanın.';
-                    } else if (error.code === 'auth/weak-password') {
-                        errorDiv.textContent = 'Şifre çok zayıf. Lütfen en az 6 karakter girin.';
-                    } else {
-                        errorDiv.textContent = 'Kayıt hatası: ' + error.message;
-                    }
-                    registerBtn.textContent = 'Yeni Hesap Oluştur';
-                    registerBtn.disabled = false;
-                });
         });
 
         // ŞİFREMİ UNUTTUM İşlemi

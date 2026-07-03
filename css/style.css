@@ -1736,27 +1736,20 @@ body.light-mode .grid-menu-header .close-btn {
 }
 
 /* ============================================================
-   MOBİL MASTERFİX: Webdeki her şeyi mobilde birebir göster
-   Bu blok, yukarıdaki tüm "display:none" kurallarını ezer.
+   MOBİL MASTERFİX: Webdeki tablo sütunlarını mobilde göster
+   Sadece tablo içi gizli sütunlar için - navigasyon elemanlarına dokunmaz
    ============================================================ */
 @media (max-width: 992px) {
-    /* Gizlenen tablo sütunları, butonlar, etiketler - hepsini göster */
-    .hide-mobile,
-    .hide-mobile.text-right,
-    [class*="hide-mobile"] {
-        display: revert !important;
-        visibility: visible !important;
-    }
-
-    /* Tablo hücreleri için özel - table-cell kullan */
+    /* Tablo hücreleri için: hide-mobile olan sütunları göster */
     th.hide-mobile,
     td.hide-mobile {
         display: table-cell !important;
+        visibility: visible !important;
     }
 
-    /* Döviz kurları header'da göster */
-    .header-rates {
-        display: flex !important;
+    /* Span içindeki hide-mobile metin etiketleri */
+    span.hide-mobile {
+        display: inline !important;
     }
 
     /* Tablolar yatay kaydırılabilir - tüm sütunlar görünür */
@@ -1768,13 +1761,8 @@ body.light-mode .grid-menu-header .close-btn {
         min-width: 600px !important;
     }
 
-    /* Span içindeki hide-mobile metin etiketleri */
-    span.hide-mobile {
-        display: inline !important;
-    }
-
-    /* Div içindeki hide-mobile bloklar */
-    div.hide-mobile {
-        display: block !important;
+    /* Döviz kurları HEADER'da mobilde GİZLİ - header alanını daraltır */
+    .header-rates {
+        display: none !important;
     }
 }
