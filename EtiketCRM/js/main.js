@@ -509,7 +509,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div style="margin: 1rem 0 0.5rem 1rem; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">
                     Sipariş Yönetimi
                 </div>
-                <a href="siparis.html" class="nav-item ${cleanedPath === 'siparis.html' ? 'active' : ''}">
+                <a href="siparis.html" class="nav-item ${cleanedPath === 'siparis.html' || cleanedPath === 'murekkep.html' || cleanedPath === 'kagit.html' || cleanedPath === 'sarf_malzeme.html' || cleanedPath === 'klise.html' ? 'active' : ''}">
                     <i class="fa-solid fa-cart-plus"></i>
                     Sipariş Oluştur
                 </a>
