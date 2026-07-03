@@ -1,4 +1,12 @@
-const getVisits = () => JSON.parse(localStorage.getItem('etiket_crm_ziyaretler')) || [];
+const getVisits = () => {
+    try {
+        return JSON.parse(localStorage.getItem('etiket_crm_ziyaretler')) || [];
+    } catch(e) {
+        console.error("Localstorage ziyaretler parse hatası:", e);
+        return [];
+    }
+};
+
 const saveVisits = (visits) => {
     localStorage.setItem('etiket_crm_ziyaretler', JSON.stringify(visits));
     try {
@@ -12,6 +20,8 @@ const saveVisits = (visits) => {
         }
     } catch (e) {}
 };
+
+let globalCalendar = null; // Storage event dinleyicisinin erişebilmesi için global scope'a taşındı
 
 document.addEventListener('DOMContentLoaded', () => {
     const calendarEl = document.getElementById('calendar');
@@ -33,48 +43,52 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     populateFirmaSelect();
 
-    // FullCalendar Kurulumu (Geri Yüklenen Stabil Sürüm)
-    const calendar = new FullCalendar.Calendar(calendarEl, {
-        initialView: 'dayGridMonth', // Aylık Görünüm (Eski stabil haline getirildi)
-        locale: 'tr',
-        headerToolbar: false, // Özel toolbar butonları kullanılacak
-        firstDay: 1, // Pazartesi başlasın
-        events: getVisitsForCalendar(),
-        datesSet: function(info) {
-            // Başlığı güncelle
-            const viewTitle = info.view.title;
-            let customTitleText = viewTitle;
-            if (info.view.type === 'timeGridWeek' || info.view.type === 'dayGridWeek') {
-                customTitleText = "Haftalık Plan (" + viewTitle + ")";
-            } else if (info.view.type === 'timeGridDay' || info.view.type === 'dayGridDay') {
-                customTitleText = "Günlük Plan (" + viewTitle + ")";
-            } else if (info.view.type === 'dayGridMonth') {
-                customTitleText = "Aylık Plan (" + viewTitle + ")";
-            } else {
-                customTitleText = viewTitle;
+    // FullCalendar Kurulumu (Geri Yüklenen Stabil Sürüm - Global Scope)
+    try {
+        globalCalendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth', // Aylık Görünüm (Eski stabil haline getirildi)
+            locale: 'tr',
+            headerToolbar: false, // Özel toolbar butonları kullanılacak
+            firstDay: 1, // Pazartesi başlasın
+            events: getVisitsForCalendar(),
+            datesSet: function(info) {
+                // Başlığı güncelle
+                const viewTitle = info.view.title;
+                let customTitleText = viewTitle;
+                if (info.view.type === 'timeGridWeek' || info.view.type === 'dayGridWeek') {
+                    customTitleText = "Haftalık Plan (" + viewTitle + ")";
+                } else if (info.view.type === 'timeGridDay' || info.view.type === 'dayGridDay') {
+                    customTitleText = "Günlük Plan (" + viewTitle + ")";
+                } else if (info.view.type === 'dayGridMonth') {
+                    customTitleText = "Aylık Plan (" + viewTitle + ")";
+                } else {
+                    customTitleText = viewTitle;
+                }
+                const titleEl = document.getElementById('customCalendarTitle');
+                if (titleEl) titleEl.textContent = customTitleText;
+
+                // Rota hesaplamayı o günkü tarihe göre tetikle
+                const todayStr = new Date().toISOString().split('T')[0];
+                if (typeof updateDailyRoute === 'function') updateDailyRoute(todayStr);
+            },
+            dateClick: function(info) {
+                 const parts = info.dateStr.split('T');
+                 if (typeof window.openVisitModal === 'function') window.openVisitModal();
+                 document.getElementById('visitTarih').value = parts[0];
+                 if (parts[1]) {
+                      document.getElementById('visitSaat').value = parts[1].substring(0, 5); // HH:MM
+                 }
+                 if (typeof updateDailyRoute === 'function') updateDailyRoute(parts[0]);
+            },
+            eventClick: function(info) {
+                 viewVisit(info.event.id);
             }
-            const titleEl = document.getElementById('customCalendarTitle');
-            if (titleEl) titleEl.textContent = customTitleText;
-
-            // Rota hesaplamayı o günkü tarihe göre tetikle
-            const todayStr = new Date().toISOString().split('T')[0];
-            if (typeof updateDailyRoute === 'function') updateDailyRoute(todayStr);
-        },
-        dateClick: function(info) {
-             const parts = info.dateStr.split('T');
-             if (typeof window.openVisitModal === 'function') window.openVisitModal();
-             document.getElementById('visitTarih').value = parts[0];
-             if (parts[1]) {
-                  document.getElementById('visitSaat').value = parts[1].substring(0, 5); // HH:MM
-             }
-             if (typeof updateDailyRoute === 'function') updateDailyRoute(parts[0]);
-        },
-        eventClick: function(info) {
-             viewVisit(info.event.id);
-        }
-    });
-
-    calendar.render();
+        });
+        
+        globalCalendar.render();
+    } catch(err) {
+        console.error("FullCalendar ilklendirme hatası:", err);
+    }
 
     // Özel Arayüz Butonlarını FullCalendar API'sine bağla
     function wireCustomCalendarButtons() {
@@ -103,25 +117,25 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         if (viewDay) viewDay.onclick = () => { 
-            try { calendar.changeView('timeGridDay'); } catch(e) { calendar.changeView('dayGridDay'); }
+            try { globalCalendar.changeView('timeGridDay'); } catch(e) { globalCalendar.changeView('dayGridDay'); }
             updateBtnStates(viewDay); 
         };
         if (viewWeek) viewWeek.onclick = () => { 
-            try { calendar.changeView('timeGridWeek'); } catch(e) { calendar.changeView('dayGridWeek'); }
+            try { globalCalendar.changeView('timeGridWeek'); } catch(e) { globalCalendar.changeView('dayGridWeek'); }
             updateBtnStates(viewWeek); 
         };
         if (viewMonth) viewMonth.onclick = () => { 
-            try { calendar.changeView('dayGridMonth'); } catch(e) { calendar.changeView('dayGridMonth'); }
+            try { globalCalendar.changeView('dayGridMonth'); } catch(e) { globalCalendar.changeView('dayGridMonth'); }
             updateBtnStates(viewMonth); 
         };
         if (viewYear) viewYear.onclick = () => { 
-            try { calendar.changeView('multiMonthYear'); } catch(e) { calendar.changeView('listYear'); }
+            try { globalCalendar.changeView('multiMonthYear'); } catch(e) { globalCalendar.changeView('listYear'); }
             updateBtnStates(viewYear); 
         };
 
-        if (navPrev) navPrev.onclick = () => calendar.prev();
-        if (navToday) navToday.onclick = () => calendar.today();
-        if (navNext) navNext.onclick = () => calendar.next();
+        if (navPrev) navPrev.onclick = () => { if (globalCalendar) globalCalendar.prev(); };
+        if (navToday) navToday.onclick = () => { if (globalCalendar) globalCalendar.today(); };
+        if (navNext) navNext.onclick = () => { if (globalCalendar) globalCalendar.next(); };
 
         if (mapRouteToggle) {
             mapRouteToggle.onclick = () => {
@@ -413,8 +427,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Bulut Senkronizasyonu Tetikleyicisi
     window.addEventListener('storage', () => {
-        if (typeof calendar !== 'undefined' && typeof getVisitsForCalendar === 'function') {
-            calendar.setOption('events', getVisitsForCalendar());
+        if (globalCalendar && typeof getVisitsForCalendar === 'function') {
+            try {
+                globalCalendar.setOption('events', getVisitsForCalendar());
+            } catch(e) {
+                console.error("Storage event calendar sync error:", e);
+            }
         }
     });
 });
