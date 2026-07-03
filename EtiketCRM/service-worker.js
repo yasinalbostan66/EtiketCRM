@@ -1,9 +1,31 @@
-// service-worker.js
+// service-worker.js — v5.3 — Her güncellemede önbelleği temizler
+const CACHE_VERSION = 'crm-v5.3';
+
+// Kurulum: Eski service worker'ı hemen devral
 self.addEventListener('install', (event) => {
-    self.skipWaiting();
+    event.waitUntil(
+        // Tüm eski önbellekleri sil
+        caches.keys().then(keys => 
+            Promise.all(keys.map(key => caches.delete(key)))
+        ).then(() => self.skipWaiting())
+    );
 });
 
+// Aktivasyon: Tüm sekmeleri hemen kontrol et
+self.addEventListener('activate', (event) => {
+    event.waitUntil(
+        caches.keys().then(keys => 
+            Promise.all(keys.map(key => caches.delete(key)))
+        ).then(() => self.clients.claim())
+    );
+});
+
+// Fetch: Her zaman ağdan al (önbellek YOK)
 self.addEventListener('fetch', (event) => {
-    // Pass-through handler
-    event.respondWith(fetch(event.request));
+    event.respondWith(
+        fetch(event.request, { cache: 'no-store' }).catch(() => {
+            // Ağ yoksa tarayıcı varsayılanına bırak
+            return fetch(event.request);
+        })
+    );
 });
