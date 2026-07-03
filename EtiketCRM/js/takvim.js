@@ -33,28 +33,25 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     populateFirmaSelect();
 
-    populateFirmaSelect();    // FullCalendar Kurulumu
+    // FullCalendar Kurulumu (Geri Yüklenen Stabil Sürüm)
     const calendar = new FullCalendar.Calendar(calendarEl, {
-        initialView: 'timeGridWeek', // Haftalık Plan (zaman aralıklı)
+        initialView: 'dayGridMonth', // Aylık Görünüm (Eski stabil haline getirildi)
         locale: 'tr',
-        headerToolbar: false, // Varsayılan FC toolbar kapatıldı
+        headerToolbar: false, // Özel toolbar butonları kullanılacak
         firstDay: 1, // Pazartesi başlasın
-        slotMinTime: '08:00:00', // 08:00'den başlasın
-        slotMaxTime: '17:00:00', // 17:00'de bitsin
-        allDaySlot: false,
         events: getVisitsForCalendar(),
         datesSet: function(info) {
-            // Görseldeki gibi başlığı güncelle (Örn: Haftalık Plan (29 Haz - 5 Tem 2026))
+            // Başlığı güncelle
             const viewTitle = info.view.title;
             let customTitleText = viewTitle;
-            if (info.view.type === 'timeGridWeek') {
+            if (info.view.type === 'timeGridWeek' || info.view.type === 'dayGridWeek') {
                 customTitleText = "Haftalık Plan (" + viewTitle + ")";
-            } else if (info.view.type === 'timeGridDay') {
+            } else if (info.view.type === 'timeGridDay' || info.view.type === 'dayGridDay') {
                 customTitleText = "Günlük Plan (" + viewTitle + ")";
             } else if (info.view.type === 'dayGridMonth') {
                 customTitleText = "Aylık Plan (" + viewTitle + ")";
-            } else if (info.view.type === 'multiMonthYear') {
-                customTitleText = "Yıllık Plan (" + viewTitle + ")";
+            } else {
+                customTitleText = viewTitle;
             }
             const titleEl = document.getElementById('customCalendarTitle');
             if (titleEl) titleEl.textContent = customTitleText;
@@ -105,10 +102,22 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         };
 
-        if (viewDay) viewDay.onclick = () => { calendar.changeView('timeGridDay'); updateBtnStates(viewDay); };
-        if (viewWeek) viewWeek.onclick = () => { calendar.changeView('timeGridWeek'); updateBtnStates(viewWeek); };
-        if (viewMonth) viewMonth.onclick = () => { calendar.changeView('dayGridMonth'); updateBtnStates(viewMonth); };
-        if (viewYear) viewYear.onclick = () => { calendar.changeView('multiMonthYear'); updateBtnStates(viewYear); }; // FullCalendar v6 includes multiMonthYear
+        if (viewDay) viewDay.onclick = () => { 
+            try { calendar.changeView('timeGridDay'); } catch(e) { calendar.changeView('dayGridDay'); }
+            updateBtnStates(viewDay); 
+        };
+        if (viewWeek) viewWeek.onclick = () => { 
+            try { calendar.changeView('timeGridWeek'); } catch(e) { calendar.changeView('dayGridWeek'); }
+            updateBtnStates(viewWeek); 
+        };
+        if (viewMonth) viewMonth.onclick = () => { 
+            try { calendar.changeView('dayGridMonth'); } catch(e) { calendar.changeView('dayGridMonth'); }
+            updateBtnStates(viewMonth); 
+        };
+        if (viewYear) viewYear.onclick = () => { 
+            try { calendar.changeView('multiMonthYear'); } catch(e) { calendar.changeView('listYear'); }
+            updateBtnStates(viewYear); 
+        };
 
         if (navPrev) navPrev.onclick = () => calendar.prev();
         if (navToday) navToday.onclick = () => calendar.today();
