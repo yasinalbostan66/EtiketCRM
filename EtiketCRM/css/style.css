@@ -1029,9 +1029,13 @@ tbody tr:hover {
         align-items: flex-end; /* Modal ekranın altından çıksın */
     }
 
-    /* Kurlar mobilden gizle - zaten header'da var */
+    /* Kurlar mobilde de görünsün, ancak daha kompakt */
     .header-rates {
-        display: none !important;
+        display: flex !important;
+        font-size: 0.75rem;
+        padding: 4px 8px;
+        margin-right: 5px;
+        gap: 6px !important;
     }
 }
 
@@ -1785,8 +1789,18 @@ body.light-mode .grid-menu-header .close-btn {
         min-width: 600px !important;
     }
 
-    /* Döviz kurları HEADER'da mobilde GİZLİ - header alanını daraltır */
+    /* Döviz kurları mobilde görünsün */
     .header-rates {
-        display: none !important;
+        display: flex !important;
+    }
+}
+
+@media (max-width: 576px) {
+    .header-rates > div:first-child {
+        display: none !important; /* Hide label on small phones */
+    }
+    .header-rates {
+        padding: 3px 6px;
+        font-size: 0.7rem;
     }
 }

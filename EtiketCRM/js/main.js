@@ -367,6 +367,11 @@ function showOrderDetails(orderId) {
 window.showOrderDetails = showOrderDetails;
 
 document.addEventListener('DOMContentLoaded', () => {
+    // TCMB Döviz Kurlarını Global Header'a Yerleştir
+    if (typeof initGlobalRates === 'function') {
+        initGlobalRates();
+    }
+
     // Tema Değiştirme (3 Aşamalı: Koyu, Açık, Mavi)
     const headerActions = document.querySelector('.header-actions');
     let currentTheme = localStorage.getItem('etiket_crm_theme');
@@ -392,12 +397,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (avatarEl && initials.length > 0) avatarEl.textContent = initials;
     }
 
-    // --- Vade Gelmiş Sipariş Hatırlatması (Günde 1 Kez 09:00'dan Sonra) ---
+    // --- Vade Gelmiş Sipariş Hatırlatması (Günde 1 Kez 09:00'dan Sonra & Oturumda Bir Kez) ---
     const now = new Date();
     const todayStr = now.getFullYear() + '-' + (now.getMonth() + 1) + '-' + now.getDate();
     const lastAlertDate = localStorage.getItem('etiket_crm_last_vade_alert_date');
+    const wasShownThisSession = sessionStorage.getItem('etiket_crm_vade_alert_shown') === 'true';
 
-    if (now.getHours() >= 9 && lastAlertDate !== todayStr) {
+    if (now.getHours() >= 9 && lastAlertDate !== todayStr && !wasShownThisSession) {
         const allFirms = getFirmalar();
         const allOrds = getSiparisler();
         const allPays = getTahsilatlar();
@@ -424,7 +430,10 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => {
                 showToast(`${pendingDueCount} adet siparişin vade tarihi geldi veya geçti!`, 'error');
                 localStorage.setItem('etiket_crm_last_vade_alert_date', todayStr);
+                sessionStorage.setItem('etiket_crm_vade_alert_shown', 'true');
             }, 1500);
+        } else {
+            sessionStorage.setItem('etiket_crm_vade_alert_shown', 'true');
         }
     }
 
@@ -705,6 +714,35 @@ async function fetchExchangeRates() {
     }
 }
 
+async function initGlobalRates() {
+    const headerActions = document.querySelector('.header-actions');
+    if (!headerActions) return;
+    
+    let ratesHeader = document.getElementById('exchangeRatesHeader');
+    if (!ratesHeader) {
+        ratesHeader = document.createElement('div');
+        ratesHeader.id = 'exchangeRatesHeader';
+        ratesHeader.className = 'header-rates d-flex gap-2';
+        ratesHeader.style.cssText = 'background: rgba(255,255,255,0.05); padding: 5px 15px; border-radius: 20px; font-size: 0.85rem; border: 1px solid var(--border-color); margin-right: 15px;';
+        ratesHeader.innerHTML = `
+            <div style="color: var(--text-muted);">TCMB Kurları: </div>
+            <div id="usdRate" style="font-weight: 600; color: var(--text-main);">USD: --.-- ₺</div>
+            <div id="eurRate" style="font-weight: 600; color: var(--text-main);">EUR: --.-- ₺</div>
+        `;
+        headerActions.insertBefore(ratesHeader, headerActions.firstChild);
+    }
+    
+    try {
+        const rates = await fetchExchangeRates();
+        const usdEl = document.getElementById('usdRate');
+        const eurEl = document.getElementById('eurRate');
+        if (usdEl) usdEl.textContent = `USD: ${rates.USD} ₺`;
+        if (eurEl) eurEl.textContent = `EUR: ${rates.EUR} ₺`;
+    } catch (e) {
+        console.error('Kurlar yerleştirilemedi:', e);
+    }
+}
+
 // --- Veri Yedekleme ve GitHub Senkronizasyonu ---
 
 function showBackupModal() {
@@ -959,6 +997,10 @@ function initNotificationSystem() {
         // Tüm dropdownları kapat (başka varsa)
         document.querySelectorAll('.notification-dropdown').forEach(d => d.style.display = 'none');
         dropdown.style.display = isOpen ? 'none' : 'flex';
+        
+        // Mark notifications as seen/read for the current session to dismiss red dot
+        sessionStorage.setItem('etiket_crm_notif_seen', 'true');
+        
         if (!isOpen) updateNotifications();
     };
 
@@ -988,7 +1030,7 @@ function updateNotifications() {
     }
 
     const todayStr = now.getFullYear() + '-' + (now.getMonth() + 1) + '-' + now.getDate();
-    const isDismissed = (localStorage.getItem('etiket_crm_notif_dismissed_date') === todayStr);
+    const isDismissed = (localStorage.getItem('etiket_crm_notif_dismissed_date') === todayStr) || (sessionStorage.getItem('etiket_crm_notif_seen') === 'true');
 
     const list = calculateAllNotifications();
 
