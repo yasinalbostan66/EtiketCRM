@@ -14,8 +14,15 @@ window.handleLogout = function(e) {
     if (e && e.preventDefault) e.preventDefault();
     console.log("Forced logout triggered");
     
-    // Clear ALL data immediately
-    localStorage.clear();
+    // Sadece veri koleksiyonlarını ve geçici verileri temizle; ayarları ve Beni Hatırla bilgilerini KORU
+    const COLLECTIONS = ['firmalar', 'siparisler', 'tahsilatlar', 'malzeme_fiyatlari', 'ziyaretler', 'duyurular', 'teknik_servis', 'muhasebe', 'kullanicilar'];
+    COLLECTIONS.forEach(col => {
+        localStorage.removeItem(`etiket_crm_${col}`);
+    });
+    localStorage.removeItem('etiket_crm_last_vade_alert_date');
+    localStorage.removeItem('etiket_crm_notif_dismissed_date');
+    
+    // sessionStorage'ı temizle
     sessionStorage.clear();
     
     if (typeof showToast === 'function') showToast("Sistemden çıkılıyor...", "warning");
