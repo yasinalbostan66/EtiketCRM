@@ -1796,11 +1796,18 @@ body.light-mode .grid-menu-header .close-btn {
 }
 
 @media (max-width: 576px) {
-    .header-rates > div:first-child {
-        display: none !important; /* Hide label on small phones */
-    }
     .header-rates {
-        padding: 3px 6px;
-        font-size: 0.7rem;
+        font-size: 0.75rem !important;
+        padding: 4px 8px !important;
+        margin-right: 4px !important;
+        gap: 6px !important;
+        background: rgba(255, 255, 255, 0.08) !important;
+    }
+    .header-rates > div:first-child {
+        display: none !important;
+    }
+    #usdRate, #eurRate {
+        font-size: 0.72rem !important;
+        font-weight: 700 !important;
     }
 }
