@@ -278,11 +278,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     <tbody>
         `;
 
+        const genFiyatlar = getMalzemeFiyatlari();
+
         firma.ozelFiyatlar.forEach(of => {
+            const mObj = genFiyatlar.find(m => m.id === of.malzemeId);
+            const birimTxt = mObj ? ` / ${mObj.birim}` : '';
             html += `
                 <tr>
                     <td style="font-weight: 500;">${of.malzemeAd}</td>
-                    <td style="font-weight: 700; color: var(--primary);">$${parseFloat(of.fiyat).toFixed(4)}</td>
+                    <td style="font-weight: 700; color: var(--primary);">$${parseFloat(of.fiyat).toFixed(4)}${birimTxt}</td>
                     <td style="text-align: right;">
                         <button class="btn-icon" onclick="duzeltOzelFiyat('${of.id}')" style="color: var(--warning); margin-right: 0.5rem;" title="Düzenle"><i class="fa-solid fa-pen-to-square"></i></button>
                         <button class="btn-icon" onclick="silOzelFiyat('${of.id}')" style="color: var(--danger);" title="Sil"><i class="fa-solid fa-trash"></i></button>
@@ -861,7 +865,7 @@ window.shareOzelFiyatlar = async function() {
     });
 
     doc.autoTable({
-        head: [[fixTrForPDF('Malzeme Adi'), 'Ozel Fiyat ($)']],
+        head: [[fixTrForPDF('Malzeme Adi'), fixTrForPDF('Ozel Fiyat ($ / Birim)')]],
         body: rows,
         startY: 30,
         theme: 'striped',
