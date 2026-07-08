@@ -588,6 +588,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const currentPath = window.location.pathname.split('/').pop() || 'index.html';
         const cleanedPath = currentPath.split('?')[0] || 'index.html';
 
+        const storedLogo = localStorage.getItem('etiket_crm_companyLogo');
+        const logoHtml = storedLogo 
+            ? `<img src="${storedLogo}" alt="Firma Logosu" style="max-width: 100%; max-height: 80px; object-fit: contain;">`
+            : `
+                <i class="fa-solid fa-chart-line" style="color: #3b82f6; font-size: 2.2rem; filter: drop-shadow(0 4px 6px rgba(59,130,246,0.25));"></i>
+                <div style="line-height: 1.1; text-align: center;">
+                    <span style="color:#3b82f6; font-family:'Outfit', sans-serif; font-size:1.6rem; font-weight:900; letter-spacing:-0.5px;">LINKUP</span>
+                    <span style="color:#ef4444; font-size:0.95rem; font-weight:800; display:block;">CRM <span style="font-size:0.75rem; color:var(--text-muted); font-weight:600;">by Yasin</span></span>
+                </div>
+            `;
+
         sidebar.innerHTML = `
             <style>
                 @keyframes pulse {
@@ -598,11 +609,7 @@ document.addEventListener('DOMContentLoaded', () => {
             </style>
             <div class="sidebar-header" style="padding: 1.5rem 1rem 1rem 1rem; display: flex; justify-content: center; align-items: center;">
                 <a href="index.html" class="logo" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; text-decoration: none; text-align: center; width: 100%;">
-                    <i class="fa-solid fa-chart-line" style="color: #3b82f6; font-size: 2.2rem; filter: drop-shadow(0 4px 6px rgba(59,130,246,0.25));"></i>
-                    <div style="line-height: 1.1; text-align: center;">
-                        <span style="color:#3b82f6; font-family:\'Outfit\', sans-serif; font-size:1.6rem; font-weight:900; letter-spacing:-0.5px;">LINKUP</span>
-                        <span style="color:#ef4444; font-size:0.95rem; font-weight:800; display:block;">CRM <span style="font-size:0.75rem; color:var(--text-muted); font-weight:600;">by Yasin</span></span>
-                    </div>
+                    ${logoHtml}
                 </a>
             </div>
             
@@ -735,9 +742,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 <i class="fa-solid fa-cart-plus"></i>
                 <span>Sipariş</span>
             </a>
-            <a href="analiz.html" class="bottom-nav-item ${cleanedPath === 'analiz.html' ? 'active' : ''}">
-                <i class="fa-solid fa-chart-pie"></i>
-                <span>Analiz</span>
+            <a href="sevkiyat.html" class="bottom-nav-item ${cleanedPath === 'sevkiyat.html' ? 'active' : ''}">
+                <i class="fa-solid fa-truck-fast"></i>
+                <span>Sevkiyat</span>
             </a>
             <button class="bottom-nav-item" id="bottomMenuGridBtn">
                 <i class="fa-solid fa-bars"></i>

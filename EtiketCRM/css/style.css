@@ -1807,6 +1807,7 @@ body.light-mode .grid-menu-header .close-btn {
         margin-right: 4px !important;
         gap: 6px !important;
         background: rgba(255, 255, 255, 0.08) !important;
+        border: none !important;
     }
     .header-rates > div:first-child {
         display: none !important;
