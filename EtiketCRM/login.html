@@ -357,43 +357,26 @@
                 });
         });
 
-        // Test Girişi İşlemi
+        // Test Girişi / Demo Modu İşlemi
         const btnTestLogin = document.getElementById('btnTestLogin');
         if (btnTestLogin) {
             btnTestLogin.addEventListener('click', (e) => {
                 errorDiv.style.display = 'none';
-                btnTestLogin.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Giriş Yapılıyor...';
+                btnTestLogin.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Demo Ortamı Hazırlanıyor...';
                 btnTestLogin.disabled = true;
 
-                const testEmail = "test@etiketcrm.com";
-                const testPass = "123456";
-
-                firebase.auth().signInWithEmailAndPassword(testEmail, testPass)
-                    .then(() => {
-                        window.location.href = 'index.html';
-                    })
-                    .catch((error) => {
-                        if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-login-credentials' || error.code === 'auth/invalid-credential') {
-                            // Test hesabı yoksa veya şifre hatası varsa oluşturmayı dene
-                            firebase.auth().createUserWithEmailAndPassword(testEmail, testPass)
-                                .then(() => {
-                                    window.location.href = 'index.html';
-                                })
-                                .catch((err) => {
-                                    if (err.code === 'auth/email-already-in-use') {
-                                        alert("Hata: Test hesabı mevcut ancak şifresi '123456' değil. Lütfen Firebase'den 'test@etiketcrm.com' kullanıcısının şifresini sıfırlayın veya hesabı silin.");
-                                    } else {
-                                        alert("Test hesabı oluşturulamadı: " + err.message);
-                                    }
-                                    btnTestLogin.innerHTML = '<i class="fa-solid fa-vial"></i> Test Hesabı ile Giriş Yap';
-                                    btnTestLogin.disabled = false;
-                                });
-                        } else {
-                            alert("Test girişi hatası: " + error.message);
-                            btnTestLogin.innerHTML = '<i class="fa-solid fa-vial"></i> Test Hesabı ile Giriş Yap';
-                            btnTestLogin.disabled = false;
-                        }
-                    });
+                // 1. Demo Modunu Aktifleştir (Local Storage üzerinden)
+                localStorage.setItem('etiket_crm_demo_mode', 'true');
+                
+                // 2. Demo modunda Firebase ile bağlantı kesilir ve veriler tamamen tarayıcıda tutulur.
+                // İsterseniz burada eski verileri silebilirsiniz:
+                // localStorage.removeItem('etiket_crm_firmalar');
+                // localStorage.removeItem('etiket_crm_siparisler');
+                
+                // 3. Kullanıcı adı ve şifreye gerek kalmadan içeri al
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 500); // Küçük bir gecikme efekti
             });
         }
 

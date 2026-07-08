@@ -29,6 +29,8 @@ window.handleLogout = function(e) {
     
     // Try cloud sync signout if available
     try {
+        localStorage.removeItem('etiket_crm_demo_mode');
+        
         if (window.firebase && firebase.auth()) {
             firebase.auth().signOut().finally(() => {
                 window.location.href = 'login.html';

@@ -88,46 +88,51 @@ window.resetFirebaseConfig = function() {
   return true;
 };
 
-// --- Auth Guard & Aktiflik İzleme ---
-auth.onAuthStateChanged(user => {
-    if (!user && !window.location.pathname.endsWith('login.html')) {
-        window.location.replace('login.html'); 
-    } else if (user) {
-        // Kullanıcı giriş yaptı, durumunu aktif yap
-        const uId = user.uid;
-        const userEmail = user.email;
-        const userName = localStorage.getItem('etiket_crm_userName') || userEmail.split('@')[0].toUpperCase();
-        
-        // Firestore'a aktiflik durumunu yaz
-        db.collection('kullanicilar').doc(uId).set({
-            id: uId,
-            email: userEmail,
-            ad: userName,
-            sonGorulme: new Date().toISOString(),
-            durum: 'aktif'
-        }, { merge: true }).catch(e => console.error("Kullanıcı aktiflik hatası:", e));
+const isDemoMode = localStorage.getItem('etiket_crm_demo_mode') === 'true';
 
-        // Heartbeat (20 saniyede bir son görülmeyi güncelle)
-        if (window.userHeartbeatInterval) clearInterval(window.userHeartbeatInterval);
-        window.userHeartbeatInterval = setInterval(() => {
-            if (firebase.auth().currentUser) {
-                db.collection('kullanicilar').doc(uId).update({
-                    sonGorulme: new Date().toISOString(),
-                    durum: 'aktif'
-                }).catch(() => {});
-            }
-        }, 20000);
-    }
-});
+// --- Auth Guard & Aktiflik İzleme ---
+if (!isDemoMode) {
+    auth.onAuthStateChanged(user => {
+        if (!user && !window.location.pathname.endsWith('login.html')) {
+            window.location.replace('login.html'); 
+        } else if (user) {
+            // Kullanıcı giriş yaptı, durumunu aktif yap
+            const uId = user.uid;
+            const userEmail = user.email;
+            const userName = localStorage.getItem('etiket_crm_userName') || userEmail.split('@')[0].toUpperCase();
+            
+            // Firestore'a aktiflik durumunu yaz
+            db.collection('kullanicilar').doc(uId).set({
+                id: uId,
+                email: userEmail,
+                ad: userName,
+                sonGorulme: new Date().toISOString(),
+                durum: 'aktif'
+            }, { merge: true }).catch(e => console.error("Kullanıcı aktiflik hatası:", e));
+
+            // Heartbeat (20 saniyede bir son görülmeyi güncelle)
+            if (window.userHeartbeatInterval) clearInterval(window.userHeartbeatInterval);
+            window.userHeartbeatInterval = setInterval(() => {
+                if (firebase.auth().currentUser) {
+                    db.collection('kullanicilar').doc(uId).update({
+                        sonGorulme: new Date().toISOString(),
+                        durum: 'aktif'
+                    }).catch(() => {});
+                }
+            }, 20000);
+        }
+    });
+} else {
+    console.log("Demo Mode Active: Auth Guard Bypassed.");
+}
 
 let isSyncingFromFirestore = false;
 
 const COLLECTIONS = ['firmalar', 'siparisler', 'tahsilatlar', 'malzeme_fiyatlari', 'ziyaretler', 'duyurular', 'teknik_servis', 'muhasebe', 'kullanicilar', 'sevkiyatlar', 'iadeler'];
 
-
-
 // 1. Live Sync from Firestore to LocalStorage
-COLLECTIONS.forEach(col => {
+if (!isDemoMode) {
+    COLLECTIONS.forEach(col => {
     db.collection(col).onSnapshot(snapshot => {
         isSyncingFromFirestore = true;
         try {
@@ -176,13 +181,18 @@ COLLECTIONS.forEach(col => {
         }
     });
 });
+} else {
+    console.log("Demo Mode Active: Live Sync from Firestore Bypassed.");
+}
 
 // 2. Intercept saves to sync back to Firestore (Adds/Updates/Deletes)
 const originalSetItem = localStorage.setItem;
 localStorage.setItem = function(key, value) {
     originalSetItem.apply(this, arguments);
     if (typeof window.addDiagLog === 'function') window.addDiagLog(`Belleğe Yazıldı: ${key}`);
-    if (isSyncingFromFirestore) return;
+    
+    // Demo modundaysa veya Firestore'dan senkronize ediliyorsa çık
+    if (isSyncingFromFirestore || isDemoMode) return;
     
     if (key.startsWith('etiket_crm_')) {
         const col = key.replace('etiket_crm_', '');
