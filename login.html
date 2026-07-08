@@ -205,7 +205,7 @@
             </div>
             
             <button type="submit" class="btn-login" id="loginSubmitBtn">Oturum Aç</button>
-            <button type="button" class="btn-register" id="btnRegister" style="width: 100%; margin-top: 0.75rem; padding: 12px; background: transparent; border: 1px solid #10b981; border-radius: 14px; color: #10b981; font-weight: 600; cursor: pointer; transition: all 0.3s;"><i class="fa-solid fa-user-plus"></i> Yeni Hesap Oluştur</button>
+            <button type="button" class="btn-register" id="btnTestLogin" style="width: 100%; margin-top: 0.75rem; padding: 12px; background: transparent; border: 1px solid #f59e0b; border-radius: 14px; color: #f59e0b; font-weight: 600; cursor: pointer; transition: all 0.3s;"><i class="fa-solid fa-vial"></i> Test Hesabı ile Giriş Yap</button>
             <button type="button" class="btn-login" id="btnCustomServer" style="background:transparent; border:1px solid #4f46e5; color:#818cf8; margin-top:0.75rem; box-shadow:none;"><i class="fa-solid fa-server"></i> Kendi Sunucuna Bağlan (Firebase)</button>
             <div id="loginError">E-posta veya şifre hatalı!</div>
             
@@ -345,7 +345,7 @@
                     errorDiv.style.display = 'block';
                     
                     if(error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential' || error.code === 'auth/invalid-login-credentials') {
-                        errorDiv.innerHTML = 'E-posta veya şifre hatalı!<br><br>💡 (Henüz hesap açmadıysanız aşağıdaki yeşil <b>"Yeni Hesap Oluştur"</b> butonuna basarak kayıt olunuz.)';
+                        errorDiv.innerHTML = 'E-posta veya şifre hatalı!';
                     } else if (error.code === 'auth/too-many-requests') {
                         errorDiv.textContent = 'Çok fazla deneme yaptınız. Lütfen daha sonra tekrar deneyin.';
                     } else {
@@ -357,37 +357,38 @@
                 });
         });
 
-        // Yeni Kullanıcı Kayıt İşlemi
-        const btnRegister = document.getElementById('btnRegister');
-        if (btnRegister) {
-            btnRegister.addEventListener('click', (e) => {
-                const email = document.getElementById('email').value.trim();
-                const password = document.getElementById('password').value;
-                
-                if(!email || !password) {
-                    alert('Lütfen kayıt olmak için e-posta ve şifrenizi girin!');
-                    return;
-                }
-
-                if(password.length < 6) {
-                    alert('Şifre en az 6 karakter olmalıdır!');
-                    return;
-                }
-
+        // Test Girişi İşlemi
+        const btnTestLogin = document.getElementById('btnTestLogin');
+        if (btnTestLogin) {
+            btnTestLogin.addEventListener('click', (e) => {
                 errorDiv.style.display = 'none';
-                btnRegister.textContent = 'Kayıt Yapılıyor...';
-                btnRegister.disabled = true;
+                btnTestLogin.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Giriş Yapılıyor...';
+                btnTestLogin.disabled = true;
 
-                firebase.auth().createUserWithEmailAndPassword(email, password)
-                    .then((userCredential) => {
-                        alert('Hesap başarıyla oluşturuldu! Giriş yapılıyor...');
+                const testEmail = "test@etiketcrm.com";
+                const testPass = "123456";
+
+                firebase.auth().signInWithEmailAndPassword(testEmail, testPass)
+                    .then(() => {
                         window.location.href = 'index.html';
                     })
                     .catch((error) => {
-                        console.error("Kayıt hatası:", error);
-                        alert("Kayıt hatası: " + error.message);
-                        btnRegister.textContent = 'Yeni Hesap Oluştur';
-                        btnRegister.disabled = false;
+                        if (error.code === 'auth/user-not-found') {
+                            // Test hesabı yoksa oluştur ve giriş yap
+                            firebase.auth().createUserWithEmailAndPassword(testEmail, testPass)
+                                .then(() => {
+                                    window.location.href = 'index.html';
+                                })
+                                .catch((err) => {
+                                    alert("Test hesabı oluşturulamadı: " + err.message);
+                                    btnTestLogin.innerHTML = '<i class="fa-solid fa-vial"></i> Test Hesabı ile Giriş Yap';
+                                    btnTestLogin.disabled = false;
+                                });
+                        } else {
+                            alert("Test girişi hatası: " + error.message);
+                            btnTestLogin.innerHTML = '<i class="fa-solid fa-vial"></i> Test Hesabı ile Giriş Yap';
+                            btnTestLogin.disabled = false;
+                        }
                     });
             });
         }
