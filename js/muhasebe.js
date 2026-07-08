@@ -231,7 +231,7 @@ window.exportMuhasebeToPDF = async function() {
     doc.setFontSize(10);
     doc.text(`Tarih: ${new Date().toLocaleDateString('tr-TR')}`, 14, 22);
 
-    const table = document.querySelector('.table-wrapper table');
+    const table = document.querySelector('table:has(#financeTableBody)') || document.querySelector('.table-responsive table');
     if (!table) return showToast('Tablo bulunamadı!', 'error');
 
     const rows = [];

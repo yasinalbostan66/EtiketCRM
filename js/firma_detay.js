@@ -835,3 +835,62 @@ window.shareFirmaEkstra = async function() {
         showToast('Paylaşım sırasında bir sorun oluştu.', 'error');
     }
 };
+
+window.shareOzelFiyatlar = async function() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    const firmaAd = document.getElementById('detayFirmaAd').textContent.trim();
+    
+    doc.setFontSize(16);
+    doc.text(fixTrForPDF(firmaAd + " - Özel Fiyat Listesi"), 14, 15);
+    doc.setFontSize(10);
+    doc.text(`Tarih: ${new Date().toLocaleDateString('tr-TR')}`, 14, 22);
+
+    const table = document.querySelector('#ozelFiyatTableContainer table');
+    if(!table) return showToast('Paylaşılacak özel fiyat verisi bulunamadı!', 'error');
+
+    const formatForPDF = (val) => '$' + parseFloat(val || 0).toLocaleString('en-US', {minimumFractionDigits: 4, maximumFractionDigits: 4});
+
+    const rows = [];
+    const trs = table.querySelectorAll('tbody tr');
+    trs.forEach(tr => {
+        const row = [];
+        row.push(fixTrForPDF(tr.cells[0].textContent.trim())); // Malzeme Adı
+        row.push(tr.cells[1].textContent.trim()); // Fiyat ($)
+        rows.push(row);
+    });
+
+    doc.autoTable({
+        head: [[fixTrForPDF('Malzeme Adi'), 'Ozel Fiyat ($)']],
+        body: rows,
+        startY: 30,
+        theme: 'striped',
+        headStyles: { fillColor: [59, 130, 246] },
+        columnStyles: { 1: { halign: 'right' } }
+    });
+
+    try {
+        const pdfOutput = doc.output('blob');
+        const fileName = `${fixTrForPDF(firmaAd).replace(/\s+/g, '_')}_Ozel_Fiyatlar.pdf`;
+        const textStr = `${firmaAd} firmasına ait güncel özel fiyat listesi ektedir.`;
+        
+        if (typeof window.openShareModal === 'function') {
+            window.openShareModal(pdfOutput, fileName, `${firmaAd} Özel Fiyatlar`, textStr);
+        } else {
+            const file = new File([pdfOutput], fileName, { type: 'application/pdf' });
+            if (navigator.share && navigator.canShare({ files: [file] })) {
+                await navigator.share({
+                    title: `${firmaAd} Özel Fiyatlar`,
+                    text: textStr,
+                    files: [file]
+                });
+            } else {
+                doc.save(fileName);
+                showToast('Paylaşım bu cihazda desteklenmiyor, PDF indirildi.', 'warning');
+            }
+        }
+    } catch (err) {
+        console.error('Paylaşım hatası:', err);
+        showToast('Paylaşım sırasında bir sorun oluştu.', 'error');
+    }
+};
