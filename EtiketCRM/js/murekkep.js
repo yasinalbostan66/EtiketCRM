@@ -17,15 +17,29 @@ document.addEventListener('DOMContentLoaded', async () => {
     const calculateBtn = document.getElementById('calculateBtn');
     const saveOrderBtn = document.getElementById('saveOrderBtn');
     
-    // Malzeme Fiyatları Otomatik Doldurma (Merkezden)
+    // Malzeme Fiyatları Otomatik Doldurma (Merkezden & Firmaya Özel)
     function loadInkOptions(selectedName = null) {
         const fiyatlar = getMalzemeFiyatlari().filter(f => f.turu === 'Mürekkep');
         inputColor.innerHTML = '<option value="" disabled selected>Lütfen Veritabanından Seçiniz...</option>';
+        const firmaId = firmaSec.value;
+        let ozelFiyatMap = {};
+        if (firmaId) {
+            const firmaObj = getFirmaById(firmaId);
+            if (firmaObj && firmaObj.ozelFiyatlar) {
+                firmaObj.ozelFiyatlar.forEach(of => { ozelFiyatMap[of.malzemeAd] = of; });
+            }
+        }
         fiyatlar.forEach(f => {
             const opt = document.createElement('option');
             opt.value = f.adi;
-            opt.textContent = `${f.adi} (${f.fiyat.toFixed(3)} ${f.doviz}/${f.birim})`;
-            opt.dataset.fiyat = f.fiyat;
+            let currentFiyat = f.fiyat;
+            let star = '';
+            if (ozelFiyatMap[f.adi]) {
+                currentFiyat = ozelFiyatMap[f.adi].fiyat;
+                star = ' (Özel Fiyat)';
+            }
+            opt.textContent = `${f.adi}${star} (${currentFiyat.toFixed(3)} ${f.doviz}/${f.birim})`;
+            opt.dataset.fiyat = currentFiyat;
             opt.dataset.doviz = f.doviz;
             inputColor.appendChild(opt);
         });
@@ -34,7 +48,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
     
-    loadInkOptions();
 
     window.addEventListener('malzemeEklendi', (e) => {
         if(e.detail && e.detail.turu === 'Mürekkep') {
@@ -84,6 +97,19 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (firma) {
             document.querySelector('.page-title').innerHTML += ` <small style="color:var(--text-muted); font-size:0.8rem;">(${firma.ad})</small>`;
         }
+    }
+    
+    // İlk yükleme
+    loadInkOptions();
+
+    // Firma değiştiğinde fiyatları tekrar yükle
+    firmaSec.addEventListener('change', () => {
+        loadInkOptions(inputColor.value);
+        inputColor.dispatchEvent(new Event('change'));
+    });
+    
+    if (preSelectedFirma) {
+        loadInkOptions();
     }
 
     calculateBtn.addEventListener('click', () => {

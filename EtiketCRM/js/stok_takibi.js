@@ -40,10 +40,16 @@ document.addEventListener('DOMContentLoaded', () => {
             else if (m.turu === 'Sarf Malzeme') colorClass = 'badge-green';
             else colorClass = 'badge-muted';
 
+            const stokValue = (m.stok !== undefined && m.stok !== null && m.stok !== '') ? parseFloat(m.stok) : 0;
+            let warningBadge = '';
+            if (stokValue <= 10) {
+                warningBadge = ` <span class="badge" style="font-size:0.7rem; margin-left:6px; background: rgba(239, 68, 68, 0.15); color: #f87171; font-weight: 600;"><i class="fa-solid fa-triangle-exclamation"></i> Kritik Stok</span>`;
+            }
+
             tr.innerHTML = `
                 <td><strong>${m.adi}</strong></td>
                 <td><span class="badge ${colorClass}">${m.turu}</span></td>
-                <td><span style="font-weight: 700; font-size: 1.1rem; color: ${m.stok > 0 ? 'var(--success)' : 'var(--danger)'};">${m.stok || 0}</span></td>
+                <td><span style="font-weight: 700; font-size: 1.1rem; color: ${stokValue > 10 ? 'var(--success)' : 'var(--danger)'};">${stokValue}</span>${warningBadge}</td>
                 <td style="color: var(--text-muted);">${m.birim || 'Birim Yok'}</td>
                 <td style="text-align: right;">
                     <button class="btn btn-icon" onclick="openStokEdit('${m.id}')">
@@ -244,18 +250,22 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         try {
-            const pdfOutput = doc.output('blob');
-            const file = new File([pdfOutput], `Stok_Raporu_${new Date().toISOString().slice(0,10)}.pdf`, { type: 'application/pdf' });
-            
-            if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                await navigator.share({
-                    title: 'Malzeme Stok Raporu',
-                    text: 'Güncel stok ve malzeme dökümü.',
-                    files: [file]
-                });
+            const pdfBlob = doc.output('blob');
+            const fileName = `Stok_Raporu_${new Date().toISOString().slice(0,10)}.pdf`;
+            if (typeof window.openShareModal === 'function') {
+                window.openShareModal(pdfBlob, fileName, 'Malzeme Stok Raporu', 'Güncel stok ve malzeme dökümü.');
             } else {
-                window.exportToPDF();
-                showToast('Paylaşım desteklenmiyor, PDF indirildi.', 'warning');
+                const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
+                if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+                    await navigator.share({
+                        title: 'Malzeme Stok Raporu',
+                        text: 'Güncel stok ve malzeme dökümü.',
+                        files: [file]
+                    });
+                } else {
+                    doc.save(fileName);
+                    showToast('Paylaşım desteklenmiyor, PDF indirildi.', 'warning');
+                }
             }
         } catch (err) {
             console.error('Paylaşım hatası:', err);

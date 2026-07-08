@@ -2,6 +2,7 @@
 
 const GELIR_CATEGORIES = ['Satış Faturası', 'Tahsilat', 'Danışmanlık Geliri', 'Diğer Gelirler'];
 const GIDER_CATEGORIES = ['Kira', 'Elektrik/Su/İnternet', 'Maaş & SGK', 'Hammadde Alımı', 'Yol & Yemek', 'Vergiler', 'Kargo Giderleri', 'Diğer Giderler'];
+const IADE_CATEGORIES = ['Müşteri İadesi', 'Ürün İadesi', 'Hatalı Ürün İadesi', 'Fazla Teslimat İadesi', 'Diğer İade'];
 
 document.addEventListener('DOMContentLoaded', () => {
     loadFirmaOptions();
@@ -54,7 +55,11 @@ function onTransTypeChange() {
     const type = typeSelect.value;
     categorySelect.innerHTML = '';
 
-    const categories = type === 'Gelir' ? GELIR_CATEGORIES : GIDER_CATEGORIES;
+    let categories;
+    if (type === 'Gelir') categories = GELIR_CATEGORIES;
+    else if (type === 'İade') categories = IADE_CATEGORIES;
+    else categories = GIDER_CATEGORIES;
+
     categories.forEach(cat => {
         const opt = document.createElement('option');
         opt.value = cat;
@@ -174,10 +179,16 @@ async function renderMuhasebe() {
         const dateStr = rec.tarih ? new Date(rec.tarih).toLocaleDateString('tr-TR') : 'Tarih Yok';
         
         let typeBadge = '';
+        let tutarColor = 'var(--text-main)';
         if (rec.tip === 'Gelir') {
             typeBadge = `<span class="badge badge-green">GELİR</span>`;
+            tutarColor = 'var(--success)';
+        } else if (rec.tip === 'İade') {
+            typeBadge = `<span class="badge" style="background:rgba(239,68,68,0.12); color:var(--danger);">ADE</span>`;
+            tutarColor = 'var(--danger)';
         } else {
             typeBadge = `<span class="badge" style="background: rgba(239, 68, 68, 0.15); color: #f87171;">GİDER</span>`;
+            tutarColor = '#f87171';
         }
 
         const formattedTutar = rec.doviz === 'USD' 
@@ -196,7 +207,7 @@ async function renderMuhasebe() {
             <td><strong>${escapeHTML(rec.faturaNo || 'Makbuz Yok')}</strong><br><span style="font-size:0.75rem; color:var(--text-muted);">${escapeHTML(rec.description || '-')}</span></td>
             <td><span class="badge badge-blue">${escapeHTML(rec.kategori)}</span></td>
             <td>${typeBadge}</td>
-            <td style="font-weight: 700; color: ${rec.tip === 'Gelir' ? 'var(--success)' : '#f87171'}">${formattedTutar}</td>
+            <td style="font-weight: 700; color: ${tutarColor}">${formattedTutar}</td>
             <td>${faturaBtn}</td>
             <td style="text-align: right;">
                 <button class="btn btn-icon" onclick="openEditTransactionModal('${rec.id}')" title="Kayıt Düzenle"><i class="fa-solid fa-pen-to-square"></i></button>
@@ -206,6 +217,65 @@ async function renderMuhasebe() {
         tbody.appendChild(tr);
     });
 }
+
+// PDF Dışa Aktarım (Gelir & Gider)
+window.exportMuhasebeToPDF = async function() {
+    if (typeof window.jspdf === 'undefined') {
+        return showToast('PDF kütüphanesi yüklenemedi. Lütfen sayfayı yenileyin.', 'error');
+    }
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    
+    doc.setFontSize(16);
+    doc.text('Gelir & Gider Muhasebesi Raporu', 14, 15);
+    doc.setFontSize(10);
+    doc.text(`Tarih: ${new Date().toLocaleDateString('tr-TR')}`, 14, 22);
+
+    const table = document.querySelector('.table-wrapper table');
+    if (!table) return showToast('Tablo bulunamadı!', 'error');
+
+    const rows = [];
+    const trs = table.querySelectorAll('tbody tr');
+    if (trs.length === 1 && trs[0].cells.length === 1) return showToast('Aktarılacak veri yok.', 'warning');
+
+    trs.forEach(tr => {
+        const cells = tr.querySelectorAll('td');
+        if (cells.length >= 6) {
+            rows.push([
+                cells[0].textContent.trim(),
+                fixTrForPDF(cells[1].textContent.trim()),
+                fixTrForPDF(cells[2].textContent.trim()),
+                fixTrForPDF(cells[3].textContent.trim()),
+                fixTrForPDF(cells[4].textContent.trim()),
+                cells[5].textContent.trim()
+            ]);
+        }
+    });
+
+    doc.autoTable({
+        head: [['Tarih', 'Firma', 'Fatura / Aciklama', 'Kategori', 'Tip', 'Tutar']],
+        body: rows,
+        startY: 30,
+        theme: 'striped',
+        headStyles: { fillColor: [59, 130, 246] },
+        columnStyles: { 5: { halign: 'right' } }
+    });
+
+    try {
+        const pdfBlob = doc.output('blob');
+        const fileName = `Muhasebe_Raporu_${new Date().toISOString().slice(0,10)}.pdf`;
+        if (typeof window.openShareModal === 'function') {
+            window.openShareModal(pdfBlob, fileName, 'Muhasebe Raporu', 'Güncel gelir/gider muhasebesi raporu ektedir.');
+        } else {
+            const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
+            if (navigator.share && navigator.canShare({ files: [file] })) {
+                await navigator.share({ title: 'Muhasebe Raporu', files: [file] });
+            } else {
+                doc.save(fileName);
+            }
+        }
+    } catch (err) { console.error('Share error:', err); }
+};
 
 // XSS koruması
 function escapeHTML(str) {

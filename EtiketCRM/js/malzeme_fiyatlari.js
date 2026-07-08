@@ -94,8 +94,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Share Material Stock (PDF with Name and Stock only)
+    // Share Material Stock (PDF with Name, Stock and Price)
     window.shareMalzemeStok = async function() {
+        if (!window.jspdf || !window.jspdf.jsPDF) {
+            showToast('PDF kütüphanesi yüklenemedi. Lütfen sayfayı yenileyin.', 'error');
+            return;
+        }
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
         const fiyatlar = getMalzemeFiyatlari();
@@ -109,31 +113,40 @@ document.addEventListener('DOMContentLoaded', () => {
         if (filtered.length === 0) return showToast('Paylaşılacak veri yok!', 'error');
 
         doc.setFontSize(16);
-        doc.text(fixTrForPDF("Guncel Stok Durumu"), 14, 15);
+        doc.text(fixTrForPDF("Guncel Malzeme & Fiyat Listesi"), 14, 15);
         doc.setFontSize(10);
         doc.text(`Tarih: ${new Date().toLocaleDateString('tr-TR')}`, 14, 22);
+
+        const formatForPDF = (val) => '$' + parseFloat(val || 0).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
 
         const rows = filtered.map(f => [
             fixTrForPDF(f.turu),
             fixTrForPDF(f.adi),
-            `${f.stok || 0} ${f.birim || 'kg'}`
+            `${f.stok || 0} ${f.birim || 'kg'}`,
+            formatForPDF(f.fiyat || 0)
         ]);
 
         doc.autoTable({
-            head: [['Grup', fixTrForPDF('Malzeme Adi'), 'Stok Miktari']],
+            head: [['Grup', fixTrForPDF('Malzeme Adi'), 'Stok Miktari', 'Birim Fiyati ($)']],
             body: rows,
             startY: 25,
             theme: 'striped',
-            headStyles: { fillColor: [16, 185, 129] }
+            headStyles: { fillColor: [16, 185, 129] },
+            columnStyles: { 3: { halign: 'right' } }
         });
 
         try {
             const pdfBlob = doc.output('blob');
-            const file = new File([pdfBlob], `Stok_Durumu_${new Date().toISOString().slice(0,10)}.pdf`, { type: 'application/pdf' });
-            if (navigator.share && navigator.canShare({ files: [file] })) {
-                await navigator.share({ title: 'Güncel Stok Durumu', files: [file] });
+            const fileName = 'Malzeme_Fiyatlari.pdf';
+            if (typeof window.openShareModal === 'function') {
+                window.openShareModal(pdfBlob, fileName, 'Güncel Stok Durumu', 'Güncel malzeme fiyatları ektedir.');
             } else {
-                doc.save(`Stok_Durumu.pdf`);
+                const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
+                if (navigator.share && navigator.canShare({ files: [file] })) {
+                    await navigator.share({ title: 'Güncel Stok Durumu', files: [file] });
+                } else {
+                    doc.save(fileName);
+                }
             }
         } catch (err) { console.error('Share error:', err); }
     };
@@ -194,13 +207,18 @@ document.addEventListener('DOMContentLoaded', () => {
             const stokValue = item.stok ? parseFloat(item.stok) : 0;
             const stokBadge = `<span class="badge ${stokValue > 10 ? 'badge-green' : (stokValue > 0 ? 'badge-orange' : 'badge-red')}">${stokValue} ${item.birim || 'kg'}</span>`;
 
+            let reportLink = '';
+            if (stokValue <= 10) {
+                reportLink = ` <a href="stok_takibi.html" class="badge badge-purple" style="text-decoration:none; margin-left: 5px; font-size:0.75rem;" title="Stok ve Rapor Paylaşımı"><i class="fa-solid fa-file-export"></i> Rapor Paylaşımı & Stoklar</a>`;
+            }
+
             html += `
                 <tr>
                     <td><span class="badge ${item.turu === 'Kağıt' ? 'badge-orange' : (item.turu === 'Mürekkep' ? 'badge-blue' : 'badge-green')}">${item.turu}</span></td>
                     <td style="font-weight: 500;">${item.adi}</td>
                     <td style="font-weight: 600;">${parseFloat(item.fiyat).toFixed(4)}</td>
                     <td>${item.doviz}</td>
-                    <td>${stokBadge}</td>
+                    <td>${stokBadge}${reportLink}</td>
                     <td style="text-align: right;">
                         <button class="btn-icon" onclick="duzeltMalzeme('${item.id}')" style="color: var(--warning); margin-right: 0.5rem;" title="Düzenle"><i class="fa-solid fa-pen-to-square"></i></button>
                         <button class="btn-icon" onclick="silMalzeme('${item.id}')" style="color: var(--danger);" title="Sil"><i class="fa-solid fa-trash"></i></button>

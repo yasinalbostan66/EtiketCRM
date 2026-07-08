@@ -32,16 +32,30 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const inputMaterial = document.getElementById('plateMaterial');
     
-    // Malzeme Fiyatlarını Yükle (Merkezden)
+    // Malzeme Fiyatlarını Yükle (Merkezden & Firmaya Özel)
     function loadKliseOptions(selectedName = null) {
         if (!inputMaterial) return;
         const kliseFiyatlar = getMalzemeFiyatlari().filter(f => f.turu === 'Klişe');
         inputMaterial.innerHTML = '<option value="" disabled selected>Lütfen Veritabanından Seçiniz...</option>';
+        const firmaId = firmaSec.value;
+        let ozelFiyatMap = {};
+        if (firmaId) {
+            const firmaObj = getFirmaById(firmaId);
+            if (firmaObj && firmaObj.ozelFiyatlar) {
+                firmaObj.ozelFiyatlar.forEach(of => { ozelFiyatMap[of.malzemeAd] = of; });
+            }
+        }
         kliseFiyatlar.forEach(f => {
             const opt = document.createElement('option');
             opt.value = f.adi;
-            opt.textContent = `${f.adi} (${f.fiyat.toFixed(4)} ${f.doviz}/${f.birim})`;
-            opt.dataset.fiyat = f.fiyat;
+            let currentFiyat = f.fiyat;
+            let star = '';
+            if (ozelFiyatMap[f.adi]) {
+                currentFiyat = ozelFiyatMap[f.adi].fiyat;
+                star = ' (Özel Fiyat)';
+            }
+            opt.textContent = `${f.adi}${star} (${currentFiyat.toFixed(4)} ${f.doviz}/${f.birim})`;
+            opt.dataset.fiyat = currentFiyat;
             opt.dataset.doviz = f.doviz;
             inputMaterial.appendChild(opt);
         });
@@ -51,6 +65,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     loadKliseOptions();
+
+    firmaSec.addEventListener('change', () => {
+        loadKliseOptions(inputMaterial ? inputMaterial.value : null);
+        if(inputMaterial) inputMaterial.dispatchEvent(new Event('change'));
+    });
+    
+    if (preSelectedFirma) {
+        loadKliseOptions();
+    }
 
     window.addEventListener('malzemeEklendi', (e) => {
         if(e.detail && e.detail.turu === 'Klişe') {

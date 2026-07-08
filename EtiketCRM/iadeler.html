@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="images/icon-192.png">
+    <title>İade Yönetimi | LINKUP CRM by Yasin</title>
+    <link rel="stylesheet" href="css/style.css?v=6.8">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="js/firebase-sync.js"></script>
+    <script src="js/main.js"></script>
+    <style>
+        th { text-transform: uppercase; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.03em; color: var(--text-muted); }
+        .toggle-group { display: flex; align-items: center; gap: 4px; }
+        .toggle-group input[type="radio"] { display: none; }
+        .toggle-group label {
+            padding: 4px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 600;
+            background: var(--surface-color);
+            color: var(--text-muted);
+            transition: all 0.2s;
+        }
+        .toggle-group input[type="radio"]:checked + label {
+            background: var(--primary);
+            color: #fff;
+            border-color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+    <script>if(localStorage.getItem("etiket_crm_theme") === "light") document.body.classList.add("light-mode");</script>
+
+    <div class="app-wrapper">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header" style="padding: 1.5rem 1rem 1rem 1rem; display: flex; justify-content: center; align-items: center;">
+                <a href="index.html" class="logo" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; text-decoration: none; text-align: center; width: 100%;">
+                    <i class="fa-solid fa-chart-line" style="color: #3b82f6; font-size: 2.2rem; filter: drop-shadow(0 4px 6px rgba(59,130,246,0.25));"></i>
+                    <div style="line-height: 1.1; text-align: center;">
+                        <span style="color:#3b82f6; font-family:'Outfit', sans-serif; font-size:1.6rem; font-weight:900; letter-spacing:-0.5px;">LINKUP</span>
+                        <span style="color:#ef4444; font-size:0.95rem; font-weight:800; display:block;">CRM <span style="font-size:0.75rem; color:var(--text-muted); font-weight:600;">by Yasin</span></span>
+                    </div>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <div style="margin: 0.5rem 0 0.5rem 1rem; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">Genel</div>
+                <a href="analiz.html" class="nav-item"><i class="fa-solid fa-chart-pie"></i> Analiz & Raporlar</a>
+                <a href="firmalar.html" class="nav-item"><i class="fa-solid fa-users"></i> Firmalar / Siparişler</a>
+                <div style="margin: 1rem 0 0.5rem 1rem; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">Sipariş Yönetimi</div>
+                <a href="siparis.html" class="nav-item"><i class="fa-solid fa-cart-plus"></i> Sipariş Oluştur</a>
+                <div style="margin: 1rem 0 0.5rem 1rem; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">Ziyaret & Planlama</div>
+                <a href="ziyaretler.html" class="nav-item"><i class="fa-solid fa-clipboard-list"></i> Ziyaret Kayıtları</a>
+                <a href="takvim.html" class="nav-item"><i class="fa-solid fa-calendar-days"></i> Ziyaret Takvimi</a>
+                <div style="margin: 1rem 0 0.5rem 1rem; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">Finans & Ürün</div>
+                <a href="odeme_takibi.html" class="nav-item"><i class="fa-solid fa-money-bill-transfer"></i> Ödeme Takibi & Cari</a>
+                <a href="iadeler.html" class="nav-item active"><i class="fa-solid fa-rotate-left"></i> İade Yönetimi</a>
+                <a href="malzeme_fiyatlari.html" class="nav-item"><i class="fa-solid fa-tags"></i> Malzeme Fiyatları</a>
+                <a href="stok_takibi.html" class="nav-item"><i class="fa-solid fa-file-export"></i> Stok ve Rapor Paylaşımı</a>
+                <div style="margin: 1rem 0 0.5rem 1rem; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">Sistem</div>
+                <a href="ayarlar.html" class="nav-item"><i class="fa-solid fa-gear"></i> Ayarlar</a>
+                <div style="margin-top: auto; border-top: 1px solid var(--border-color); padding-top: 0.5rem; margin-bottom: 0.5rem;">
+                    <a href="#" onclick="handleLogout()" class="nav-item" id="sidebarLogoutBtn" style="color: var(--danger);"><i class="fa-solid fa-right-from-bracket"></i> Çıkış Yap</a>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Topbar -->
+            <header class="top-header">
+                <div class="d-flex align-center gap-2">
+                    <button class="btn-icon hide-desktop" id="mobileMenuBtn">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <div class="page-title">İade Yönetimi</div>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-primary" id="btnYeniIade" style="background: var(--danger); border-color: var(--danger); display:flex; align-items:center; gap:6px;">
+                        <i class="fa-solid fa-plus"></i>
+                        <span class="hide-mobile">Yeni İade Oluştur</span>
+                    </button>
+                    <div id="userAvatarStr" onclick="handleLogout()" style="width: 36px; height: 36px; border-radius: 50%; background: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: 600; color: #fff; cursor: pointer; margin-left: 10px;" title="Çıkış Yap">YA</div>
+                </div>
+            </header>
+
+            <!-- Content -->
+            <div class="content-wrapper">
+                <!-- İstatistik Kartlar -->
+                <div class="stats-grid" style="margin-bottom: 1.5rem;">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: rgba(239,68,68,0.15); color: var(--danger);">
+                            <i class="fa-solid fa-rotate-left"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="statTotalIade">0</h3>
+                            <p>Toplam İade</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: rgba(239,68,68,0.15); color: var(--danger);">
+                            <i class="fa-solid fa-sack-dollar"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="statTotalIadeTutar">$0.00</h3>
+                            <p>Toplam İade Tutarı</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ana Tablo Paneli -->
+                <div class="panel">
+                    <div class="panel-header" style="flex-wrap: wrap; gap: 1rem;">
+                        <h2 class="panel-title"><i class="fa-solid fa-rotate-left"></i> Kayıtlı İadeler</h2>
+                        <div class="d-flex gap-2 align-center" style="margin-left: auto; flex-wrap: wrap;">
+                            <input type="text" id="searchInput" class="form-control" placeholder="Firma veya Ürün Ara..." style="max-width:220px;">
+                            <select id="filterFirma" class="form-control" style="max-width:180px;">
+                                <option value="">Tüm Firmalar</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="table-responsive" style="max-height: 520px; overflow-y: auto;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Tarih</th>
+                                    <th>Firma</th>
+                                    <th>Ürün / Açıklama</th>
+                                    <th>Sebep</th>
+                                    <th style="text-align: right;">İade Tutarı ($)</th>
+                                    <th style="text-align: right;">İşlem</th>
+                                </tr>
+                            </thead>
+                            <tbody id="iadeTableBody">
+                                <tr><td colspan="6" style="text-align:center; color:var(--text-muted); padding:2rem;">Yükleniyor...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- İade Modal -->
+    <div id="iadeModal" class="modal-overlay" style="display:none; align-items:center; justify-content:center; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:10000;">
+        <div class="modal-content panel" style="max-width:500px; width:95%; max-height:90vh; overflow-y:auto;">
+            <div class="panel-header" style="position:sticky; top:0; background:var(--surface-color); z-index:1;">
+                <h2 class="panel-title" id="iadeModalTitle" style="font-size:1rem; color:var(--danger);">
+                    <i class="fa-solid fa-rotate-left"></i> Yeni İade Oluştur
+                </h2>
+                <button class="btn-icon" id="btnCloseIadeModal">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <form id="iadeForm" style="padding: 1rem;">
+                <input type="hidden" id="editIadeId">
+                <div class="form-group">
+                    <label class="form-label">Firma Seçin *</label>
+                    <select id="iadeFirma" class="form-control" required></select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">İade Tarihi *</label>
+                    <input type="date" id="iadeTarih" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">İade Edilen Ürün / Açıklama *</label>
+                    <input type="text" id="iadeUrun" class="form-control" placeholder="Örn: 50x100 Termal Etiket" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">İade Sebebi *</label>
+                    <input type="text" id="iadeSebep" class="form-control" placeholder="Örn: Hatalı Basım, İhtiyaç Fazlası" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" style="display:flex; justify-content:space-between; align-items:center;">
+                        <span>İade Tutarı (Cari Bakiyeden Düşer) *</span>
+                        <div class="toggle-group">
+                            <input type="radio" name="iadeCurrency" id="iadeUSD" value="USD" checked>
+                            <label for="iadeUSD">USD</label>
+                            <input type="radio" name="iadeCurrency" id="iadeTRY" value="TRY">
+                            <label for="iadeTRY">TRY</label>
+                        </div>
+                    </label>
+                    <input type="number" id="iadeTutar" class="form-control" step="0.01" min="0.01" placeholder="0.00" required>
+                    <small id="iadeTutarHint" style="color:var(--text-muted); margin-top:4px; display:block;"></small>
+                </div>
+                <div style="display:flex; justify-content:flex-end; gap:0.5rem; margin-top:1.5rem; padding-top:1rem; border-top:1px solid var(--border-color);">
+                    <button type="button" id="btnCancelIade" class="btn" style="background:var(--surface-hover);">İptal</button>
+                    <button type="submit" class="btn btn-primary" style="background:var(--danger); border-color:var(--danger);">
+                        <i class="fa-solid fa-floppy-disk"></i> İadeyi Kaydet
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Notification Container -->
+    <div id="notification-container" style="position:fixed; top:20px; right:20px; z-index:99999; display:flex; flex-direction:column; gap:10px;"></div>
+
+    <script src="js/iadeler.js"></script>
+</body>
+</html>

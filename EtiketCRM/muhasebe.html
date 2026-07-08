@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Muhasebe Yönetimi | LINKUP CRM by Yasin</title>
@@ -46,6 +46,9 @@
                     <div class="page-title">Gelir & Gider Muhasebesi</div>
                 </div>
                 <div class="header-actions">
+                    <button class="btn btn-outline" onclick="exportMuhasebeToPDF()">
+                        <i class="fa-solid fa-share-nodes"></i> <span class="hide-mobile">Paylaş</span>
+                    </button>
                     <button class="btn btn-primary" onclick="openNewTransactionModal()">
                         <i class="fa-solid fa-file-invoice-dollar"></i> <span class="hide-mobile">Fatura / İşlem Ekle</span>
                     </button>
@@ -100,6 +103,7 @@
                                     <option value="HEPSİ">Tüm İşlemler</option>
                                     <option value="Gelir">Gelir (Fatura/Tahsilat)</option>
                                     <option value="Gider">Gider (Alım/Giderler)</option>
+                                    <option value="İade">İade İşlemleri</option>
                                 </select>
                             </div>
                         </div>
@@ -160,6 +164,7 @@
                             <select id="transType" class="form-control" required onchange="onTransTypeChange()">
                                 <option value="Gelir">Gelir (Gelen Ödeme / Satış Faturası)</option>
                                 <option value="Gider">Gider (Yapılan Ödeme / Alım Faturası)</option>
+                                <option value="İade">↩ İade İşlemi (Müşteri İadesi / Ürün İadesi)</option>
                             </select>
                         </div>
                     </div>
@@ -236,6 +241,10 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+
+    <!-- Hızlı PDF için Kütüphaneler -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
 
     <!-- Core JS -->
     <script src="js/firebase-sync.js?v=6.8"></script>

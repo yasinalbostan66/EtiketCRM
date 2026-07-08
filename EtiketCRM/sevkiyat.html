@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Sevkiyat Takibi | LINKUP CRM by Yasin</title>
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/style.css?v=6.8">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .shipment-status {
+            font-size: 0.75rem;
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-weight: 600;
+            display: inline-block;
+        }
+        .status-hazirlaniyor { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
+        .status-yolda { background: rgba(59, 130, 246, 0.15); color: #60a5fa; }
+        .status-teslimat { background: rgba(16, 185, 129, 0.15); color: #34d399; }
+        .status-iptal { background: rgba(100, 116, 139, 0.15); color: #94a3b8; }
+
+        /* Print styling for Waybill Label */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #printStickerArea, #printStickerArea * {
+                visibility: visible;
+            }
+            #printStickerArea {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100mm;
+                height: 100mm;
+                padding: 10px;
+                border: none !important;
+                background: #fff !important;
+                color: #000 !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+        }
+
+        /* Interactive Sticker Box */
+        .sticker-card {
+            border: 2px dashed #000;
+            border-radius: 12px;
+            padding: 20px;
+            background: #fff;
+            color: #000;
+            max-width: 450px;
+            margin: 0 auto;
+            font-family: 'Courier New', Courier, monospace;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        }
+        
+        .sticker-header {
+            border-bottom: 2px solid #000;
+            padding-bottom: 8px;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+        .sticker-footer {
+            border-top: 2px solid #000;
+            padding-top: 8px;
+            margin-top: 12px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <script>
+        const currTheme = localStorage.getItem("etiket_crm_theme");
+        if(currTheme === "light") document.body.classList.add("light-mode");
+        if(currTheme === "blue") document.body.classList.add("blue-mode");
+    </script>
+
+    <div class="app-wrapper no-print">
+        <!-- Sidebar -->
+        <aside class="sidebar"></aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Topbar -->
+            <header class="top-header">
+                <div class="d-flex align-center gap-2">
+                    <button class="btn-icon hide-desktop" id="mobileMenuBtn">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <div class="page-title">Sevkiyat Yönetimi</div>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-primary" onclick="openNewShipmentModal()">
+                        <i class="fa-solid fa-truck-fast"></i> <span class="hide-mobile">Yeni Sevkiyat Planla</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Content -->
+            <div class="content-wrapper">
+                <!-- Stats Grid -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon blue">
+                            <i class="fa-solid fa-boxes-stacked"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="statTotalSevkiyat">0</h3>
+                            <p>Toplam Sevkiyat</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon orange">
+                            <i class="fa-solid fa-screwdriver-wrench"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="statPreparing">0</h3>
+                            <p>Hazırlanıyor</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: rgba(59, 130, 246, 0.2); color: #60a5fa;">
+                            <i class="fa-solid fa-truck"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="statOnTheWay">0</h3>
+                            <p>Yolda</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon green">
+                            <i class="fa-solid fa-circle-check"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="statDelivered">0</h3>
+                            <p>Teslim Edildi</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filtreleme Paneli -->
+                <div class="panel" style="margin-bottom: 1.5rem;">
+                    <div class="panel-header">
+                        <h2 class="panel-title"><i class="fa-solid fa-filter"></i> Filtrele & Ara</h2>
+                    </div>
+                    <div class="panel-body">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="searchShipment">Arama (Firma, Sipariş, İrsaliye No, Plaka)</label>
+                                <input type="text" id="searchShipment" class="form-control" placeholder="Sevkiyatlarda ara..." oninput="renderSevkiyatlar()">
+                            </div>
+                            <div class="form-group">
+                                <label for="filterShipmentStatus">Sevkiyat Durumu</label>
+                                <select id="filterShipmentStatus" class="form-control" onchange="renderSevkiyatlar()">
+                                    <option value="HEPSİ">Tüm Durumlar</option>
+                                    <option value="Hazırlanıyor">Hazırlanıyor</option>
+                                    <option value="Yolda">Yolda / Kuryede</option>
+                                    <option value="Teslim Edildi">Teslim Edildi</option>
+                                    <option value="İptal Edildi">İptal Edildi</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sevkiyat Kayıtları Listesi -->
+                <div class="panel">
+                    <div class="panel-header">
+                        <h2 class="panel-title"><i class="fa-solid fa-list-check"></i> Planlanan & Gönderilen Sevkiyatlar</h2>
+                    </div>
+                    <div class="table-responsive">
+                        <table id="shipmentTable">
+                            <thead>
+                                <tr>
+                                    <th>Kayıt/Plan Tarihi</th>
+                                    <th>Firma Adı</th>
+                                    <th>İlişkili Sipariş</th>
+                                    <th>Gönderim Türü</th>
+                                    <th>Takip/İrsaliye/Plaka No</th>
+                                    <th>Durum</th>
+                                    <th>Teslim Tarihi</th>
+                                    <th style="text-align: right;">İşlem</th>
+                                </tr>
+                            </thead>
+                            <tbody id="shipmentTableBody">
+                                <!-- JS ile doldurulacak -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Yeni/Düzenleme Sevkiyat Formu Modalı -->
+    <div id="newShipmentModal" class="modal-overlay" style="display: none; z-index: 99999;">
+        <div class="modal-content panel" style="max-width: 600px; width: 95%;">
+            <div class="panel-header">
+                <h2 class="panel-title" id="shipmentModalTitle"><i class="fa-solid fa-truck-fast"></i> Sevkiyat Giriş Formu</h2>
+                <button class="btn-icon" onclick="closeNewShipmentModal()">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <form id="shipmentForm" onsubmit="saveShipmentForm(event)">
+                <input type="hidden" id="editShipmentId">
+                <div class="modal-body-scroll">
+                    
+                    <!-- MÜŞTERİ & SİPARİŞ BİLGİLERİ -->
+                    <div style="font-weight: 700; font-size: 0.85rem; color: var(--primary); text-transform: uppercase; margin-bottom: 0.75rem; border-bottom: 1px solid var(--border-color); padding-bottom: 4px;">
+                        Müşteri & Sipariş
+                    </div>
+                    <div class="form-grid" style="margin-bottom: 1.25rem;">
+                        <div class="form-group">
+                            <label for="shipmentFirmaSec">Firma Seçimi *</label>
+                            <select id="shipmentFirmaSec" class="form-control" required onchange="onShipmentFirmaChange()">
+                                <option value="" disabled selected>Lütfen Firma Seçin...</option>
+                                <!-- Firmalar JS ile eklenecek -->
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="shipmentSiparisSec">İlişkili Sipariş (Opsiyonel)</label>
+                            <select id="shipmentSiparisSec" class="form-control">
+                                <option value="">Sipariş Seçin...</option>
+                                <!-- Seçilen firmaya ait siparişler JS ile eklenecek -->
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- GÖNDERİM DETAYLARI -->
+                    <div style="font-weight: 700; font-size: 0.85rem; color: var(--primary); text-transform: uppercase; margin-bottom: 0.75rem; border-bottom: 1px solid var(--border-color); padding-bottom: 4px;">
+                        Gönderim Detayları
+                    </div>
+                    <div class="form-grid" style="margin-bottom: 1.25rem;">
+                        <div class="form-group">
+                            <label for="shipmentDurum">Sevkiyat Durumu</label>
+                            <select id="shipmentDurum" class="form-control" required>
+                                <option value="Hazırlanıyor">Hazırlanıyor</option>
+                                <option value="Yolda">Yolda / Kuryede</option>
+                                <option value="Teslim Edildi">Teslim Edildi</option>
+                                <option value="İptal Edildi">İptal Edildi</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="shipmentTasiyici">Taşıyıcı / Gönderim Türü *</label>
+                            <select id="shipmentTasiyici" class="form-control" required>
+                                <option value="Kargo">Kargo</option>
+                                <option value="Kendi Aracımız">Kendi Aracımız</option>
+                                <option value="Kurye">Kurye</option>
+                                <option value="Müşteri Kendisi Alacak">Müşteri Kendisi Alacak</option>
+                                <option value="Diğer">Diğer</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="shipmentTakipNo">İrsaliye / Takip / Plaka No</label>
+                            <input type="text" id="shipmentTakipNo" class="form-control" placeholder="Örn: IRS-998822 veya 34 ABC 123">
+                        </div>
+                        <div class="form-group">
+                            <label for="shipmentTeslimTarihi">Teslim/Plan Tarihi *</label>
+                            <input type="date" id="shipmentTeslimTarihi" class="form-control" required>
+                        </div>
+                    </div>
+
+                    <!-- NOTLAR -->
+                    <div style="font-weight: 700; font-size: 0.85rem; color: var(--primary); text-transform: uppercase; margin-bottom: 0.75rem; border-bottom: 1px solid var(--border-color); padding-bottom: 4px;">
+                        Sevkiyat Notları
+                    </div>
+                    <div class="form-group">
+                        <label for="shipmentNotlar">Sevkiyat Notları / Açıklama</label>
+                        <textarea id="shipmentNotlar" class="form-control" rows="3" placeholder="Sevkiyatla ilgili notlar, paket adeti, özel talimatlar..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="closeNewShipmentModal()">Vazgeç</button>
+                    <button type="submit" class="btn btn-primary" id="btnSaveShipment">Değişiklikleri Kaydet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Etiket Barkod Yazdırma Modalı -->
+    <div id="printStickerModal" class="modal-overlay" style="display: none; z-index: 100000;">
+        <div class="modal-content panel" style="max-width: 500px; width: 95%;">
+            <div class="panel-header no-print">
+                <h2 class="panel-title"><i class="fa-solid fa-print"></i> Koli / İrsaliye Etiketi Yazdır</h2>
+                <button class="btn-icon" onclick="closePrintStickerModal()">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="modal-body" style="padding: 1.5rem 0;">
+                <div id="printStickerArea" class="sticker-card">
+                    <!-- Dinamik Sticker Content -->
+                </div>
+            </div>
+            <div class="modal-footer no-print">
+                <button type="button" class="btn btn-outline" onclick="closePrintStickerModal()">Kapat</button>
+                <button type="button" class="btn btn-primary" onclick="triggerPrint()">
+                    <i class="fa-solid fa-print"></i> Etiketi Yazdır
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+
+    <!-- Core JS -->
+    <script src="js/firebase-sync.js?v=6.8"></script>
+    <script src="js/main.js?v=6.8"></script>
+    <script src="js/sevkiyat.js?v=6.8"></script>
+</body>
+</html>

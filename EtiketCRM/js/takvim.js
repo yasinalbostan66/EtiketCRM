@@ -254,11 +254,19 @@ document.addEventListener('DOMContentLoaded', () => {
         const firmalar = typeof getFirmalar === 'function' ? getFirmalar() : [];
 
         if (visits.length === 0) {
-            routePanel.style.display = 'none';
+            routePanel.style.display = 'block';
+            document.getElementById('routeTitle').innerHTML = `<i class="fa-solid fa-route"></i> ${new Date(dateStr).toLocaleDateString('tr-TR')} - Ziyaret Rotası`;
+            routeList.innerHTML = `<div style="text-align:center; padding:1.5rem; color:var(--text-muted); font-size:0.85rem;"><i class="fa-solid fa-calendar-day" style="font-size:1.5rem; margin-bottom:8px; display:block;"></i> Bu tarihte planlanmış ziyaret bulunmuyor.</div>`;
+            btnOpenMapsRoute.style.display = 'none';
+            btnShareRoute.style.display = 'none';
+            const routeMapDiv = document.getElementById('routeMap');
+            if (routeMapDiv) routeMapDiv.style.display = 'none';
             return;
         }
 
         routePanel.style.display = 'block';
+        const routeMapDiv = document.getElementById('routeMap');
+        if (routeMapDiv) routeMapDiv.style.display = 'block';
         document.getElementById('routeTitle').innerHTML = `<i class="fa-solid fa-route"></i> ${new Date(dateStr).toLocaleDateString('tr-TR')} - Ziyaret Rotası`;
 
         let listHtml = `<div style="display:flex; flex-direction:column; gap:10px;">`;

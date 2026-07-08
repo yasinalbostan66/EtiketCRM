@@ -32,11 +32,25 @@ document.addEventListener('DOMContentLoaded', async () => {
     function loadPaperOptions(selectedName = null) {
         const fiyatlar = getMalzemeFiyatlari().filter(f => f.turu === 'Kağıt');
         paperNameInput.innerHTML = '<option value="" disabled selected>Lütfen Veritabanından Seçiniz...</option>';
+        const firmaId = firmaSec.value;
+        let ozelFiyatMap = {};
+        if (firmaId) {
+            const firmaObj = getFirmaById(firmaId);
+            if (firmaObj && firmaObj.ozelFiyatlar) {
+                firmaObj.ozelFiyatlar.forEach(of => { ozelFiyatMap[of.malzemeAd] = of; });
+            }
+        }
         fiyatlar.forEach(f => {
             const opt = document.createElement('option');
             opt.value = f.adi;
-            opt.textContent = `${f.adi} (${f.fiyat.toFixed(3)} ${f.doviz}/${f.birim})`;
-            opt.dataset.fiyat = f.fiyat;
+            let currentFiyat = f.fiyat;
+            let star = '';
+            if (ozelFiyatMap[f.adi]) {
+                currentFiyat = ozelFiyatMap[f.adi].fiyat;
+                star = ' (Özel Fiyat)';
+            }
+            opt.textContent = `${f.adi}${star} (${currentFiyat.toFixed(3)} ${f.doviz}/${f.birim})`;
+            opt.dataset.fiyat = currentFiyat;
             opt.dataset.doviz = f.doviz;
             paperNameInput.appendChild(opt);
         });
@@ -106,6 +120,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (firma) {
             document.querySelector('.page-title').innerHTML += ` <small style="color:var(--text-muted); font-size:0.8rem;">(${firma.ad})</small>`;
         }
+    }
+    
+    firmaSec.addEventListener('change', () => {
+        loadPaperOptions(paperNameInput.value);
+        paperNameInput.dispatchEvent(new Event('change'));
+    });
+    
+    if (preSelectedFirma) {
+        loadPaperOptions();
     }
 
     calcTypeSelect.addEventListener('change', () => {

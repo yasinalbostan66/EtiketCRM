@@ -122,7 +122,7 @@ auth.onAuthStateChanged(user => {
 
 let isSyncingFromFirestore = false;
 
-const COLLECTIONS = ['firmalar', 'siparisler', 'tahsilatlar', 'malzeme_fiyatlari', 'ziyaretler', 'duyurular', 'teknik_servis', 'muhasebe', 'kullanicilar'];
+const COLLECTIONS = ['firmalar', 'siparisler', 'tahsilatlar', 'malzeme_fiyatlari', 'ziyaretler', 'duyurular', 'teknik_servis', 'muhasebe', 'kullanicilar', 'sevkiyatlar', 'iadeler'];
 
 
 
@@ -166,6 +166,7 @@ COLLECTIONS.forEach(col => {
         if (typeof renderTeknikServis === 'function') renderTeknikServis();
         if (typeof renderMuhasebe === 'function') renderMuhasebe();
         if (typeof renderKullanicilar === 'function') renderKullanicilar();
+        if (typeof renderSevkiyatlar === 'function') renderSevkiyatlar();
 
         if (col === 'ziyaretler') {
             const calendarEl = document.getElementById('calendar');
@@ -214,7 +215,7 @@ localStorage.setItem = function(key, value) {
                 });
 
                 // 2b. Silinenleri Firestore'dan Temizle (Güvenli - sadece ana koleksiyonlarda)
-                const mainCollections = ['firmalar', 'siparisler', 'tahsilatlar', 'malzeme_fiyatlari', 'ziyaretler', 'duyurular', 'teknik_servis', 'muhasebe', 'kullanicilar'];
+                const mainCollections = ['firmalar', 'siparisler', 'tahsilatlar', 'malzeme_fiyatlari', 'ziyaretler', 'duyurular', 'teknik_servis', 'muhasebe', 'kullanicilar', 'sevkiyatlar', 'iadeler'];
                 if (mainCollections.includes(col) && firebase.auth().currentUser) {
                     db.collection(col).get().then(snapshot => {
                         snapshot.docs.forEach(doc => {

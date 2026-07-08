@@ -164,6 +164,138 @@ document.addEventListener('DOMContentLoaded', () => {
     renderFirmaEkstresi(firmaId);
     renderAktiviteler(firmaId);
 
+    // --- Firmaya Özel Fiyat Mantığı (NEW) ---
+    renderOzelFiyatlar();
+
+    const ozelFiyatForm = document.getElementById('ozelFiyatForm');
+    if (ozelFiyatForm) {
+        ozelFiyatForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const editId = document.getElementById('editOzelFiyatId').value;
+            const secilenMalzemeId = document.getElementById('ozelFiyatMalzeme').value;
+            const secilenFiyat = parseFloat(document.getElementById('ozelFiyatBirimFiyat').value);
+
+            if (!secilenMalzemeId || isNaN(secilenFiyat)) {
+                showToast('Lütfen geçerli bir malzeme ve fiyat girin.', 'error');
+                return;
+            }
+
+            const genFiyatlar = getMalzemeFiyatlari();
+            const malzemeObj = genFiyatlar.find(m => m.id === secilenMalzemeId);
+            if (!malzemeObj) return;
+
+            if (!firma.ozelFiyatlar) firma.ozelFiyatlar = [];
+
+            if (editId) {
+                const index = firma.ozelFiyatlar.findIndex(of => of.id === editId);
+                if (index !== -1) {
+                    firma.ozelFiyatlar[index].fiyat = secilenFiyat;
+                    firma.ozelFiyatlar[index].malzemeAd = malzemeObj.adi;
+                    firma.ozelFiyatlar[index].malzemeId = malzemeObj.id;
+                }
+            } else {
+                firma.ozelFiyatlar.push({
+                    id: 'of_' + Date.now().toString(36),
+                    malzemeId: malzemeObj.id,
+                    malzemeAd: malzemeObj.adi,
+                    fiyat: secilenFiyat
+                });
+            }
+
+            if (typeof updateFirma === 'function') {
+                updateFirma(firma);
+                showToast('Özel fiyat kaydedildi.', 'success');
+                renderOzelFiyatlar();
+                document.getElementById('ozelFiyatModal').style.display = 'none';
+                ozelFiyatForm.reset();
+            }
+        });
+    }
+
+    window.openOzelFiyatModal = function() {
+        document.getElementById('editOzelFiyatId').value = '';
+        document.getElementById('ozelFiyatForm').reset();
+        
+        // Malzeme listesini doldur
+        const genFiyatlar = getMalzemeFiyatlari();
+        const select = document.getElementById('ozelFiyatMalzeme');
+        select.innerHTML = '<option value="">Seçiniz...</option>';
+        genFiyatlar.forEach(m => {
+            select.innerHTML += `<option value="${m.id}">${m.turu} - ${m.adi}</option>`;
+        });
+
+        document.getElementById('ozelFiyatModal').style.display = 'flex';
+    };
+
+    window.duzeltOzelFiyat = function(id) {
+        if (!firma.ozelFiyatlar) return;
+        const ozel = firma.ozelFiyatlar.find(of => of.id === id);
+        if (!ozel) return;
+
+        openOzelFiyatModal();
+        setTimeout(() => {
+            document.getElementById('editOzelFiyatId').value = ozel.id;
+            document.getElementById('ozelFiyatMalzeme').value = ozel.malzemeId;
+            document.getElementById('ozelFiyatBirimFiyat').value = ozel.fiyat;
+        }, 50);
+    };
+
+    window.silOzelFiyat = function(id) {
+        if (confirm('Bu özel fiyatı silmek istediğinize emin misiniz?')) {
+            firma.ozelFiyatlar = firma.ozelFiyatlar.filter(of => of.id !== id);
+            if (typeof updateFirma === 'function') {
+                updateFirma(firma);
+                showToast('Özel fiyat silindi.', 'error');
+                renderOzelFiyatlar();
+            }
+        }
+    };
+
+    function renderOzelFiyatlar() {
+        const container = document.getElementById('ozelFiyatTableContainer');
+        if (!container) return;
+
+        if (!firma.ozelFiyatlar || firma.ozelFiyatlar.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state" style="padding: 1.5rem;">
+                    <i class="fa-solid fa-tags" style="font-size: 2.5rem; margin-bottom: 0.5rem; opacity: 0.3;"></i>
+                    <p style="margin:0;">Bu firmaya tanımlanmış özel fiyat bulunmuyor.</p>
+                </div>
+            `;
+            return;
+        }
+
+        let html = `
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Malzeme Adı</th>
+                            <th>Özel Fiyat ($)</th>
+                            <th style="text-align: right;">İşlem</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        `;
+
+        firma.ozelFiyatlar.forEach(of => {
+            html += `
+                <tr>
+                    <td style="font-weight: 500;">${of.malzemeAd}</td>
+                    <td style="font-weight: 700; color: var(--primary);">$${parseFloat(of.fiyat).toFixed(4)}</td>
+                    <td style="text-align: right;">
+                        <button class="btn-icon" onclick="duzeltOzelFiyat('${of.id}')" style="color: var(--warning); margin-right: 0.5rem;" title="Düzenle"><i class="fa-solid fa-pen-to-square"></i></button>
+                        <button class="btn-icon" onclick="silOzelFiyat('${of.id}')" style="color: var(--danger);" title="Sil"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                </tr>
+            `;
+        });
+
+        html += `</tbody></table></div>`;
+        container.innerHTML = html;
+    }
+
+
     // --- Firma Düzenleme Mantığı (NEW) ---
     const editFirmaForm = document.getElementById('editFirmaForm');
     
@@ -238,12 +370,13 @@ function renderAktiviteler(firmaId) {
         rows.forEach(r => {
             const dateStr = new Date(r.date).toLocaleDateString('tr-TR', { day:'2-digit', month:'2-digit', year:'numeric' });
             const renk = tipRenk[r.tip] || '#64748b';
+            const rawAmount = r.raw.totalPriceUSD || r.raw.totalAmountUSD || 0;
             html += `<tr>
                 <td style="color:var(--text-muted);font-size:.85rem;white-space:nowrap;">${dateStr}</td>
                 <td><span class="badge" style="background:${renk}22;color:${renk};font-weight:700;">${r.tip}</span></td>
                 <td style="font-size:.85rem;color:var(--text-muted);">${r.tur}</td>
                 <td style="font-weight:500;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${r.aciklama}">${r.aciklama}</td>
-                <td style="text-align:right;font-weight:700;color:${r.tutarColor};white-space:nowrap;">${r.tutar}</td>
+                <td data-amount="${rawAmount}" style="text-align:right;font-weight:700;color:${r.tutarColor};white-space:nowrap;">${r.tutar}</td>
             </tr>`;
         });
         html += `</tbody></table></div>`;
@@ -289,14 +422,16 @@ window.openTahsilatModal = function() {
 function renderFirmaEkstresi(firmaId) {
     const siparisler = getFirmaSiparisleri(firmaId).map(s => ({...s, transType: 'SIPARIS'}));
     const tahsilatlar = getFirmaTahsilatlari(firmaId).map(t => ({...t, transType: 'TAHSILAT'}));
+    const iadeler = getFirmaIadeler(firmaId).map(i => ({...i, transType: 'IADE'}));
     
     const container = document.getElementById('siparisTableContainer');
     const bakiyeEl = document.getElementById('detayBakiye');
     
-    // Bakiye Hesaplama: Siparişler (+) - Tahsilatlar (-)
+    // Bakiye Hesaplama: Siparişler (+) - Tahsilatlar (-) - İadeler (-)
     let totalSiparis = siparisler.reduce((acc, curr) => acc + curr.totalPriceUSD, 0);
     let totalTahsilat = tahsilatlar.reduce((acc, curr) => acc + curr.totalAmountUSD, 0);
-    let netBakiye = totalSiparis - totalTahsilat;
+    let totalIade = iadeler.reduce((acc, curr) => acc + curr.tutarUSD, 0);
+    let netBakiye = totalSiparis - (totalTahsilat + totalIade);
     
     const rate = parseFloat(window.lastRates?.USD || 32.50);
     bakiyeEl.innerHTML = `
@@ -316,13 +451,13 @@ function renderFirmaEkstresi(firmaId) {
         }
     }
     
-    const allTransactions = [...siparisler, ...tahsilatlar].sort((a,b) => new Date(b.date) - new Date(a.date));
+    const allTransactions = [...siparisler, ...tahsilatlar, ...iadeler].sort((a,b) => new Date(b.date) - new Date(a.date));
 
     if (allTransactions.length === 0) {
         container.innerHTML = `
             <div class="empty-state">
                 <i class="fa-solid fa-folder-open" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
-                <p>Bu firmaya ait henüz herhangi bir işlem (sipariş veya tahsilat) bulunmamaktadır.</p>
+                <p>Bu firmaya ait henüz herhangi bir işlem (sipariş, tahsilat veya iade) bulunmamaktadır.</p>
             </div>
         `;
         return;
@@ -351,6 +486,7 @@ function renderFirmaEkstresi(firmaId) {
         let typeBadge = '';
         let amountStr = '';
         let amountColor = '';
+        let rawAmount = 0;
         let actionBtn = '';
 
         if (s.transType === 'SIPARIS') {
@@ -359,7 +495,9 @@ function renderFirmaEkstresi(firmaId) {
                 const statusColor = s.status === 'Ödendi' ? 'badge-green' : (s.status === 'Sevk Edildi' ? 'badge-blue' : 'badge-orange');
                 typeBadge += ` <span class="badge ${statusColor}" style="opacity: 0.85;">${s.status}</span>`;
             }
+            s.name = s.name || 'Sipariş';
             amountStr = formatCurrency(s.totalPriceUSD);
+            rawAmount = s.totalPriceUSD;
             amountColor = 'var(--text-main)';
             actionBtn = `
                 <a href="siparis_onay.html?id=${s.id}" target="_blank" class="btn-icon" style="color: var(--primary); margin-right: 0.5rem; text-decoration: none; display: inline-flex; align-items: center; justify-content: center;" title="Tekli Onay Formu"><i class="fa-solid fa-file-contract"></i></a>
@@ -367,13 +505,27 @@ function renderFirmaEkstresi(firmaId) {
                 <button class="btn-icon" onclick="duzeltSiparis('${s.id}')" style="color: var(--warning); margin-right: 0.5rem;" title="Düzenle"><i class="fa-solid fa-pen-to-square"></i></button>
                 <button class="btn-icon" onclick="silSiparis('${s.id}', '${firmaId}')" style="color: var(--danger);" title="Sil"><i class="fa-solid fa-trash"></i></button>
             `;
-        } else {
+        } else if (s.transType === 'TAHSILAT') {
             typeBadge = `<span class="badge" style="background: rgba(59, 130, 246, 0.2); color: #60a5fa;">TAHSİLAT</span>`;
+            s.name = 'Tahsilat';
+            s.note = s.note || 'Ödeme';
             amountStr = '-' + formatCurrency(s.totalAmountUSD);
-            amountColor = 'var(--primary)';
+            rawAmount = -s.totalAmountUSD;
+            amountColor = 'var(--success)';
             actionBtn = `
                 <button class="btn-icon" onclick="duzeltTahsilat('${s.id}')" style="color: var(--warning); margin-right: 0.5rem;" title="Düzenle"><i class="fa-solid fa-pen-to-square"></i></button>
                 <button class="btn-icon" onclick="silTahsilat('${s.id}', '${firmaId}')" style="color: var(--danger);" title="Sil"><i class="fa-solid fa-trash"></i></button>
+            `;
+        } else if (s.transType === 'IADE') {
+            trStyle = 'background: rgba(239, 68, 68, 0.03);'; // Light red background for returns
+            typeBadge = `<span class="badge" style="background: rgba(239, 68, 68, 0.1); color: var(--danger);">İADE</span>`;
+            s.name = s.urun; // mapping for the table column
+            s.note = s.sebep; // mapping for the table column
+            amountStr = '-' + formatCurrency(s.tutarUSD);
+            rawAmount = -s.tutarUSD;
+            amountColor = 'var(--danger)';
+            actionBtn = `
+                <a href="iadeler.html" class="btn-icon" style="color: var(--text-muted);" title="İadeler Sayfasına Git"><i class="fa-solid fa-up-right-from-square"></i></a>
             `;
         }
         
@@ -383,7 +535,7 @@ function renderFirmaEkstresi(firmaId) {
                 <td data-label="İşlem Türü">${typeBadge}</td>
                 <td data-label="Açıklama" style="font-weight: 500;">${s.name || s.method} ${s.faturaNo ? `<br><small style="color:var(--text-muted)">Fat: ${s.faturaNo}</small>` : ''}</td>
                 <td data-label="Miktar">${s.quantity ? `${s.quantity} ${s.unit}` : (s.note || '-')}</td>
-                <td data-label="Tutar" style="font-weight: 700; color: ${amountColor};">
+                <td data-label="Tutar" data-amount="${rawAmount}" style="font-weight: 700; color: ${amountColor};">
                     ${amountStr}
                     ${s.totalPriceTRY ? `<br><small style="color:var(--text-muted); font-weight:400; font-size:0.75rem;">(₺${s.totalPriceTRY.toLocaleString('tr-TR', {minimumFractionDigits:2})})</small>` : ''}
                 </td>
@@ -447,10 +599,6 @@ window.duzeltSiparis = function(id) {
     document.getElementById('siparisModal').style.display = 'flex';
 };
 
-function fixTrForPDF(text) {
-    const trMap = { 'ç': 'c', 'Ç': 'C', 'ğ': 'g', 'Ğ': 'G', 'ı': 'i', 'İ': 'I', 'ö': 'o', 'Ö': 'O', 'ş': 's', 'Ş': 'S', 'ü': 'u', 'Ü': 'U' };
-    return text ? text.toString().replace(/[çÇğĞıİöÖşŞüÜ]/g, m => trMap[m]) : '';
-}
 
 window.exportFirmaEkstraToPDF = function() {
     const { jsPDF } = window.jspdf;
@@ -465,6 +613,8 @@ window.exportFirmaEkstraToPDF = function() {
     const table = document.querySelector('#siparisTableContainer table');
     if(!table) return showToast('Veri bulunamadi!', 'error');
 
+    const formatForPDF = (val) => '$' + parseFloat(val || 0).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+
     const rows = [];
     const trs = table.querySelectorAll('tbody tr');
     trs.forEach(tr => {
@@ -473,21 +623,22 @@ window.exportFirmaEkstraToPDF = function() {
         row.push(fixTrForPDF(tr.cells[1].textContent.trim())); // İşlem
         row.push(fixTrForPDF(tr.cells[2].textContent.trim())); // Detay
         row.push(fixTrForPDF(tr.cells[3].textContent.trim())); // Miktar/Not
-        row.push(tr.cells[4].textContent.trim().split('(')[0].trim()); // USD Tutar
+        row.push(formatForPDF(tr.cells[4].getAttribute('data-amount'))); // USD Tutar
         rows.push(row);
     });
 
     // Net Bakiye Satırı Ekle
     const totalSiparis = getFirmaSiparisleri(firmaId).reduce((acc, curr) => acc + curr.totalPriceUSD, 0);
     const totalTahsilat = getFirmaTahsilatlari(firmaId).reduce((acc, curr) => acc + curr.totalAmountUSD, 0);
-    const netBakiye = totalSiparis - totalTahsilat;
+    const totalIade = getFirmaIadeler(firmaId).reduce((acc, curr) => acc + curr.tutarUSD, 0);
+    const netBakiye = totalSiparis - (totalTahsilat + totalIade);
     
     rows.push([
         '', 
         '', 
         '', 
         fixTrForPDF('NET BAKİYE:'), 
-        formatCurrency(netBakiye)
+        formatForPDF(netBakiye)
     ]);
 
     doc.autoTable({
@@ -496,8 +647,12 @@ window.exportFirmaEkstraToPDF = function() {
         startY: 30,
         theme: 'striped',
         headStyles: { fillColor: [59, 130, 246] },
+        columnStyles: { 4: { halign: 'right' } },
         didParseCell: function(data) {
-            if (data.row.index === rows.length - 1) {
+            if (data.section === 'head' && data.column.index === 4) {
+                data.cell.styles.halign = 'right';
+            }
+            if (data.row.index === rows.length - 1 && data.section === 'body') {
                 data.cell.styles.fontStyle = 'bold';
                 if (netBakiye > 0) data.cell.styles.textColor = [239, 68, 68];
                 else if (netBakiye < 0) data.cell.styles.textColor = [16, 185, 129];
@@ -523,16 +678,23 @@ window.shareActivities = async function() {
     const table = container.querySelector('table');
     if(!table) return showToast('Aktivite verisi bulunamadı!', 'error');
 
+    const formatForPDF = (val) => {
+        if (val === '-' || val === '—' || val === null || val === undefined) return '-';
+        return '$' + Math.abs(parseFloat(val)).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    };
+
     const rows = [];
     const trs = table.querySelectorAll('tbody tr');
     trs.forEach(tr => {
         const cells = tr.querySelectorAll('td');
-        if (cells.length >= 4) {
+        if (cells.length >= 5) {
+            const rawAmount = cells[4].getAttribute('data-amount');
+            const formattedAmount = (rawAmount && rawAmount != 0) ? formatForPDF(rawAmount) : '-';
             rows.push([
                 cells[0].textContent.trim(),
                 fixTrForPDF(cells[1].textContent.trim()),
-                fixTrForPDF(cells[2].textContent.trim()),
-                cells[3].textContent.trim()
+                fixTrForPDF(cells[2].textContent.trim()) + ' - ' + fixTrForPDF(cells[3].textContent.trim()),
+                formattedAmount
             ]);
         }
     });
@@ -543,16 +705,25 @@ window.shareActivities = async function() {
         startY: 28,
         theme: 'grid',
         headStyles: { fillColor: [15, 23, 42] },
-        columnStyles: { 3: { halign: 'right' } }
+        columnStyles: { 3: { halign: 'right' } },
+        didParseCell: function(data) {
+            if (data.section === 'head' && data.column.index === 3) {
+                data.cell.styles.halign = 'right';
+            }
+        }
     });
 
     try {
         const pdfBlob = doc.output('blob');
-        const file = new File([pdfBlob], `${fixTrForPDF(firmaAd).replace(/\s+/g, '_')}_Aktiviteler.pdf`, { type: 'application/pdf' });
-        if (navigator.share && navigator.canShare({ files: [file] })) {
-            await navigator.share({ title: 'Aktivite Kronolojisi', files: [file] });
+        const fileName = `${fixTrForPDF(firmaAd).replace(/\s+/g, '_')}_Aktiviteler.pdf`;
+        if (typeof window.openShareModal === 'function') {
+            window.openShareModal(pdfBlob, fileName, 'Aktivite Kronolojisi', `${firmaAd} firmasına ait aktivite geçmişi ektedir.`);
         } else {
-            doc.save(`${firmaAd}_Aktiviteler.pdf`);
+            if (navigator.share && navigator.canShare({ files: [new File([pdfBlob], fileName, { type: 'application/pdf' })] })) {
+                await navigator.share({ title: 'Aktivite Kronolojisi', files: [new File([pdfBlob], fileName, { type: 'application/pdf' })] });
+            } else {
+                doc.save(fileName);
+            }
         }
     } catch (err) { console.error('Share error:', err); }
 };
@@ -591,6 +762,8 @@ window.shareFirmaEkstra = async function() {
     const table = document.querySelector('#siparisTableContainer table');
     if(!table) return showToast('Paylaşılacak veri bulunamadı!', 'error');
 
+    const formatForPDF = (val) => '$' + parseFloat(val || 0).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+
     const rows = [];
     const trs = table.querySelectorAll('tbody tr');
     trs.forEach(tr => {
@@ -599,21 +772,22 @@ window.shareFirmaEkstra = async function() {
         row.push(fixTrForPDF(tr.cells[1].textContent.trim())); // İşlem
         row.push(fixTrForPDF(tr.cells[2].textContent.trim())); // Detay
         row.push(fixTrForPDF(tr.cells[3].textContent.trim())); // Miktar/Not
-        row.push(tr.cells[4].textContent.trim().split('(')[0].trim()); // USD Tutar
+        row.push(formatForPDF(tr.cells[4].getAttribute('data-amount'))); // USD Tutar
         rows.push(row);
     });
 
     // Net Bakiye Satırı Ekle
     const totalSiparis = getFirmaSiparisleri(firmaId).reduce((acc, curr) => acc + curr.totalPriceUSD, 0);
     const totalTahsilat = getFirmaTahsilatlari(firmaId).reduce((acc, curr) => acc + curr.totalAmountUSD, 0);
-    const netBakiye = totalSiparis - totalTahsilat;
+    const totalIade = getFirmaIadeler(firmaId).reduce((acc, curr) => acc + curr.tutarUSD, 0);
+    const netBakiye = totalSiparis - (totalTahsilat + totalIade);
     
     rows.push([
         '', 
         '', 
         '', 
         fixTrForPDF('NET BAKİYE:'), 
-        formatCurrency(netBakiye)
+        formatForPDF(netBakiye)
     ]);
 
     doc.autoTable({
@@ -622,8 +796,12 @@ window.shareFirmaEkstra = async function() {
         startY: 30,
         theme: 'striped',
         headStyles: { fillColor: [59, 130, 246] },
+        columnStyles: { 4: { halign: 'right' } },
         didParseCell: function(data) {
-            if (data.row.index === rows.length - 1) {
+            if (data.section === 'head' && data.column.index === 4) {
+                data.cell.styles.halign = 'right';
+            }
+            if (data.row.index === rows.length - 1 && data.section === 'body') {
                 data.cell.styles.fontStyle = 'bold';
                 if (netBakiye > 0) data.cell.styles.textColor = [239, 68, 68];
                 else if (netBakiye < 0) data.cell.styles.textColor = [16, 185, 129];
@@ -634,18 +812,23 @@ window.shareFirmaEkstra = async function() {
     // Share API kullanımı
     try {
         const pdfOutput = doc.output('blob');
-        const file = new File([pdfOutput], `${fixTrForPDF(firmaAd).replace(/\s+/g, '_')}_Ekstre.pdf`, { type: 'application/pdf' });
+        const fileName = `${fixTrForPDF(firmaAd).replace(/\s+/g, '_')}_Ekstre.pdf`;
+        const textStr = `${firmaAd} firmasına ait güncel cari bakiye: ${formatCurrency(netBakiye)}`;
         
-        if (navigator.share && navigator.canShare({ files: [file] })) {
-            await navigator.share({
-                title: `${firmaAd} Cari Ekstre`,
-                text: `${firmaAd} firmasına ait güncel cari bakiye: ${formatCurrency(netBakiye)}`,
-                files: [file]
-            });
+        if (typeof window.openShareModal === 'function') {
+            window.openShareModal(pdfOutput, fileName, `${firmaAd} Cari Ekstre`, textStr);
         } else {
-            // Share API yoksa klasik indir
-            doc.save(`${fixTrForPDF(firmaAd).replace(/\s+/g, '_')}_Ekstre.pdf`);
-            showToast('Paylaşım bu cihazda desteklenmiyor, PDF indirildi.', 'warning');
+            const file = new File([pdfOutput], fileName, { type: 'application/pdf' });
+            if (navigator.share && navigator.canShare({ files: [file] })) {
+                await navigator.share({
+                    title: `${firmaAd} Cari Ekstre`,
+                    text: textStr,
+                    files: [file]
+                });
+            } else {
+                doc.save(fileName);
+                showToast('Paylaşım bu cihazda desteklenmiyor, PDF indirildi.', 'warning');
+            }
         }
     } catch (err) {
         console.error('Paylaşım hatası:', err);

@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="manifest" href="manifest.json">
@@ -120,6 +120,10 @@
                     <i class="fa-solid fa-money-bill-transfer"></i>
                     Ödeme Takibi & Cari
                 </a>
+                <a href="iadeler.html" class="nav-item">
+                    <i class="fa-solid fa-rotate-left"></i>
+                    İade Yönetimi
+                </a>
                 <a href="malzeme_fiyatlari.html" class="nav-item">
                     <i class="fa-solid fa-tags"></i>
                     Malzeme Fiyatları
@@ -201,8 +205,21 @@
                         </div>
                         <div class="form-group">
                             <label>Sipariş Onay Formu - Firma Adınız</label>
-                            <input type="text" class="form-control" id="companyName" placeholder="Örn: YA Danışmanlık Ltd. Şti.">
-                            <small style="color:var(--text-muted); margin-top:5px; display:block;">Çıktı alırken antetli başlıkta görünecek firma ünvanınız.</small>
+                            <input type="text" class="form-control" id="companyName" placeholder="Örn: ADA UV MAKİNA Kimya Sanayi Tic. Ltd. Şti.">
+                        </div>
+                        <div class="form-group">
+                            <label>Firma Adresi</label>
+                            <input type="text" class="form-control" id="companyAddress" placeholder="Örn: Şerifali Mah. ... Ümraniye / İstanbul">
+                        </div>
+                        <div class="form-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                            <div>
+                                <label>Vergi Dairesi & No</label>
+                                <input type="text" class="form-control" id="companyTaxInfo" placeholder="Örn: İlyasbey V.D. - 1234567890">
+                            </div>
+                            <div>
+                                <label>Telefon</label>
+                                <input type="text" class="form-control" id="companyPhone" placeholder="Örn: 0555 555 55 55">
+                            </div>
                         </div>
                         <div class="form-group" style="padding-top: 15px; border-top: 1px solid var(--border-color);">
                             <label>Firma / Profil Logosu Seçin</label>
@@ -414,56 +431,79 @@
             const resetColorBtn = document.getElementById('resetColorBtn');
             
             const currentGlobalColor = localStorage.getItem('etiket_crm_primary_color') || '#0ea5e9';
-            colorPicker.value = currentGlobalColor;
-
-            saveColorBtn.addEventListener('click', () => {
-                const color = colorPicker.value;
-                document.body.style.setProperty('--primary', color, 'important');
-                localStorage.setItem('etiket_crm_primary_color', color);
-                showToast('Vurgu rengi başarıyla kaydedildi.', 'success');
-            });
-
-            resetColorBtn.addEventListener('click', () => {
-                const defaultColor = '#0ea5e9';
-                document.body.style.setProperty('--primary', defaultColor, 'important');
-                localStorage.removeItem('etiket_crm_primary_color');
-                colorPicker.value = defaultColor;
-                showToast('Vurgu rengi varsayılana sıfırlandı.', 'success');
-            });
-
+            if (colorPicker) {
+                colorPicker.value = currentGlobalColor;
+            }
+ 
+            if (saveColorBtn && colorPicker) {
+                saveColorBtn.addEventListener('click', () => {
+                    const color = colorPicker.value;
+                    document.body.style.setProperty('--primary', color, 'important');
+                    localStorage.setItem('etiket_crm_primary_color', color);
+                    showToast('Vurgu rengi başarıyla kaydedildi.', 'success');
+                });
+            }
+ 
+            if (resetColorBtn && colorPicker) {
+                resetColorBtn.addEventListener('click', () => {
+                    const defaultColor = '#0ea5e9';
+                    document.body.style.setProperty('--primary', defaultColor, 'important');
+                    localStorage.removeItem('etiket_crm_primary_color');
+                    colorPicker.value = defaultColor;
+                    showToast('Vurgu rengi varsayılana sıfırlandı.', 'success');
+                });
+            }
+ 
             // Ekran Parlaklığı
             const brightnessSlider = document.getElementById('brightnessSlider');
             const brightnessVal = document.getElementById('brightnessVal');
             const savedBrightness = parseInt(localStorage.getItem('etiket_crm_brightness') || '100');
-            brightnessSlider.value = savedBrightness;
-            brightnessVal.textContent = savedBrightness + '%';
+            if (brightnessSlider) {
+                brightnessSlider.value = savedBrightness;
+            }
+            if (brightnessVal) {
+                brightnessVal.textContent = savedBrightness + '%';
+            }
             // App-wrapper'a uygula (global scope ile aynı mantık)
             const appWrapper = document.querySelector('.app-wrapper');
             if (appWrapper && savedBrightness < 100) appWrapper.style.filter = `brightness(${savedBrightness}%)`;
-
-            brightnessSlider.addEventListener('input', () => {
-                const val = parseInt(brightnessSlider.value);
-                brightnessVal.textContent = val + '%';
-                if (appWrapper) {
-                    appWrapper.style.filter = val < 100 ? `brightness(${val}%)` : '';
-                }
-                localStorage.setItem('etiket_crm_brightness', val);
-            });
-
-
+ 
+            if (brightnessSlider) {
+                brightnessSlider.addEventListener('input', () => {
+                    const val = parseInt(brightnessSlider.value);
+                    if (brightnessVal) brightnessVal.textContent = val + '%';
+                    if (appWrapper) {
+                        appWrapper.style.filter = val < 100 ? `brightness(${val}%)` : '';
+                    }
+                    localStorage.setItem('etiket_crm_brightness', val);
+                });
+            }
+ 
             // Profile info handling
             const storedName = localStorage.getItem('etiket_crm_userName') || '';
             const storedCompany = localStorage.getItem('etiket_crm_companyName') || '';
+            const storedAddress = localStorage.getItem('etiket_crm_companyAddress') || '';
+            const storedTax = localStorage.getItem('etiket_crm_companyTaxInfo') || '';
+            const storedPhone = localStorage.getItem('etiket_crm_companyPhone') || '';
 
             document.getElementById('profileName').value = storedName;
             document.getElementById('companyName').value = storedCompany;
+            document.getElementById('companyAddress').value = storedAddress;
+            document.getElementById('companyTaxInfo').value = storedTax;
+            document.getElementById('companyPhone').value = storedPhone;
 
             document.getElementById('saveProfileBtn').addEventListener('click', () => {
                 const pName = document.getElementById('profileName').value.trim();
                 const cName = document.getElementById('companyName').value.trim();
+                const cAddr = document.getElementById('companyAddress').value.trim();
+                const cTax = document.getElementById('companyTaxInfo').value.trim();
+                const cPhone = document.getElementById('companyPhone').value.trim();
 
                 localStorage.setItem('etiket_crm_userName', pName);
                 localStorage.setItem('etiket_crm_companyName', cName);
+                localStorage.setItem('etiket_crm_companyAddress', cAddr);
+                localStorage.setItem('etiket_crm_companyTaxInfo', cTax);
+                localStorage.setItem('etiket_crm_companyPhone', cPhone);
 
                 showToast('Profil ayarları başarıyla kaydedildi.', 'success');
                 
@@ -527,7 +567,17 @@
             document.getElementById('saveSystemPrefsBtn').addEventListener('click', () => {
                 localStorage.setItem('etiket_crm_defaultCurrency', document.getElementById('defaultCurrency').value);
                 localStorage.setItem('etiket_crm_animations', document.getElementById('enableAnimations').checked);
-                showToast('Sistem tercihleri başarıyla kaydedildi.', 'success');
+                
+                if (typeof showToast === 'function') {
+                    showToast('Sistem tercihleri başarıyla kaydedildi.', 'success');
+                } else {
+                    alert('Sistem tercihleri başarıyla kaydedildi.');
+                }
+                
+                // Yenileme işlemiyle ayarların hemen güncellenmesini sağla
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
             });
 
             // --- Firebase Auth (Hesap & Güvenlik) ---

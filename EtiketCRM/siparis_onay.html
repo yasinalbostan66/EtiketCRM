@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Sipariş Onay Formu</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -50,7 +50,7 @@
 
         .header {
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-end; /* Logo kaldirildigi icin saga yasla */
             align-items: flex-start;
             border-bottom: 2px solid #f1f5f9;
             padding-bottom: 30px;
@@ -300,9 +300,7 @@
 
     <div class="invoice-box" id="contentArea" style="display: none;">
         <div class="header">
-            <div class="logo">
-                <i class="fa-solid fa-layer-group"></i> LINKUP CRM by Yasin
-            </div>
+            <!-- Logo removed per user request -->
             <div class="doc-title">
                 <h1>SİPARİŞ ONAY FORMU</h1>
                 <p id="docDate">Tarih: --/--/----</p>
@@ -311,12 +309,15 @@
 
         <div class="bill-to">
             <div>
-                <div class="section-title">Hammadde Sağlayıcı / Satıcı</div>
-                <div class="info-group">
-                    <strong id="vendorCompanyName">YA Danışmanlık Ltd. Şti.</strong>
-                    Genel Müdürlük<br>
-                    Telefon: +90 (555) --- -- --<br>
-                    E-posta: info@yadananismanlik.com
+                <div class="section-title">Satıcı / Tedarikçi</div>
+                <div class="info-group" id="vendorInfoContainer">
+                    <img id="vendorLogoImg" src="images/company_logo.png" alt="ADA UV MAKİNA" 
+                         onerror="this.style.display='none'; document.getElementById('vendorFallback').style.display='block';"
+                         style="max-height: 65px; max-width: 240px; object-fit: contain; display: block; margin-bottom: 8px;">
+                    <strong id="vendorFallback" style="display:none;">ADA UV MAKİNA</strong>
+                    <div id="vendorDetailsHtml">
+                        <strong id="vendorCompanyName" style="font-size:0.9rem; color:#475569; display:block;">ADA UV MAKİNA Kimya Sanayi Tic. Ltd. Şti.</strong>
+                    </div>
                 </div>
             </div>
             <div>
@@ -333,8 +334,7 @@
                 <tr>
                     <th style="width: 35px;">No</th>
                     <th>Malzeme</th>
-                    <th style="text-align:center;">En / Boy</th>
-                    <th style="text-align:center;">Miktar</th>
+                    <th style="text-align:center;">En / Boy / Miktar</th>
                     <th style="text-align: right;">Birim Fiyat</th>
                     <th style="text-align: right;">Toplam Tutar</th>
                 </tr>
@@ -357,7 +357,7 @@
                     <strong id="payMethod">-</strong>
                 </div>
                 <div class="totals-row">
-                    <span>Ara Toplam:</span>
+                    <span>Ara Toplam: <span style="font-size:0.75em; color:#94a3b8; font-weight:400;">(KDV Hariç)</span></span>
                     <strong id="subTotal">$0.00</strong>
                 </div>
                 <div class="totals-row" id="kdvRow">
@@ -365,10 +365,10 @@
                     <strong id="kdvAmount">$0.00</strong>
                 </div>
                 <div class="totals-row grand-total">
-                    <span>KDV Dahil Toplam:</span>
+                    <span>KDV Dahil Toplam: <span style="font-size:0.75em; color:#94a3b8; font-weight:400;">(Fatura Tutarı)</span></span>
                     <span id="grandTotal">--</span>
                 </div>
-                <div class="totals-row" style="font-size:0.82rem; color:#64748b; margin-top:4px;">
+                <div class="totals-row" id="tryTotalRow" style="font-size:0.82rem; color:#64748b; margin-top:4px;">
                     <span>TL Karşılığı:</span>
                     <span id="tryTotal">-</span>
                 </div>
@@ -463,16 +463,29 @@
             document.getElementById('docDate').textContent = "Tarih: " + orderDate.toLocaleDateString('tr-TR');
 
             const customVendor = localStorage.getItem('etiket_crm_companyName');
-            if (customVendor && customVendor.trim().length > 0) {
-                const el = document.getElementById('vendorCompanyName');
-                if (el) el.textContent = customVendor.trim();
+            const customAddress = localStorage.getItem('etiket_crm_companyAddress');
+            const customTax = localStorage.getItem('etiket_crm_companyTaxInfo');
+            const customPhone = localStorage.getItem('etiket_crm_companyPhone');
+            
+            if (customVendor || customAddress || customTax || customPhone) {
+                const detailsContainer = document.getElementById('vendorDetailsHtml');
+                if (detailsContainer) {
+                    let html = `<strong style="font-size:0.95rem; color:#1e293b; display:block;">${customVendor || 'ADA UV MAKİNA'}</strong>`;
+                    if (customAddress) html += `${customAddress}<br>`;
+                    if (customTax) html += `${customTax}<br>`;
+                    if (customPhone) html += `Tel: ${customPhone}`;
+                    detailsContainer.innerHTML = html;
+                }
             }
 
             const customLogo = localStorage.getItem('etiket_crm_companyLogo');
             if (customLogo) {
-                const logoContainer = document.querySelector('.logo');
-                if (logoContainer) {
-                    logoContainer.innerHTML = `<img src="${customLogo}" alt="Firma Logo" style="max-height: 55px; object-fit: contain;">`;
+                const vendorLogoImg = document.getElementById('vendorLogoImg');
+                if (vendorLogoImg) {
+                    vendorLogoImg.src = customLogo;
+                    vendorLogoImg.style.display = 'block';
+                    const fb = document.getElementById('vendorFallback');
+                    if(fb) fb.style.display = 'none';
                 }
             }
 
@@ -533,8 +546,10 @@
                     <tr>
                         <td>${idx + 1}</td>
                         <td><strong style="color: #1e3a8a;">${order.name || 'Hammadde Sevk Kalemi'}</strong> <span style="font-size:0.75rem; color:#64748b;">(${order.type})</span></td>
-                        <td style="text-align:center;">${enBoyHtml}</td>
-                        <td style="text-align:center;">${order.quantity ? `${order.quantity} ${order.unit || ''}` : '-'}</td>
+                        <td style="text-align:center;">
+                            ${enBoyHtml}
+                            ${order.quantity ? `<div style="margin-top:4px; font-size:0.8rem; color:#475569; font-weight:600;">${order.quantity} ${order.unit || ''}</div>` : ''}
+                        </td>
                         <td style="text-align: right;">${unitPriceStr}</td>
                         <td style="text-align: right; font-weight: 700;">${formatCurrency(order.totalPriceUSD)}</td>
                     </tr>
@@ -546,10 +561,16 @@
             window._orderUSD = subTotalUSD;
             window._orderTRY = subTotalTRY;
 
-            const tryTotalEl = document.getElementById('tryTotal');
-            if (tryTotalEl) tryTotalEl.textContent = subTotalTRY
-                ? `${subTotalTRY.toLocaleString('tr-TR', {minimumFractionDigits:2, maximumFractionDigits:2})} TL`
-                : '-';
+            const defaultCurrency = localStorage.getItem('etiket_crm_defaultCurrency') || 'USD';
+            const tryTotalRow = document.getElementById('tryTotalRow');
+            if (defaultCurrency !== 'USD' && tryTotalRow) {
+                tryTotalRow.style.display = 'none';
+            } else {
+                const tryTotalEl = document.getElementById('tryTotal');
+                if (tryTotalEl) tryTotalEl.textContent = subTotalTRY
+                    ? `${subTotalTRY.toLocaleString('tr-TR', {minimumFractionDigits:2, maximumFractionDigits:2})} TL`
+                    : '-';
+            }
 
             // Başlangıçta KDV'yi uygula (%18 default seçili)
             applyKDV();
