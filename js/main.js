@@ -855,7 +855,9 @@ async function initGlobalRates() {
     if (!ratesHeader) {
         ratesHeader = document.createElement('div');
         ratesHeader.id = 'exchangeRatesHeader';
-        ratesHeader.className = 'header-rates d-flex gap-2';
+        const isIndex = (window.location.pathname.split('/').pop() || 'index.html').split('?')[0] === 'index.html';
+        const mobileClass = isIndex ? '' : 'hide-rates-mobile';
+        ratesHeader.className = `header-rates d-flex gap-2 ${mobileClass}`;
         ratesHeader.style.cssText = 'background: rgba(255,255,255,0.05); padding: 5px 15px; border-radius: 20px; font-size: 0.85rem; border: 1px solid var(--border-color); margin-right: 15px;';
         ratesHeader.innerHTML = `
             <div style="color: var(--text-muted);">TCMB Kurları: </div>

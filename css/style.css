@@ -386,9 +386,17 @@ body.light-mode .bottom-nav-item.active {
     z-index: 900;
 }
 
+.top-header > div:first-child {
+    min-width: 0;
+    flex: 1;
+}
+
 .page-title {
     font-size: 1.25rem;
     font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .header-actions {
@@ -848,11 +856,12 @@ tbody tr:hover {
         height: auto;
         padding: 0.75rem 1.25rem;
         padding-top: max(0.75rem, env(safe-area-inset-top)); /* Notch Koruma */
-        flex-wrap: wrap;
+        flex-wrap: nowrap;
     }
 
     .header-actions {
         margin-left: auto;
+        flex-shrink: 0;
     }
 }
 
@@ -1815,6 +1824,9 @@ body.light-mode .grid-menu-header .close-btn {
     #usdRate, #eurRate {
         font-size: 0.72rem !important;
         font-weight: 700 !important;
+    }
+    .hide-rates-mobile {
+        display: none !important;
     }
 }
 
