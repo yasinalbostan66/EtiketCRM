@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="manifest" href="manifest.json">
@@ -205,6 +205,7 @@
             </div>
             
             <button type="submit" class="btn-login" id="loginSubmitBtn">Oturum Aç</button>
+            <button type="button" class="btn-register" id="btnRegister" style="width: 100%; margin-top: 0.75rem; padding: 12px; background: transparent; border: 1px solid #10b981; border-radius: 14px; color: #10b981; font-weight: 600; cursor: pointer; transition: all 0.3s;"><i class="fa-solid fa-user-plus"></i> Yeni Hesap Oluştur</button>
             <button type="button" class="btn-login" id="btnCustomServer" style="background:transparent; border:1px solid #4f46e5; color:#818cf8; margin-top:0.75rem; box-shadow:none;"><i class="fa-solid fa-server"></i> Kendi Sunucuna Bağlan (Firebase)</button>
             <div id="loginError">E-posta veya şifre hatalı!</div>
             
@@ -355,6 +356,41 @@
                     submitBtn.disabled = false;
                 });
         });
+
+        // Yeni Kullanıcı Kayıt İşlemi
+        const btnRegister = document.getElementById('btnRegister');
+        if (btnRegister) {
+            btnRegister.addEventListener('click', (e) => {
+                const email = document.getElementById('email').value.trim();
+                const password = document.getElementById('password').value;
+                
+                if(!email || !password) {
+                    alert('Lütfen kayıt olmak için e-posta ve şifrenizi girin!');
+                    return;
+                }
+
+                if(password.length < 6) {
+                    alert('Şifre en az 6 karakter olmalıdır!');
+                    return;
+                }
+
+                errorDiv.style.display = 'none';
+                btnRegister.textContent = 'Kayıt Yapılıyor...';
+                btnRegister.disabled = true;
+
+                firebase.auth().createUserWithEmailAndPassword(email, password)
+                    .then((userCredential) => {
+                        alert('Hesap başarıyla oluşturuldu! Giriş yapılıyor...');
+                        window.location.href = 'index.html';
+                    })
+                    .catch((error) => {
+                        console.error("Kayıt hatası:", error);
+                        alert("Kayıt hatası: " + error.message);
+                        btnRegister.textContent = 'Yeni Hesap Oluştur';
+                        btnRegister.disabled = false;
+                    });
+            });
+        }
 
         // Sunucu Entegrasyonu Modalı Logic
         const btnCustomServer = document.getElementById('btnCustomServer');

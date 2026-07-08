@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="manifest" href="manifest.json">
@@ -78,6 +78,10 @@
                     <i class="fa-solid fa-money-bill-transfer"></i>
                     Ödeme Takibi & Cari
                 </a>
+                <a href="iadeler.html" class="nav-item">
+                    <i class="fa-solid fa-rotate-left"></i>
+                    İade Yönetimi
+                </a>
                 <a href="malzeme_fiyatlari.html" class="nav-item">
                     <i class="fa-solid fa-tags"></i>
                     Malzeme Fiyatları
@@ -142,7 +146,7 @@
                         </div>
                         <div class="stat-info">
                             <h3 id="statTotalFirma">0</h3>
-                            <p>Kayıtlı Firma</p>
+                            <p style="white-space: normal; line-height: 1.2;">Kayıtlı Firma</p>
                         </div>
                     </div>
                     
@@ -152,7 +156,7 @@
                         </div>
                         <div class="stat-info">
                             <h3 id="statTotalSiparis">0</h3>
-                            <p>Toplam Sipariş Kalemi</p>
+                            <p style="white-space: normal; line-height: 1.2;">Toplam Sipariş Kalemi</p>
                         </div>
                     </div>
                     
@@ -162,7 +166,7 @@
                         </div>
                         <div class="stat-info">
                             <h3 id="statTotalRevenue">$0</h3>
-                            <p>Toplam Hacim (USD)</p>
+                            <p style="white-space: normal; line-height: 1.2;">Toplam Gelir (USD)</p>
                         </div>
                     </div>
 
@@ -172,12 +176,25 @@
                         </div>
                         <div class="stat-info">
                             <h3 id="statTotalReceivable">$0</h3>
-                            <p>Alınacak Ödeme (USD)</p>
+                            <p style="white-space: normal; line-height: 1.2;">Alınacak Ödeme (USD)</p>
                         </div>
                     </div>
                 </div>
                 
-                <!-- NEW: Recent Visits Section -->
+                <!-- Panel 1: Sistem Duyuruları -->
+                <div class="panel" style="margin-bottom: 2rem;">
+                    <div class="panel-header" style="margin-bottom: 1rem; border-bottom: none; padding-bottom: 0;">
+                        <h2 class="panel-title" style="font-size: 1.1rem; color: #fb923c;">
+                            <i class="fa-solid fa-bullhorn"></i> Sistem Duyuruları
+                        </h2>
+                        <a href="duyurular.html" class="btn btn-outline" style="font-size: 0.75rem; padding: 4px 10px;">Tümünü Gör</a>
+                    </div>
+                    <div id="dashboardDuyurularGrid" style="display: flex; flex-direction: column; gap: 0.75rem;">
+                        <!-- JS ile Doldurulacak -->
+                    </div>
+                </div>
+
+                <!-- Panel 2: Son Yapılan Firma Ziyaretleri -->
                 <div class="panel" style="margin-bottom: 2rem;">
                     <div class="panel-header" style="margin-bottom: 1rem; border-bottom: none; padding-bottom: 0;">
                         <h2 class="panel-title" style="font-size: 1.1rem; color: var(--primary);">
@@ -185,21 +202,20 @@
                         </h2>
                         <a href="ziyaretler.html" class="btn btn-outline" style="font-size: 0.75rem; padding: 4px 10px;">Tümünü Gör</a>
                     </div>
-                    <div id="recentVisitsGrid" style="display: flex; flex-direction: column; gap: 1rem;">
+                    <div id="recentVisitsGrid" style="display: flex; flex-direction: column; gap: 1rem; max-height: 380px; overflow-y: auto; padding-right: 5px;">
                         <!-- JS ile Doldurulacak -->
                     </div>
                 </div>
 
-                <!-- Recent Transactions (Order + Collection) -->
-                <div class="panel">
+                <!-- Panel 3: Son İşlemler (Tüm Firmalar) -->
+                <div class="panel" style="margin-bottom: 2rem;">
                     <div class="panel-header">
                         <h2 class="panel-title">
                             <i class="fa-solid fa-clock-rotate-left"></i> Son İşlemler (Tüm Firmalar)
                         </h2>
                         <a href="firmalar.html" class="btn btn-outline" style="font-size: 0.8rem; padding: 6px 12px;">Firmalara Git</a>
                     </div>
-                    
-                    <div class="table-responsive">
+                    <div class="table-responsive" style="max-height: 380px; overflow-y: auto;">
                         <table id="recentOrdersTable">
                             <thead>
                                 <tr>
@@ -238,21 +254,25 @@
                 const firmalar = getFirmalar();
                 const siparisler = getSiparisler();
                 const tahsilatlar = getTahsilatlar();
+                const iadeler = typeof getIadeler === 'function' ? getIadeler() : [];
 
                 // Stat kartları
                 document.getElementById('statTotalFirma').textContent = firmalar.length;
                 document.getElementById('statTotalSiparis').textContent = siparisler.length;
 
-                const totalSiparisUSD = siparisler.reduce((acc, curr) => acc + (curr.totalPriceUSD || 0), 0);
-                document.getElementById('statTotalRevenue').textContent = formatCurrency(totalSiparisUSD);
+                const totalTahsilatUSD = tahsilatlar.reduce((acc, curr) => acc + (curr.totalAmountUSD || 0), 0);
+                document.getElementById('statTotalRevenue').textContent = formatCurrency(totalTahsilatUSD);
 
                 let totalReceivable = 0;
                 firmalar.forEach(f => {
                     const fSip = siparisler.filter(s => s.firmaId === f.id);
                     const fTah = tahsilatlar.filter(t => t.firmaId === f.id);
+                    const fIad = iadeler.filter(i => i.firmaId === f.id);
                     const sSum = fSip.reduce((a,c) => a+(c.totalPriceUSD||0), 0);
                     const tSum = fTah.reduce((a,c) => a+(c.totalAmountUSD||0), 0);
-                    if (sSum > tSum) totalReceivable += (sSum - tSum);
+                    const iSum = fIad.reduce((a,c) => a+(c.tutarUSD||0), 0);
+                    const net = sSum - (tSum + iSum);
+                    if (net > 0) totalReceivable += net;
                 });
                 if (document.getElementById('statTotalReceivable')) {
                     document.getElementById('statTotalReceivable').textContent = formatCurrency(totalReceivable);
@@ -263,7 +283,8 @@
                 if (!tbody) return;
                 const allTransactions = [
                     ...siparisler.map(s => ({...s, transType: 'SIPARIS'})),
-                    ...tahsilatlar.map(t => ({...t, transType: 'TAHSILAT'}))
+                    ...tahsilatlar.map(t => ({...t, transType: 'TAHSILAT'})),
+                    ...iadeler.map(i => ({...i, transType: 'IADE'}))
                 ];
                 if (allTransactions.length === 0) {
                     tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 2rem;">Henüz işlem bulunmuyor.</td></tr>`;
@@ -280,11 +301,16 @@
                         badgeHTML = `<span class="badge ${s.type === 'Mürekkep' ? 'badge-blue' : (s.type && s.type.includes('Kağıt') ? 'badge-orange' : 'badge-green')}">${s.type}</span>`;
                         detailText = `📦 ${s.name} (${s.paymentMethod || 'Kurum içi'})`;
                         amountText = formatCurrency(s.totalPriceUSD);
-                    } else {
+                    } else if (s.transType === 'TAHSILAT') {
                         badgeHTML = `<span class="badge" style="background: rgba(59,130,246,0.2); color:#60a5fa;">TAHSİLAT</span>`;
                         amountColor = 'var(--primary)';
                         detailText = `💰 ${s.method}`;
                         amountText = '-' + formatCurrency(s.totalAmountUSD);
+                    } else if (s.transType === 'IADE') {
+                        badgeHTML = `<span class="badge" style="background: rgba(239, 68, 68, 0.1); color:var(--danger);">İADE</span>`;
+                        amountColor = 'var(--danger)';
+                        detailText = `↩️ ${s.urun} - ${s.sebep}`;
+                        amountText = '-' + formatCurrency(s.tutarUSD);
                     }
                     const tr = document.createElement('tr');
                     if (s.transType === 'SIPARIS') { tr.style.cursor = 'pointer'; tr.onclick = () => showOrderDetails(s.id); }
@@ -306,6 +332,8 @@
             function renderRecentVisits() {
                 const recentVisitsGrid = document.getElementById('recentVisitsGrid');
                 if (!recentVisitsGrid) return;
+
+                const firmalar = typeof getFirmalar === 'function' ? getFirmalar() : [];
                 
                 // Hem eski hem yeni anahtarları topla (Geriye dönük uyumluluk)
                 const v1 = JSON.parse(localStorage.getItem('etiket_crm_ziyaretler')) || [];
@@ -365,12 +393,114 @@
                 }
             }
 
-            renderRecentVisits();
+            // XSS Koruma Yardımcısı
+            function escapeHTML(str) {
+                if (!str) return '';
+                return str.replace(/[&<>'"]/g, 
+                    tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+                );
+            }
 
-            // Firebase sync olduğunda HER ŞEYİ yenile (istatistikler + ziyaretler + tablo)
+            // Dashboard Duyurularını Ekrana Çizen Fonksiyon
+            function renderDashboardDuyurular() {
+                const grid = document.getElementById('dashboardDuyurularGrid');
+                if (!grid) return;
+                
+                const items = localStorage.getItem('etiket_crm_duyurular');
+                const duyurular = items ? JSON.parse(items) : [];
+
+                if (duyurular.length === 0) {
+                    grid.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 1.5rem; font-size: 0.85rem;">Yayınlanmış sistem duyurusu bulunmuyor.</div>`;
+                    return;
+                }
+                
+                grid.innerHTML = '';
+                // En son 3 duyuruyu tarihe göre azalan sırada göster
+                duyurular.sort((a,b) => new Date(b.tarih || 0) - new Date(a.tarih || 0)).slice(0, 3).forEach(ann => {
+                    const div = document.createElement('div');
+                    div.style = "padding: 10px 12px; background: rgba(255,255,255,0.02); border-radius: 10px; border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 6px;";
+                    
+                    let priorityLabel = 'Bilgi';
+                    let badgeColor = 'background: rgba(59, 130, 246, 0.15); color: #60a5fa;';
+                    if (ann.priority === 'uyari') {
+                        priorityLabel = 'Uyarı';
+                        badgeColor = 'background: rgba(245, 158, 11, 0.15); color: #fbbf24;';
+                    } else if (ann.priority === 'acil') {
+                        priorityLabel = 'Önemli';
+                        badgeColor = 'background: rgba(239, 68, 68, 0.15); color: #f87171;';
+                    }
+
+                    const dateStr = ann.tarih ? new Date(ann.tarih).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : 'Tarih Yok';
+
+                    div.innerHTML = `
+                        <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+                            <h4 style="margin: 0; font-size: 0.85rem; font-weight: 700; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 70%;">${escapeHTML(ann.baslik)}</h4>
+                            <span class="badge" style="font-size: 0.65rem; padding: 2px 6px; border-radius: 6px; ${badgeColor}">${priorityLabel}</span>
+                        </div>
+                        <p style="margin: 0; font-size: 0.8rem; color: var(--text-muted); line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${escapeHTML(ann.icerik)}</p>
+                        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.7rem; color: var(--text-muted); margin-top: 2px; border-top: 1px dashed var(--border-color); padding-top: 6px;">
+                            <span><i class="fa-regular fa-clock"></i> ${dateStr}</span>
+                            <span><i class="fa-regular fa-user"></i> ${escapeHTML(ann.ekleyen || 'Sistem')}</span>
+                        </div>
+                    `;
+                    grid.appendChild(div);
+                });
+            }
+
+            // Dashboard Duyurularını Ekrana Çizen Fonksiyon
+            function renderDashboardDuyurular() {
+                const grid = document.getElementById('dashboardDuyurularGrid');
+                if (!grid) return;
+                
+                const items = localStorage.getItem('etiket_crm_duyurular');
+                const duyurular = items ? JSON.parse(items) : [];
+
+                if (duyurular.length === 0) {
+                    grid.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 1.5rem; font-size: 0.85rem;">Yayınlanmış sistem duyurusu bulunmuyor.</div>`;
+                    return;
+                }
+                
+                grid.innerHTML = '';
+                // En son 3 duyuruyu tarihe göre azalan sırada göster
+                duyurular.sort((a,b) => new Date(b.tarih || 0) - new Date(a.tarih || 0)).slice(0, 3).forEach(ann => {
+                    const div = document.createElement('div');
+                    div.style = "padding: 10px 12px; background: rgba(255,255,255,0.02); border-radius: 10px; border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 6px;";
+                    
+                    let priorityLabel = 'Bilgi';
+                    let badgeColor = 'background: rgba(59, 130, 246, 0.15); color: #60a5fa;';
+                    if (ann.priority === 'uyari') {
+                        priorityLabel = 'Uyarı';
+                        badgeColor = 'background: rgba(245, 158, 11, 0.15); color: #fbbf24;';
+                    } else if (ann.priority === 'acil') {
+                        priorityLabel = 'Önemli';
+                        badgeColor = 'background: rgba(239, 68, 68, 0.15); color: #f87171;';
+                    }
+
+                    const dateStr = ann.tarih ? new Date(ann.tarih).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : 'Tarih Yok';
+
+                    div.innerHTML = `
+                        <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+                            <h4 style="margin: 0; font-size: 0.85rem; font-weight: 700; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 70%;">${escapeHTML(ann.baslik)}</h4>
+                            <span class="badge" style="font-size: 0.65rem; padding: 2px 6px; border-radius: 6px; ${badgeColor}">${priorityLabel}</span>
+                        </div>
+                        <p style="margin: 0; font-size: 0.8rem; color: var(--text-muted); line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${escapeHTML(ann.icerik)}</p>
+                        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.7rem; color: var(--text-muted); margin-top: 2px; border-top: 1px dashed var(--border-color); padding-top: 6px;">
+                            <span><i class="fa-regular fa-clock"></i> ${dateStr}</span>
+                            <span><i class="fa-regular fa-user"></i> ${escapeHTML(ann.ekleyen || 'Sistem')}</span>
+                        </div>
+                    `;
+                    grid.appendChild(div);
+                });
+            }
+
+            renderRecentVisits();
+            renderDashboardDuyurular();
+
+            // Firebase sync olduğunda HER ŞEYİ yenile (istatistikler + ziyaretler + duyurular + tablo)
             window.addEventListener('storage', () => {
                 renderDashboardStats();
                 renderRecentVisits();
+                renderDashboardDuyurular();
             });
 
             // Tablo renderDashboardStats() içinde zaten yapılıyor
@@ -591,9 +721,8 @@
         });
     </script>
 
-    <!-- Detay Modalı -->
     <div id="statsDetailModal" class="modal-overlay" style="display: none; align-items: center; justify-content: center; z-index: 10000;">
-        <div class="modal-content" style="max-width: 600px; width: 90%; background: var(--surface-color); border: 1px solid var(--border-color); color: var(--text-main); border-radius: 16px;">
+        <div class="modal-content" style="max-width: 1000px; width: 95%; background: var(--surface-color); border: 1px solid var(--border-color); color: var(--text-main); border-radius: 16px;">
             <div class="panel-header" style="border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 1.5rem;">
                 <span class="panel-title" id="statsDetailModalTitle" style="font-weight: 700; font-size: 1.1rem; display: flex; align-items: center; gap: 8px; color: var(--primary);">
                     <i class="fa-solid fa-file-invoice-dollar"></i> Sipariş Veren Firmalar Detayı

@@ -15,7 +15,7 @@ window.handleLogout = function(e) {
     console.log("Forced logout triggered");
     
     // Sadece veri koleksiyonlarını ve geçici verileri temizle; ayarları ve Beni Hatırla bilgilerini KORU
-    const COLLECTIONS = ['firmalar', 'siparisler', 'tahsilatlar', 'malzeme_fiyatlari', 'ziyaretler', 'duyurular', 'teknik_servis', 'muhasebe', 'kullanicilar'];
+    const COLLECTIONS = ['firmalar', 'siparisler', 'tahsilatlar', 'malzeme_fiyatlari', 'ziyaretler', 'duyurular', 'teknik_servis', 'muhasebe', 'kullanicilar', 'sevkiyatlar'];
     COLLECTIONS.forEach(col => {
         localStorage.removeItem(`etiket_crm_${col}`);
     });
@@ -48,6 +48,8 @@ window.handleLogout = function(e) {
 const FIRMALAR_KEY = 'etiket_crm_firmalar';
 const SIPARISLER_KEY = 'etiket_crm_siparisler';
 const TAHSILATLAR_KEY = 'etiket_crm_tahsilatlar';
+const SEVKIYATLAR_KEY = 'etiket_crm_sevkiyatlar';
+const IADELER_KEY = 'etiket_crm_iadeler';
 
 // Parlaklık ayarını uygula – her sayfada çalışır
 (function applyBrightness() {
@@ -177,6 +179,28 @@ function updateSiparis(siparis) {
     return false;
 }
 
+// Sevkiyatlar
+function getSevkiyatlar() {
+    const items = localStorage.getItem(SEVKIYATLAR_KEY);
+    return items ? JSON.parse(items) : [];
+}
+
+function saveSevkiyatlar(data) {
+    localStorage.setItem(SEVKIYATLAR_KEY, JSON.stringify(data));
+    
+    // Direct Cloud Backup
+    try {
+        if (firebase.auth().currentUser) {
+            data.forEach(item => {
+                if (item.id) {
+                    firebase.firestore().collection('sevkiyatlar').doc(item.id).set(item, { merge: true })
+                       .catch(e => console.error("Firestore Save Fail (Sevkiyat):", e));
+                }
+            });
+        }
+    } catch (e) {}
+}
+
 function getFirmaSiparisleri(firmaId) {
     return getSiparisler().filter(s => s.firmaId === firmaId);
 }
@@ -235,6 +259,76 @@ function getFirmaTahsilatlari(firmaId) {
     return getTahsilatlar().filter(t => t.firmaId === firmaId);
 }
 
+// --- İadeler ---
+function getIadeler() {
+    const items = localStorage.getItem(IADELER_KEY);
+    return items ? JSON.parse(items) : [];
+}
+
+function saveIadeler(data) {
+    localStorage.setItem(IADELER_KEY, JSON.stringify(data));
+    try {
+        if (firebase.auth().currentUser) {
+            data.forEach(item => {
+                if (item.id) {
+                    firebase.firestore().collection('iadeler').doc(item.id).set(item, { merge: true })
+                       .catch(e => console.error("Firestore Save Fail (İade):", e));
+                }
+            });
+        }
+    } catch (e) {}
+}
+
+function addIade(firmaId, iade) {
+    const iadeler = getIadeler();
+    const currentUser = firebase.auth().currentUser;
+    iade.id = 'ret_' + Date.now().toString(36) + Math.random().toString(36).substr(2);
+    iade.firmaId = firmaId;
+    iade.date = iade.date || new Date().toISOString();
+    iade.type = 'İade';
+    iade.created_by = currentUser ? currentUser.uid : 'local_user';
+    iadeler.push(iade);
+    saveIadeler(iadeler);
+    return iade;
+}
+
+function updateIade(iade) {
+    const iadeler = getIadeler();
+    const index = iadeler.findIndex(i => i.id === iade.id);
+    if (index !== -1) {
+        if (!checkRecordPermission(iadeler[index].created_by)) {
+            alert("Bu iadeyi düzenleme yetkiniz yok!");
+            return false;
+        }
+        iadeler[index] = { ...iadeler[index], ...iade };
+        saveIadeler(iadeler);
+        return true;
+    }
+    return false;
+}
+
+function getFirmaIadeler(firmaId) {
+    return getIadeler().filter(i => i.firmaId === firmaId);
+}
+
+function deleteIade(id) {
+    let iadeler = getIadeler();
+    const iade = iadeler.find(i => i.id === id);
+    if (iade && !checkRecordPermission(iade.created_by)) {
+        alert("Bu iadeyi silme yetkiniz yok!");
+        return false;
+    }
+    iadeler = iadeler.filter(i => i.id !== id);
+    saveIadeler(iadeler);
+    try {
+        if (firebase.auth().currentUser) {
+            firebase.firestore().collection('iadeler').doc(id).delete()
+                .catch(e => console.error("Firestore Delete Fail (İade):", e));
+        }
+    } catch (e) {}
+    return true;
+}
+
 // --- Malzeme Fiyatları ---
 const MALZEME_FIYATLARI_KEY = 'etiket_crm_malzeme_fiyatlari';
 
@@ -245,6 +339,10 @@ function getMalzemeFiyatlari() {
 
 function saveMalzemeFiyatlari(data) {
     localStorage.setItem(MALZEME_FIYATLARI_KEY, JSON.stringify(data));
+
+    // Yeni stok güncellendiğinde düşük stok uyarılarının anında görünmesini sağla
+    localStorage.removeItem('etiket_crm_notif_dismissed_date');
+    sessionStorage.removeItem('etiket_crm_notif_seen');
 
     // Direct Cloud Backup
     try {
@@ -360,10 +458,10 @@ function showOrderDetails(orderId) {
                 </div>
             </div>
             <div style="display:flex; justify-content:space-between; align-items:center; background:var(--surface-hover); padding:1rem; border-radius:8px;">
-                <div style="font-weight:600; font-size:1.1rem;">Toplam Tutar:</div>
+                <div style="font-weight:600; font-size:1.1rem;">Toplam Tutar <span style="font-size:0.8rem; color:var(--text-muted); font-weight:400;">(USD)</span>:</div>
                 <div style="font-weight:700; font-size:1.4rem; color:var(--success);">${formatCurrency(order.totalPriceUSD)}</div>
             </div>
-            ${order.totalPriceTRY ? `<div style="text-align:right; margin-top:0.5rem; color:var(--text-muted); font-size:0.9rem;">(₺${order.totalPriceTRY.toLocaleString('tr-TR', {minimumFractionDigits:2, maximumFractionDigits:2})})</div>` : ''}
+            ${order.totalPriceTRY ? `<div style="text-align:right; margin-top:0.5rem; color:var(--text-muted); font-size:0.9rem;">TL Karşılığı: ₺${order.totalPriceTRY.toLocaleString('tr-TR', {minimumFractionDigits:2, maximumFractionDigits:2})}</div>` : ''}
         </div>
     `;
 
@@ -536,6 +634,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     <i class="fa-solid fa-list-check"></i>
                     Alınan Siparişler
                 </a>
+                <a href="sevkiyat.html" class="nav-item ${cleanedPath === 'sevkiyat.html' ? 'active' : ''}">
+                    <i class="fa-solid fa-truck-fast"></i>
+                    Sevkiyat Takibi
+                </a>
 
                 <div style="margin: 1rem 0 0.5rem 1rem; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">
                     Ziyaret & Planlama
@@ -690,8 +792,25 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Para Birimi Çevirici Yardımcı
-function formatCurrency(amount, currency = 'USD') {
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency: currency }).format(amount);
+function formatCurrency(amount, currency = null) {
+    if (!currency) {
+        currency = localStorage.getItem('etiket_crm_defaultCurrency') || 'USD';
+    }
+    
+    let convertedAmount = parseFloat(amount || 0);
+    const usdToTry = parseFloat(window.lastRates?.USD || 32.50);
+    const eurToTry = parseFloat(window.lastRates?.EUR || 35.20);
+    
+    if (currency === 'TRY') {
+        convertedAmount = convertedAmount * usdToTry;
+        return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(convertedAmount);
+    } else if (currency === 'EUR') {
+        const usdToEur = usdToTry / eurToTry;
+        convertedAmount = convertedAmount * usdToEur;
+        return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(convertedAmount);
+    } else {
+        return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(convertedAmount);
+    }
 }
 
 function formatTRY(amount) {
@@ -1109,13 +1228,17 @@ function calculateAllNotifications() {
         tahMap[t.firmaId].push(t);
     });
 
-    // 1. Düşük Stok (Değişmedi, zaten hızlı)
+    // 1. Düşük Stok (Giriş: 10 ve altı, 0 dahil)
     const malzemeler = getMalzemeFiyatlari();
-    malzemeler.filter(m => m.stok > 0 && m.stok <= 10).forEach(m => {
+    malzemeler.filter(m => {
+        const stokValue = (m.stok !== undefined && m.stok !== null && m.stok !== '') ? parseFloat(m.stok) : 0;
+        return stokValue <= 10;
+    }).forEach(m => {
+        const stokValue = (m.stok !== undefined && m.stok !== null && m.stok !== '') ? parseFloat(m.stok) : 0;
         notifications.push({
             type: 'STOCK',
             title: 'Stok Azaldı!',
-            desc: `${m.adi} stoğu sadece ${m.stok} ${m.birim || ''} kaldı.`,
+            desc: `${m.adi} stoğu sadece ${stokValue} ${m.birim || ''} kaldı.`,
             timeText: 'Hemen Sipariş Ver',
             icon: 'fa-solid fa-box-open',
             color: '#ef4444',
@@ -1200,7 +1323,9 @@ function updateActiveUsersList() {
 
     kullanicilar.forEach(user => {
         let isOnline = false;
-        if (user.sonGorulme) {
+        const nameOrEmail = (user.ad || user.email || '').toLowerCase();
+        const isPatron = nameOrEmail.includes('patron');
+        if (isPatron && user.sonGorulme) {
             const lastSeenDate = new Date(user.sonGorulme);
             const diffInSeconds = Math.abs((now - lastSeenDate) / 1000);
             if (diffInSeconds <= 60 && user.durum === 'aktif') {
@@ -1230,3 +1355,112 @@ document.addEventListener('DOMContentLoaded', () => {
 window.addEventListener('storage', updateActiveUsersList);
 window.renderKullanicilar = updateActiveUsersList;
 
+window.fixTrForPDF = function(text) {
+    const trMap = { 'ç': 'c', 'Ç': 'C', 'ğ': 'g', 'Ğ': 'G', 'ı': 'i', 'İ': 'I', 'ö': 'o', 'Ö': 'O', 'ş': 's', 'Ş': 'S', 'ü': 'u', 'Ü': 'U' };
+    return text ? text.toString().replace(/[çÇğĞıİöÖşŞüÜ]/g, m => trMap[m]) : '';
+};
+
+// --- Global Share Modal ---
+window.openShareModal = function(pdfBlob, pdfFilename, shareTitle, shareText) {
+    let modal = document.getElementById('globalShareModal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'globalShareModal';
+        modal.className = 'modal-overlay';
+        modal.style.zIndex = '99999';
+        modal.innerHTML = `
+            <div class="modal-content panel" style="max-width: 400px; text-align: center; padding: 20px;">
+                <div class="panel-header" style="justify-content: center; position: relative; border-bottom: none; padding-bottom: 0;">
+                    <h2 class="panel-title" style="font-size: 1.25rem;"><i class="fa-solid fa-share-nodes"></i> Paylaşım Seçenekleri</h2>
+                    <button class="btn-icon" onclick="document.getElementById('globalShareModal').style.display='none'" style="position: absolute; right: 0px; top: -5px;">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                <div style="padding: 1.5rem 0 0 0; display: flex; flex-direction: column; gap: 1rem;">
+                    <button id="btnShareWhatsapp" class="btn" style="background: #25D366; color: white; padding: 12px; font-size: 1.1rem;">
+                        <i class="fa-brands fa-whatsapp"></i> WhatsApp ile Gönder
+                    </button>
+                    <button id="btnShareEmail" class="btn" style="background: #ea4335; color: white; padding: 12px; font-size: 1.1rem;">
+                        <i class="fa-solid fa-envelope"></i> E-Posta ile Gönder
+                    </button>
+                    <button id="btnSharePdf" class="btn btn-primary" style="padding: 12px; font-size: 1.1rem;">
+                        <i class="fa-solid fa-file-pdf"></i> PDF Olarak İndir
+                    </button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+    }
+    
+    document.getElementById('btnShareWhatsapp').onclick = async () => {
+        if (navigator.share && navigator.canShare && navigator.canShare({ files: [new File([pdfBlob], pdfFilename, { type: 'application/pdf' })] })) {
+            try {
+                await navigator.share({
+                    title: shareTitle,
+                    text: shareText || '',
+                    files: [new File([pdfBlob], pdfFilename, { type: 'application/pdf' })]
+                });
+            } catch (err) {
+                if (err.name !== 'AbortError') showToast('Paylaşım desteklenmiyor.', 'warning');
+            }
+        } else {
+            // Fallback for Whatsapp desktop/web
+            const url = URL.createObjectURL(pdfBlob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = pdfFilename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            const text = encodeURIComponent((shareTitle || '') + ' - ' + (shareText || ''));
+            window.open('https://api.whatsapp.com/send?text=' + text + '%0A%0ABelge cihazınıza indirildi, bu ekrandan dosyayı ekleyerek gönderebilirsiniz.', '_blank');
+        }
+        modal.style.display = 'none';
+    };
+
+    document.getElementById('btnShareEmail').onclick = async () => {
+        if (navigator.share && navigator.canShare && navigator.canShare({ files: [new File([pdfBlob], pdfFilename, { type: 'application/pdf' })] })) {
+            try {
+                await navigator.share({
+                    title: shareTitle,
+                    text: shareText || '',
+                    files: [new File([pdfBlob], pdfFilename, { type: 'application/pdf' })]
+                });
+            } catch (err) {
+                if (err.name !== 'AbortError') showToast('Paylaşım desteklenmiyor.', 'warning');
+            }
+        } else {
+            // Fallback for Email desktop/web
+            const url = URL.createObjectURL(pdfBlob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = pdfFilename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            const subject = encodeURIComponent(shareTitle || 'CRM Dosya Paylaşımı');
+            const body = encodeURIComponent((shareText || '') + '\n\nNot: Belge cihazınıza indirildi, mailinize ekleyerek gönderebilirsiniz.');
+            window.location.href = `mailto:?subject=${subject}&body=${body}`;
+        }
+        modal.style.display = 'none';
+    };
+    
+    document.getElementById('btnSharePdf').onclick = () => {
+        const url = URL.createObjectURL(pdfBlob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = pdfFilename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        modal.style.display = 'none';
+        showToast('PDF başarıyla indirildi.', 'success');
+    };
+    
+    modal.style.display = 'flex';
+};

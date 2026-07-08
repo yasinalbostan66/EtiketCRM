@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="manifest" href="manifest.json">
@@ -138,6 +138,10 @@
                     <i class="fa-solid fa-money-bill-transfer"></i>
                     Ödeme Takibi & Cari
                 </a>
+                <a href="iadeler.html" class="nav-item">
+                    <i class="fa-solid fa-rotate-left"></i>
+                    İade Yönetimi
+                </a>
                 <a href="malzeme_fiyatlari.html" class="nav-item">
                     <i class="fa-solid fa-tags"></i>
                     Malzeme Fiyatları
@@ -252,11 +256,24 @@
 
                 <!-- Yaklaşan & Geciken Vadeler -->
                 <div class="panel vade-panel" style="margin-top: 2rem;">
-                    <div class="panel-header" style="display:flex; justify-content:space-between; align-items:center;">
+                    <div class="panel-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem;">
                         <h2 class="panel-title" style="color: var(--danger);"><i class="fa-regular fa-calendar-xmark"></i> Yaklaşan &amp; Geciken Vadeler</h2>
-                        <div class="d-flex gap-2 no-print">
-                            <span style="font-size: 0.85rem; color: var(--text-muted);">(Vadeli Siparişler)</span>
-                            <button class="btn btn-primary" style="padding:4px 10px; font-size:0.82rem;" onclick="shareVadeTakvimi()">
+                        <div class="d-flex gap-2 no-print" style="flex-wrap:wrap; align-items:center;">
+                            <select id="vadeFilterDurum" class="form-control" style="width:160px; font-size:0.82rem; padding:5px 8px;" onchange="renderVadeTakibi(window._lastSiparisler, window._lastTahsilatlar, window._lastFirmalar)">
+                                <option value="HEPSI">Tüm Vadeler</option>
+                                <option value="GECIKTI">Geciken Vadeler</option>
+                                <option value="YAKLASAN">Yaklaşan (7 gün)</option>
+                                <option value="ZAMANINDA">Zamaninda (&gt;7 gün)</option>
+                            </select>
+                            <select id="vadeFilterOdeme" class="form-control" style="width:170px; font-size:0.82rem; padding:5px 8px;" onchange="renderVadeTakibi(window._lastSiparisler, window._lastTahsilatlar, window._lastFirmalar)">
+                                <option value="HEPSI">Ödeme Yöntemi (Hepsi)</option>
+                                <option value="Acik Hesap">Açık Hesap</option>
+                                <option value="30 Gun">30 Gün</option>
+                                <option value="60 Gun">60 Gün</option>
+                                <option value="90 Gun">90 Gün</option>
+                                <option value="Pesin">Pesin</option>
+                            </select>
+                            <button class="btn btn-primary" style="padding:5px 10px; font-size:0.82rem;" onclick="shareVadeTakvimi()">
                                 <i class="fa-solid fa-share-nodes"></i> Paylaş
                             </button>
                         </div>
@@ -427,15 +444,16 @@
             doc.setFontSize(16);
             doc.text(fixTrForPDF("Cari Borc/Alacak Durumu"), 14, 15);
             
+            const formatForPDF = (val) => '$' + parseFloat(val || 0).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
             const table = document.getElementById('paymentTable');
             const rows = [];
             const trs = table.querySelectorAll('tbody tr');
             (window.latestCariData || []).forEach(d => {
                 rows.push([
                     fixTrForPDF(d.ad),
-                    formatCurrency(d.siparis),
-                    formatCurrency(d.tahsilat),
-                    formatCurrency(d.bakiye)
+                    formatForPDF(d.siparis),
+                    formatForPDF(d.tahsilat),
+                    formatForPDF(d.bakiye)
                 ]);
             });
 
@@ -445,9 +463,9 @@
 
             rows.push([
                 fixTrForPDF('GENEL TOPLAM:'),
-                formatCurrency(totalSip),
-                formatCurrency(totalTah),
-                formatCurrency(totalBak)
+                formatForPDF(totalSip),
+                formatForPDF(totalTah),
+                formatForPDF(totalBak)
             ]);
 
             doc.autoTable({
@@ -458,7 +476,10 @@
                 headStyles: { fillColor: [59, 130, 246] },
                 columnStyles: { 1: { halign: 'right' }, 2: { halign: 'right' }, 3: { halign: 'right' } },
                 didParseCell: function(data) {
-                    if (data.row.index === rows.length - 1) {
+                    if (data.section === 'head' && (data.column.index >= 1)) {
+                        data.cell.styles.halign = 'right';
+                    }
+                    if (data.row.index === rows.length - 1 && data.section === 'body') {
                         data.cell.styles.fontStyle = 'bold';
                         data.cell.styles.fillColor = [240, 240, 240];
                     }
@@ -467,12 +488,17 @@
 
             try {
                 const pdfBlob = doc.output('blob');
-                const file = new File([pdfBlob], `Cari_Durum_${new Date().toISOString().slice(0,10)}.pdf`, { type: 'application/pdf' });
-                if (navigator.share && navigator.canShare({ files: [file] })) {
-                    await navigator.share({ title: 'Cari Durum Raporu', files: [file] });
+                const fileName = `Cari_Durum_${new Date().toISOString().slice(0,10)}.pdf`;
+                if (typeof window.openShareModal === 'function') {
+                    window.openShareModal(pdfBlob, fileName, 'Cari Durum Raporu', 'Güncel cari durum raporu ektedir.');
                 } else {
-                    doc.save(`Cari_Durum_${new Date().toISOString().slice(0,10)}.pdf`);
-                    showToast('Paylaşım desteklenmiyor, PDF indirildi.', 'warning');
+                    const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
+                    if (navigator.share && navigator.canShare({ files: [file] })) {
+                        await navigator.share({ title: 'Cari Durum Raporu', files: [file] });
+                    } else {
+                        doc.save(fileName);
+                        showToast('Paylaşım desteklenmiyor, PDF indirildi.', 'warning');
+                    }
                 }
             } catch (err) { console.error('Share error:', err); }
         };
@@ -483,6 +509,7 @@
             doc.setFontSize(16);
             doc.text(fixTrForPDF("Yakin Vade/Odeme Takvimi"), 14, 15);
             
+            const formatForPDF = (val) => '$' + parseFloat(val || 0).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
             const table = document.getElementById('vadeTable');
             if(!table) return showToast('Vade verisi bulunamadı!', 'error');
 
@@ -494,12 +521,12 @@
                     fixTrForPDF(d.siparisName),
                     d.dueStr,
                     fixTrForPDF(d.status),
-                    formatCurrency(d.amount)
+                    formatForPDF(d.amount)
                 ]);
             });
 
             const totalVade = (window.latestVadeData || []).reduce((s,c) => s + c.amount, 0);
-            rows.push(['', '', '', fixTrForPDF('TOPLAM:'), formatCurrency(totalVade)]);
+            rows.push(['', '', '', fixTrForPDF('TOPLAM:'), formatForPDF(totalVade)]);
 
             doc.autoTable({
                 head: [[fixTrForPDF('Firma'), fixTrForPDF('Siparis'), 'Vade', fixTrForPDF('Durum'), 'Tutar ($)']],
@@ -509,7 +536,10 @@
                 headStyles: { fillColor: [245, 158, 11] },
                 columnStyles: { 4: { halign: 'right' } },
                 didParseCell: function(data) {
-                    if (data.row.index === rows.length - 1) {
+                    if (data.section === 'head' && data.column.index === 4) {
+                        data.cell.styles.halign = 'right';
+                    }
+                    if (data.row.index === rows.length - 1 && data.section === 'body') {
                         data.cell.styles.fontStyle = 'bold';
                     }
                 }
@@ -517,11 +547,16 @@
 
             try {
                 const pdfBlob = doc.output('blob');
-                const file = new File([pdfBlob], `Odeme_Takvimi_${new Date().toISOString().slice(0,10)}.pdf`, { type: 'application/pdf' });
-                if (navigator.share && navigator.canShare({ files: [file] })) {
-                    await navigator.share({ title: 'Ödeme Takvimi Raporu', files: [file] });
+                const fileName = `Odeme_Takvimi_${new Date().toISOString().slice(0,10)}.pdf`;
+                if (typeof window.openShareModal === 'function') {
+                    window.openShareModal(pdfBlob, fileName, 'Ödeme Takvimi Raporu', 'Güncel ödeme takvimi raporu ektedir.');
                 } else {
-                    doc.save(`Odeme_Takvimi_${new Date().toISOString().slice(0,10)}.pdf`);
+                    const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
+                    if (navigator.share && navigator.canShare({ files: [file] })) {
+                        await navigator.share({ title: 'Ödeme Takvimi Raporu', files: [file] });
+                    } else {
+                        doc.save(fileName);
+                    }
                 }
             } catch (err) { console.error('Share error:', err); }
         };
@@ -540,6 +575,7 @@
                 const firmalar = getFirmalar();
                 const siparisler = getSiparisler();
                 const tahsilatlar = getTahsilatlar();
+                const iadeler = getIadeler();
                 
                 tableBody.innerHTML = '';
                 totalOrderVal = 0;
@@ -549,10 +585,12 @@
                 firmalar.forEach(firma => {
                     const firmaSiparisleri = siparisler.filter(s => s.firmaId === firma.id);
                     const firmaTahsilatlari = tahsilatlar.filter(t => t.firmaId === firma.id);
+                    const firmaIadeleri = iadeler.filter(i => i.firmaId === firma.id);
 
                     const siparisToplami = firmaSiparisleri.reduce((sum, s) => sum + s.totalPriceUSD, 0);
                     const tahsilatToplami = firmaTahsilatlari.reduce((sum, t) => sum + t.totalAmountUSD, 0);
-                    const netBakiye = siparisToplami - tahsilatToplami;
+                    const iadeToplami = firmaIadeleri.reduce((sum, i) => sum + i.tutarUSD, 0);
+                    const netBakiye = siparisToplami - (tahsilatToplami + iadeToplami);
 
                     // Son Ödeme Tarihi
                     const sonTahsilat = firmaTahsilatlari.length > 0 ? firmaTahsilatlari.sort((a,b) => new Date(b.date) - new Date(a.date))[0] : null;
@@ -619,13 +657,22 @@
                 }
                 
                 renderVadeTakibi(siparisler, tahsilatlar, firmalar);
-                renderSonIslemler(siparisler, tahsilatlar, firmalar);
+                renderSonIslemler(siparisler, tahsilatlar, firmalar, iadeler);
 
             }
 
             function renderVadeTakibi(currentSiparisler, currentTahsilatlar, currentFirmalar) {
+                window.renderVadeTakibi = renderVadeTakibi;
+                // Filtreleri yeniden çağırabilmek için parametreleri sakla
+                window._lastSiparisler = currentSiparisler;
+                window._lastTahsilatlar = currentTahsilatlar;
+                window._lastFirmalar = currentFirmalar;
+
                 const container = document.getElementById('vadeTakipContainer');
                 if (!container) return;
+
+                const filterDurum = document.getElementById('vadeFilterDurum')?.value || 'HEPSI';
+                const filterOdeme = document.getElementById('vadeFilterOdeme')?.value || 'HEPSI';
                 
                 let vadeList = [];
                 window.latestVadeData = [];
@@ -644,6 +691,18 @@
                             if (dueRaw) {
                                 const diffTime = dueRaw - today;
                                 const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                                // Filtre: Durum
+                                if (filterDurum === 'GECIKTI' && diffDays >= 0) return;
+                                if (filterDurum === 'YAKLASAN' && (diffDays < 0 || diffDays > 7)) return;
+                                if (filterDurum === 'ZAMANINDA' && diffDays <= 7) return;
+
+                                // Filtre: Ödeme Yöntemi
+                                if (filterOdeme !== 'HEPSI') {
+                                    const pm = (s.paymentMethod || '').toLowerCase();
+                                    const fo = filterOdeme.toLowerCase();
+                                    if (!pm.includes(fo.replace(' gun','').trim())) return;
+                                }
                                 vadeList.push({
                                     siparis: s,
                                     firmaAd: f.ad,
@@ -678,12 +737,13 @@
                 }
 
                 let html = `
-                    <div class="table-responsive">
+                    <div class="table-responsive" style="max-height:420px; overflow-y:auto;">
                         <table id="vadeTable">
                             <thead>
                                 <tr>
                                     <th>Firma</th>
                                     <th class="hide-mobile">Sipariş</th>
+                                    <th class="hide-mobile">Ödeme Yöntemi</th>
                                     <th>Vade Tarihi</th>
                                     <th>Kalan Süre</th>
                                     <th>Tutar ($)</th>
@@ -713,6 +773,9 @@
                         <tr style="cursor:pointer;" onclick="showOrderDetails('${item.siparis.id}')">
                             <td style="font-weight:600;">${item.firmaAd}</td>
                             <td class="hide-mobile" style="font-size:0.85rem; color:var(--text-muted);">${item.siparis.name || 'Siparişi Gör'}</td>
+                            <td class="hide-mobile">
+                                <span class="badge badge-blue" style="font-size:0.75rem;">${item.siparis.paymentMethod || 'Kurum içi'}</span>
+                            </td>
                             <td style="font-weight:600;">${item.dueStr}</td>
                             <td><span class="badge" style="${statusStyle}">${statusText}</span></td>
                             <td style="font-weight:700;">
@@ -727,8 +790,7 @@
                 html += `</tbody>
                     <tfoot style="border-top:2px solid var(--border-color);">
                         <tr style="background:rgba(239,68,68,0.07); font-weight:700;">
-                            <td style="font-weight:800; text-transform: uppercase;" class="hide-mobile" colspan="4">TOPLAM VADE TUTARI</td>
-                            <td style="font-weight:800; text-transform: uppercase;" class="show-mobile-only" colspan="3">TOPLAM VADE</td>
+                            <td style="font-weight:800; text-transform: uppercase;" colspan="5">TOPLAM VADE TUTARI</td>
                             <td class="text-right" style="color:var(--danger); font-weight:800;">
                                 <div>${formatCurrency(vadeTotal)}</div>
                                 <div style="font-size:0.75rem; color:var(--text-muted); font-weight:400; margin-top:2px;">${formatTRY(vadeTotal * (parseFloat(window.lastRates?.USD || 32.50)))}</div>
@@ -740,11 +802,12 @@
 
             }
 
-            function renderSonIslemler(currentSiparisler, currentTahsilatlar, currentFirmalar) {
+            function renderSonIslemler(currentSiparisler, currentTahsilatlar, currentFirmalar, currentIadeler = []) {
                 const sip = currentSiparisler.map(s => ({...s, transType: 'SIPARIS'}));
                 const tah = currentTahsilatlar.map(t => ({...t, transType: 'TAHSILAT'}));
+                const iad = currentIadeler.map(i => ({...i, transType: 'IADE'}));
                 
-                const allTransactions = [...sip, ...tah].sort((a,b) => new Date(b.date) - new Date(a.date));
+                const allTransactions = [...sip, ...tah, ...iad].sort((a,b) => new Date(b.date) - new Date(a.date));
                 const recentTransactions = allTransactions.slice(0, 10);
 
                 if (recentTransactions.length === 0) {
@@ -785,10 +848,16 @@
                         typeBadge = `<span class="badge ${s.type === 'Mürekkep' ? 'badge-blue' : (s.type.includes('Kağıt') ? 'badge-orange' : 'badge-green')}">${s.type}</span>`;
                         amountStr = formatCurrency(s.totalPriceUSD);
                         amountColor = 'var(--text-main)';
-                    } else {
+                    } else if (s.transType === 'TAHSILAT') {
                         typeBadge = `<span class="badge" style="background: rgba(59, 130, 246, 0.2); color: #60a5fa;">TAHSİLAT</span>`;
                         amountStr = '-' + formatCurrency(s.totalAmountUSD);
                         amountColor = 'var(--primary)';
+                    } else if (s.transType === 'IADE') {
+                        typeBadge = `<span class="badge" style="background: rgba(239, 68, 68, 0.1); color: var(--danger);">İADE</span>`;
+                        s.name = s.urun;
+                        s.method = s.sebep;
+                        amountStr = '-' + formatCurrency(s.tutarUSD);
+                        amountColor = 'var(--danger)';
                     }
 
                     html += `

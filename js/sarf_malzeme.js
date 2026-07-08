@@ -53,15 +53,29 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    // Malzeme Fiyatlarını Yükle (Merkezden)
+    // Malzeme Fiyatlarını Yükle (Merkezden & Firmaya Özel)
     function loadSarfOptions(selectedName = null) {
         const sarfFiyatlar = getMalzemeFiyatlari().filter(f => f.turu === 'Sarf Malzeme');
         materialTypeSelect.innerHTML = '<option value="" disabled selected>Lütfen Veritabanından Seçiniz...</option>';
+        const firmaId = firmaSec.value;
+        let ozelFiyatMap = {};
+        if (firmaId) {
+            const firmaObj = getFirmaById(firmaId);
+            if (firmaObj && firmaObj.ozelFiyatlar) {
+                firmaObj.ozelFiyatlar.forEach(of => { ozelFiyatMap[of.malzemeAd] = of; });
+            }
+        }
         sarfFiyatlar.forEach(f => {
             const opt = document.createElement('option');
             opt.value = f.adi;
-            opt.textContent = `${f.adi} (${f.fiyat.toFixed(3)} ${f.doviz}/${f.birim})`;
-            opt.dataset.fiyat = f.fiyat;
+            let currentFiyat = f.fiyat;
+            let star = '';
+            if (ozelFiyatMap[f.adi]) {
+                currentFiyat = ozelFiyatMap[f.adi].fiyat;
+                star = ' (Özel Fiyat)';
+            }
+            opt.textContent = `${f.adi}${star} (${currentFiyat.toFixed(3)} ${f.doviz}/${f.birim})`;
+            opt.dataset.fiyat = currentFiyat;
             opt.dataset.doviz = f.doviz;
             opt.dataset.birim = f.birim;
             materialTypeSelect.appendChild(opt);
@@ -72,6 +86,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     loadSarfOptions();
+
+    firmaSec.addEventListener('change', () => {
+        loadSarfOptions(materialTypeSelect.value);
+        materialTypeSelect.dispatchEvent(new Event('change'));
+    });
+    
+    if (preSelectedFirma) {
+        loadSarfOptions();
+    }
 
     window.addEventListener('malzemeEklendi', (e) => {
         if(e.detail && e.detail.turu === 'Sarf Malzeme') {
