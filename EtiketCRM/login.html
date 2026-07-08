@@ -373,14 +373,18 @@
                         window.location.href = 'index.html';
                     })
                     .catch((error) => {
-                        if (error.code === 'auth/user-not-found') {
-                            // Test hesabı yoksa oluştur ve giriş yap
+                        if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-login-credentials' || error.code === 'auth/invalid-credential') {
+                            // Test hesabı yoksa veya şifre hatası varsa oluşturmayı dene
                             firebase.auth().createUserWithEmailAndPassword(testEmail, testPass)
                                 .then(() => {
                                     window.location.href = 'index.html';
                                 })
                                 .catch((err) => {
-                                    alert("Test hesabı oluşturulamadı: " + err.message);
+                                    if (err.code === 'auth/email-already-in-use') {
+                                        alert("Hata: Test hesabı mevcut ancak şifresi '123456' değil. Lütfen Firebase'den 'test@etiketcrm.com' kullanıcısının şifresini sıfırlayın veya hesabı silin.");
+                                    } else {
+                                        alert("Test hesabı oluşturulamadı: " + err.message);
+                                    }
                                     btnTestLogin.innerHTML = '<i class="fa-solid fa-vial"></i> Test Hesabı ile Giriş Yap';
                                     btnTestLogin.disabled = false;
                                 });
