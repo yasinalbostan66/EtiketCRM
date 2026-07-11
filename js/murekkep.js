@@ -41,6 +41,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             opt.textContent = `${f.adi}${star} (${currentFiyat.toFixed(3)} ${f.doviz}/${f.birim})`;
             opt.dataset.fiyat = currentFiyat;
             opt.dataset.doviz = f.doviz;
+            opt.dataset.malzemeId = f.id;
             inputColor.appendChild(opt);
         });
         if (selectedName) {
@@ -144,6 +145,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             tlRow.style.display = 'none';
         }
 
+        const selectedOpt = inputColor.options[inputColor.selectedIndex];
+        const malzemeId = selectedOpt ? selectedOpt.dataset.malzemeId : null;
+
         currentCalculation = {
             type: 'Mürekkep',
             name: `${color} Mürekkep`,
@@ -155,7 +159,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             exchangeRate: rate,
             totalPriceTRY: rate > 0 ? (totalNative * rate) : 0,
             paymentMethod: inputPayment.value,
-            details: `Renk: ${color} | Miktar: ${quantity}kg | Birim: ${price} ${selectedCurrency}`
+            details: `Renk: ${color} | Miktar: ${quantity}kg | Birim: ${price} ${selectedCurrency}`,
+            malzemeId: malzemeId
         };
 
         saveOrderBtn.disabled = false;

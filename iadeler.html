@@ -59,6 +59,7 @@
                 <a href="firmalar.html" class="nav-item"><i class="fa-solid fa-users"></i> Firmalar / Siparişler</a>
                 <div style="margin: 1rem 0 0.5rem 1rem; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">Sipariş Yönetimi</div>
                 <a href="siparis.html" class="nav-item"><i class="fa-solid fa-cart-plus"></i> Sipariş Oluştur</a>
+                <a href="sevkiyat.html" class="nav-item"><i class="fa-solid fa-truck-fast"></i> Sevkiyat Yönetimi</a>
                 <div style="margin: 1rem 0 0.5rem 1rem; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">Ziyaret & Planlama</div>
                 <a href="ziyaretler.html" class="nav-item"><i class="fa-solid fa-clipboard-list"></i> Ziyaret Kayıtları</a>
                 <a href="takvim.html" class="nav-item"><i class="fa-solid fa-calendar-days"></i> Ziyaret Takvimi</a>
@@ -179,6 +180,22 @@
                 <div class="form-group">
                     <label class="form-label">İade Sebebi *</label>
                     <input type="text" id="iadeSebep" class="form-control" placeholder="Örn: Hatalı Basım, İhtiyaç Fazlası" required>
+                </div>
+                <div class="form-group" style="background: var(--surface-hover); padding: 10px; border-radius: 6px; border: 1px solid var(--border-color); margin-bottom: 1rem;">
+                    <label class="form-label" style="display:flex; align-items:center; gap:8px; cursor:pointer; margin-bottom: 0;">
+                        <input type="checkbox" id="iadeStokDus" style="width: 16px; height: 16px;">
+                        <span style="font-weight: 600; color: var(--danger);">Stoktan Düş (Malzeme İadesi)</span>
+                    </label>
+                    <div id="iadeStokAlanlari" style="display: none; margin-top: 10px; border-top: 1px dashed var(--border-color); padding-top: 10px;">
+                        <div class="form-group" style="margin-bottom: 0.8rem;">
+                            <label class="form-label">Malzeme Seçin</label>
+                            <select id="iadeMalzemeSec" class="form-control"></select>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label class="form-label">Düşülecek Miktar</label>
+                            <input type="number" id="iadeMiktar" class="form-control" step="0.01" min="0" placeholder="Örn: 10">
+                        </div>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label class="form-label" style="display:flex; justify-content:space-between; align-items:center;">

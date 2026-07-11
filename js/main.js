@@ -163,6 +163,19 @@ function addSiparis(firmaId, siparisDetay) {
     siparisDetay.created_by = currentUser ? currentUser.uid : 'local_user';
     siparisler.push(siparisDetay);
     saveSiparisler(siparisler);
+
+    // Otomatik stok düşüşü
+    if (siparisDetay.malzemeId && siparisDetay.quantity) {
+        let fiyatlar = getMalzemeFiyatlari();
+        const mIndex = fiyatlar.findIndex(f => f.id === siparisDetay.malzemeId);
+        if (mIndex !== -1) {
+            let mevcutStok = parseFloat(fiyatlar[mIndex].stok) || 0;
+            let miktar = parseFloat(siparisDetay.quantity) || 0;
+            fiyatlar[mIndex].stok = Math.max(0, mevcutStok - miktar);
+            saveMalzemeFiyatlari(fiyatlar);
+        }
+    }
+
     return siparisDetay;
 }
 
@@ -291,6 +304,19 @@ function addIade(firmaId, iade) {
     iade.created_by = currentUser ? currentUser.uid : 'local_user';
     iadeler.push(iade);
     saveIadeler(iadeler);
+
+    // Otomatik stok düşüşü
+    if (iade.stokDus && iade.malzemeId && iade.quantity) {
+        let fiyatlar = getMalzemeFiyatlari();
+        const mIndex = fiyatlar.findIndex(f => f.id === iade.malzemeId);
+        if (mIndex !== -1) {
+            let mevcutStok = parseFloat(fiyatlar[mIndex].stok) || 0;
+            let miktar = parseFloat(iade.quantity) || 0;
+            fiyatlar[mIndex].stok = Math.max(0, mevcutStok - miktar);
+            saveMalzemeFiyatlari(fiyatlar);
+        }
+    }
+
     return iade;
 }
 
@@ -1167,12 +1193,13 @@ function updateNotifications() {
     }
 
     const todayStr = now.getFullYear() + '-' + (now.getMonth() + 1) + '-' + now.getDate();
-    const isDismissed = (localStorage.getItem('etiket_crm_notif_dismissed_date') === todayStr) || (sessionStorage.getItem('etiket_crm_notif_seen') === 'true');
+    const isDismissed = (localStorage.getItem('etiket_crm_notif_dismissed_date') === todayStr);
+    const isSeen = (sessionStorage.getItem('etiket_crm_notif_seen') === 'true');
 
     const list = calculateAllNotifications();
 
     if (list.length > 0 && !isDismissed) {
-        badge.style.display = 'block';
+        badge.style.display = isSeen ? 'none' : 'block';
         countEl.textContent = list.length;
         body.innerHTML = '';
 

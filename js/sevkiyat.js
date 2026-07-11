@@ -219,6 +219,7 @@ function openEditShipmentModal(id) {
         document.getElementById('shipmentTasiyici').value = item.tasiyici || 'Kargo';
         document.getElementById('shipmentTakipNo').value = item.takipNo || '';
         document.getElementById('shipmentTeslimTarihi').value = item.teslimTarihi ? item.teslimTarihi.split('T')[0] : '';
+        document.getElementById('shipmentBarkod').value = item.barkod || '';
         document.getElementById('shipmentAdres').value = item.adres || '';
         document.getElementById('shipmentNotlar').value = item.notlar || '';
 
@@ -237,6 +238,7 @@ function saveShipmentForm(event) {
     const tasiyici = document.getElementById('shipmentTasiyici').value;
     const takipNo = document.getElementById('shipmentTakipNo').value.trim();
     const teslimTarihi = document.getElementById('shipmentTeslimTarihi').value;
+    const barkod = document.getElementById('shipmentBarkod').value.trim();
     const adres = document.getElementById('shipmentAdres').value.trim();
     const notlar = document.getElementById('shipmentNotlar').value.trim();
 
@@ -253,7 +255,7 @@ function saveShipmentForm(event) {
         if (index !== -1) {
             records[index] = {
                 ...records[index],
-                firmaId, siparisId, durum, tasiyici, takipNo, teslimTarihi, adres, notlar
+                firmaId, siparisId, durum, tasiyici, takipNo, teslimTarihi, barkod, adres, notlar
             };
         }
     } else {
@@ -261,7 +263,7 @@ function saveShipmentForm(event) {
         const currentUser = firebase.auth().currentUser;
         const newRecord = {
             id: 'sh_' + Date.now().toString(36) + Math.random().toString(36).substr(2),
-            firmaId, siparisId, durum, tasiyici, takipNo, teslimTarihi, adres, notlar,
+            firmaId, siparisId, durum, tasiyici, takipNo, teslimTarihi, barkod, adres, notlar,
             tarih: new Date().toISOString(),
             created_by: currentUser ? currentUser.uid : 'local_user'
         };
@@ -360,6 +362,7 @@ function openPrintStickerModal(id) {
         <div style="font-size: 0.75rem; min-height: 40px; border: 1px solid #000; border-radius: 6px; padding: 6px; margin-bottom: 10px;">
             <strong>İçerik Detayları:</strong> <br>
             ${s ? `1 Paket - ${escapeHTML(s.name)} (${escapeHTML(s.type)})` : 'Sipariş Dışı Gönderi'}
+            ${item.barkod ? `<br><strong style="color:var(--primary);">Ürün Barkodu:</strong> ${escapeHTML(item.barkod)}` : ''}
             ${item.notlar ? `<div style="font-size: 0.65rem; color: #555; margin-top: 4px;"><strong>Not:</strong> ${escapeHTML(item.notlar)}</div>` : ''}
         </div>
 

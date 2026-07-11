@@ -266,6 +266,16 @@
                             <label for="shipmentTeslimTarihi">Teslim/Plan Tarihi *</label>
                             <input type="date" id="shipmentTeslimTarihi" class="form-control" required>
                         </div>
+                        <div class="form-group" style="grid-column: 1 / -1; background: var(--surface-hover); padding: 15px; border-radius: 8px; border: 2px dashed var(--primary); text-align: center;">
+                            <label for="shipmentBarkod" style="font-size: 1.1rem; color: var(--text-main); font-weight: bold; margin-bottom: 10px; display: block;"><i class="fa-solid fa-barcode"></i> Ürün Barkodu Okut</label>
+                            <div style="display: flex; gap: 10px; justify-content: center;">
+                                <input type="text" id="shipmentBarkod" class="form-control" placeholder="Barkod okuyucu ile okutun veya yazın..." style="max-width: 400px; text-align: center; font-size: 1.2rem; font-weight: bold; letter-spacing: 2px;">
+                                <button type="button" class="btn btn-primary" onclick="document.getElementById('shipmentBarkod').focus()" title="Odaklanmak için tıklayın">
+                                    <i class="fa-solid fa-barcode"></i> Okutmaya Başla
+                                </button>
+                            </div>
+                            <small style="color: var(--text-muted); display: block; margin-top: 8px;">Okuttuğunuz barkod Koli / İrsaliye etiketinde İçerik Detaylarında görünecektir.</small>
+                        </div>
                     </div>
 
                     <!-- NOTLAR -->

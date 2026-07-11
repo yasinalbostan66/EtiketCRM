@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const inputDoviz = document.getElementById('dovizCinsi');
     const inputStok = document.getElementById('malzemeStok');
     const inputBirim = document.getElementById('malzemeBirim');
+    const inputBarkod = document.getElementById('malzemeBarkod');
 
     let currentCategory = 'Tümü';
 
@@ -206,6 +207,7 @@ document.addEventListener('DOMContentLoaded', () => {
         filtered.forEach(item => {
             const stokValue = item.stok ? parseFloat(item.stok) : 0;
             const stokBadge = `<span class="badge ${stokValue > 10 ? 'badge-green' : (stokValue > 0 ? 'badge-orange' : 'badge-red')}">${stokValue} ${item.birim || 'kg'}</span>`;
+            const barkodBadge = item.barkod ? `<br><span style="font-size:0.75rem; color:var(--text-muted);"><i class="fa-solid fa-barcode"></i> ${item.barkod}</span>` : '';
 
             let reportLink = '';
             if (stokValue <= 10) {
@@ -215,7 +217,7 @@ document.addEventListener('DOMContentLoaded', () => {
             html += `
                 <tr>
                     <td><span class="badge ${item.turu === 'Kağıt' ? 'badge-orange' : (item.turu === 'Mürekkep' ? 'badge-blue' : 'badge-green')}">${item.turu}</span></td>
-                    <td style="font-weight: 500;">${item.adi}</td>
+                    <td style="font-weight: 500;">${item.adi}${barkodBadge}</td>
                     <td style="font-weight: 600;">${parseFloat(item.fiyat).toFixed(4)}</td>
                     <td>${item.doviz}</td>
                     <td>${stokBadge}${reportLink}</td>
@@ -241,6 +243,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const doviz = inputDoviz.value;
         const stok = inputStok ? parseFloat(inputStok.value) || 0 : 0;
         const birim = inputBirim ? inputBirim.value : 'kg';
+        const barkod = inputBarkod ? inputBarkod.value.trim() : '';
 
         if (!turu || !adi || isNaN(fiyat)) {
             showToast('Lütfen tüm alanları doldurun.', 'error');
@@ -253,7 +256,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Update
             const index = fiyatlar.findIndex(f => f.id === id);
             if (index !== -1) {
-                fiyatlar[index] = { ...fiyatlar[index], turu, adi, fiyat, doviz, stok, birim, dateModified: new Date().toISOString() };
+                fiyatlar[index] = { ...fiyatlar[index], turu, adi, fiyat, doviz, stok, birim, barkod, dateModified: new Date().toISOString() };
                 saveMalzemeFiyatlari(fiyatlar);
                 showToast('Kayıt güncellendi.', 'success');
             }
@@ -267,6 +270,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 doviz,
                 stok,
                 birim,
+                barkod,
                 dateAdded: new Date().toISOString()
             };
             fiyatlar.push(newItem);
@@ -305,6 +309,7 @@ document.addEventListener('DOMContentLoaded', () => {
         inputDoviz.value = item.doviz;
         if (inputStok) inputStok.value = item.stok || '';
         if (inputBirim) inputBirim.value = item.birim || 'kg';
+        if (inputBarkod) inputBarkod.value = item.barkod || '';
 
         iptalBtn.style.display = 'inline-block';
         submitBtn.textContent = 'Değişiklikleri Kaydet';

@@ -55,6 +55,15 @@ document.addEventListener('DOMContentLoaded', () => {
         iadeTRY?.addEventListener('change', updateTutarHint);
     }
 
+    // Stok Düş işlemleri
+    const iadeStokDus = document.getElementById('iadeStokDus');
+    const iadeStokAlanlari = document.getElementById('iadeStokAlanlari');
+    if (iadeStokDus && iadeStokAlanlari) {
+        iadeStokDus.addEventListener('change', (e) => {
+            iadeStokAlanlari.style.display = e.target.checked ? 'block' : 'none';
+        });
+    }
+
     // Form kaydetme
     const iadeForm = document.getElementById('iadeForm');
     if (iadeForm) iadeForm.addEventListener('submit', handleIadeSubmit);
@@ -114,6 +123,19 @@ function populateFirmaDropdown() {
             filterFirma.appendChild(opt);
         });
         filterFirma.value = cur;
+    }
+
+    // Malzemeleri yükle
+    const iadeMalzemeSec = document.getElementById('iadeMalzemeSec');
+    if (iadeMalzemeSec) {
+        const malzemeler = typeof getMalzemeFiyatlari === 'function' ? getMalzemeFiyatlari() : [];
+        iadeMalzemeSec.innerHTML = '<option value="">Malzeme Seçin...</option>';
+        malzemeler.sort((a, b) => a.adi.localeCompare(b.adi, 'tr')).forEach(m => {
+            const opt = document.createElement('option');
+            opt.value = m.id;
+            opt.textContent = `${m.turu} - ${m.adi}`;
+            iadeMalzemeSec.appendChild(opt);
+        });
     }
 }
 
@@ -195,6 +217,12 @@ function openIadeModal(iadeId = null) {
     document.getElementById('editIadeId').value = '';
     document.getElementById('iadeTarih').value = new Date().toISOString().split('T')[0];
     document.getElementById('iadeTutarHint').textContent = '';
+    
+    const iadeStokDus = document.getElementById('iadeStokDus');
+    const iadeStokAlanlari = document.getElementById('iadeStokAlanlari');
+    if (iadeStokDus) iadeStokDus.checked = false;
+    if (iadeStokAlanlari) iadeStokAlanlari.style.display = 'none';
+
     populateFirmaDropdown();
 
     if (iadeId) {
@@ -251,6 +279,19 @@ function handleIadeSubmit(e) {
         originalTutar: tutar,
         currency: isUSD ? 'USD' : 'TRY'
     };
+
+    const iadeStokDus = document.getElementById('iadeStokDus');
+    if (iadeStokDus && iadeStokDus.checked) {
+        const malzemeId = document.getElementById('iadeMalzemeSec').value;
+        const miktar = parseFloat(document.getElementById('iadeMiktar').value);
+        if (!malzemeId || isNaN(miktar) || miktar <= 0) {
+            alert('Stok düşmek için lütfen geçerli bir malzeme ve miktar seçin!');
+            return;
+        }
+        iadeData.stokDus = true;
+        iadeData.malzemeId = malzemeId;
+        iadeData.quantity = miktar;
+    }
 
     if (editId) {
         iadeData.id = editId;

@@ -1,5 +1,5 @@
-// service-worker.js — v6.8 — Her güncellemede önbelleği temizler
-const CACHE_VERSION = 'crm-v6.8';
+// service-worker.js — v7.3 — Her güncellemede önbelleği temizler
+const CACHE_VERSION = 'crm-v7.3';
 
 // Kurulum: Eski service worker'ı hemen devral
 self.addEventListener('install', (event) => {

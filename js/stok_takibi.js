@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const editMalzemeDetay = document.getElementById('editMalzemeDetay');
     const newStokInput = document.getElementById('newStokValue');
     const saveStokBtn = document.getElementById('saveStokBtn');
+    const barcodeScannerInput = document.getElementById('barcodeScannerInput');
 
     let currentEditId = null;
 
@@ -41,13 +42,14 @@ document.addEventListener('DOMContentLoaded', () => {
             else colorClass = 'badge-muted';
 
             const stokValue = (m.stok !== undefined && m.stok !== null && m.stok !== '') ? parseFloat(m.stok) : 0;
+            const barkodBadge = m.barkod ? `<br><span style="font-size:0.75rem; color:var(--text-muted);"><i class="fa-solid fa-barcode"></i> ${m.barkod}</span>` : '';
             let warningBadge = '';
             if (stokValue <= 10) {
                 warningBadge = ` <span class="badge" style="font-size:0.7rem; margin-left:6px; background: rgba(239, 68, 68, 0.15); color: #f87171; font-weight: 600;"><i class="fa-solid fa-triangle-exclamation"></i> Kritik Stok</span>`;
             }
 
             tr.innerHTML = `
-                <td><strong>${m.adi}</strong></td>
+                <td><strong>${m.adi}</strong>${barkodBadge}</td>
                 <td><span class="badge ${colorClass}">${m.turu}</span></td>
                 <td><span style="font-weight: 700; font-size: 1.1rem; color: ${stokValue > 10 ? 'var(--success)' : 'var(--danger)'};">${stokValue}</span>${warningBadge}</td>
                 <td style="color: var(--text-muted);">${m.birim || 'Birim Yok'}</td>
@@ -109,6 +111,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
     filterType.onchange = renderTable;
     searchTerm.oninput = renderTable;
+
+    if (barcodeScannerInput) {
+        barcodeScannerInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                const barkod = barcodeScannerInput.value.trim();
+                if (!barkod) return;
+
+                const mat = allMaterials.find(m => m.barkod === barkod || m.adi === barkod);
+                if (mat) {
+                    window.openStokEdit(mat.id);
+                } else {
+                    showToast('Bu barkoda ait ürün bulunamadı!', 'error');
+                }
+                barcodeScannerInput.value = '';
+            }
+        });
+    }
 
     renderTable();
 

@@ -52,6 +52,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             opt.textContent = `${f.adi}${star} (${currentFiyat.toFixed(3)} ${f.doviz}/${f.birim})`;
             opt.dataset.fiyat = currentFiyat;
             opt.dataset.doviz = f.doviz;
+            opt.dataset.malzemeId = f.id;
             paperNameInput.appendChild(opt);
         });
         if (selectedName) {
@@ -205,6 +206,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             tlRow.style.display = 'none';
         }
 
+        const selectedOpt = paperNameInput.options[paperNameInput.selectedIndex];
+        const malzemeId = selectedOpt ? selectedOpt.dataset.malzemeId : null;
+
         currentCalculation = {
             type: 'Kağıt / Ham Madde',
             name: name || 'Kağıt',
@@ -216,7 +220,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             exchangeRate: rate,
             totalPriceTRY: rate > 0 ? (totalNative * rate) : 0,
             paymentMethod: inputPayment.value,
-            details: detailsText
+            details: detailsText,
+            malzemeId: malzemeId
         };
 
         saveOrderBtn.disabled = false;

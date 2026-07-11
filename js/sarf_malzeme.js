@@ -78,6 +78,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             opt.dataset.fiyat = currentFiyat;
             opt.dataset.doviz = f.doviz;
             opt.dataset.birim = f.birim;
+            opt.dataset.malzemeId = f.id;
             materialTypeSelect.appendChild(opt);
         });
         if (selectedName) {
@@ -149,6 +150,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             tlRow.style.display = 'none';
         }
 
+        const selectedOpt = materialTypeSelect.options[materialTypeSelect.selectedIndex];
+        const malzemeId = selectedOpt ? selectedOpt.dataset.malzemeId : null;
+
         currentCalculation = {
             type: 'Sarf Malzeme',
             name: type,
@@ -160,7 +164,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             exchangeRate: rate,
             totalPriceTRY: rate > 0 ? (totalNative * rate) : 0,
             paymentMethod: inputPayment.value,
-            details: `${type} | Miktar: ${quantity}${unit} | Birim: ${price} ${selectedCurrency}`
+            details: `${type} | Miktar: ${quantity}${unit} | Birim: ${price} ${selectedCurrency}`,
+            malzemeId: malzemeId
         };
 
         saveOrderBtn.disabled = false;
