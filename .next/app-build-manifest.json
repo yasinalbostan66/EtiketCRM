@@ -45,6 +45,86 @@
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/(dashboard)/siparisler/yeni/page.js"
+    ],
+    "/(dashboard)/analiz/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(dashboard)/analiz/page.js"
+    ],
+    "/(dashboard)/lojistik/sevkiyat/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(dashboard)/lojistik/sevkiyat/page.js"
+    ],
+    "/(dashboard)/ziyaretler/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(dashboard)/ziyaretler/page.js"
+    ],
+    "/(dashboard)/takvim/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(dashboard)/takvim/page.js"
+    ],
+    "/(dashboard)/teknik-servis/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(dashboard)/teknik-servis/page.js"
+    ],
+    "/(dashboard)/duyurular/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(dashboard)/duyurular/page.js"
+    ],
+    "/(dashboard)/ayarlar/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(dashboard)/ayarlar/page.js"
+    ],
+    "/(dashboard)/firmalar/[id]/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(dashboard)/firmalar/[id]/page.js"
+    ],
+    "/(dashboard)/finans/odemeler/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(dashboard)/finans/odemeler/page.js"
+    ],
+    "/(dashboard)/stok/kagit/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(dashboard)/stok/kagit/page.js"
+    ],
+    "/(dashboard)/stok/klise/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(dashboard)/stok/klise/page.js"
+    ],
+    "/(dashboard)/stok/murekkep/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(dashboard)/stok/murekkep/page.js"
+    ],
+    "/(dashboard)/stok/sarf-malzeme/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(dashboard)/stok/sarf-malzeme/page.js"
+    ],
+    "/login/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/login/page.js"
+    ],
+    "/signup/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/signup/page.js"
+    ],
+    "/(dashboard)/profil/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(dashboard)/profil/page.js"
     ]
   }
 }

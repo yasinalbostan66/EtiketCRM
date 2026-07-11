@@ -1,9 +1,15 @@
 {
-  "/(dashboard)/page": "app/(dashboard)/page.js",
-  "/(dashboard)/stok/page": "app/(dashboard)/stok/page.js",
-  "/(dashboard)/muhasebe/page": "app/(dashboard)/muhasebe/page.js",
-  "/(dashboard)/stok/fiyatlar/page": "app/(dashboard)/stok/fiyatlar/page.js",
+  "/login/page": "app/login/page.js",
   "/(dashboard)/siparisler/page": "app/(dashboard)/siparisler/page.js",
+  "/(dashboard)/lojistik/sevkiyat/page": "app/(dashboard)/lojistik/sevkiyat/page.js",
+  "/(dashboard)/ziyaretler/page": "app/(dashboard)/ziyaretler/page.js",
+  "/(dashboard)/takvim/page": "app/(dashboard)/takvim/page.js",
+  "/(dashboard)/page": "app/(dashboard)/page.js",
+  "/(dashboard)/muhasebe/page": "app/(dashboard)/muhasebe/page.js",
   "/(dashboard)/firmalar/page": "app/(dashboard)/firmalar/page.js",
-  "/(dashboard)/siparisler/yeni/page": "app/(dashboard)/siparisler/yeni/page.js"
+  "/(dashboard)/analiz/page": "app/(dashboard)/analiz/page.js",
+  "/(dashboard)/siparisler/yeni/page": "app/(dashboard)/siparisler/yeni/page.js",
+  "/(dashboard)/teknik-servis/page": "app/(dashboard)/teknik-servis/page.js",
+  "/(dashboard)/ayarlar/page": "app/(dashboard)/ayarlar/page.js",
+  "/(dashboard)/duyurular/page": "app/(dashboard)/duyurular/page.js"
 }

@@ -3,7 +3,7 @@ import React, { useEffect } from "react";
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
-  title: string;
+  title: React.ReactNode;
   children: React.ReactNode;
   footer?: React.ReactNode;
 }
@@ -29,14 +29,14 @@ export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children, 
       />
       
       {/* Modal İçeriği */}
-      <div className="relative bg-white rounded-xl shadow-xl w-full max-w-lg mx-4 overflow-hidden flex flex-col max-h-[90vh]">
+      <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 overflow-hidden flex flex-col max-h-[90vh]">
         
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-          <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
+        <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100">
+          <h3 className="text-lg font-bold text-slate-800">{title}</h3>
           <button 
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors rounded-full p-1 hover:bg-gray-100"
+            className="text-slate-400 hover:text-slate-600 transition-colors rounded-full p-1.5 hover:bg-slate-100"
           >
             ✕
           </button>
@@ -49,7 +49,7 @@ export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children, 
         
         {/* Footer */}
         {footer && (
-          <div className="px-6 py-4 border-t border-gray-100 bg-gray-50 flex justify-end gap-3">
+          <div className="px-6 py-4 border-t border-slate-100 bg-slate-50 flex justify-end gap-3">
             {footer}
           </div>
         )}
